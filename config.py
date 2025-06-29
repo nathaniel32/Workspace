@@ -9,7 +9,7 @@ DB_DATABASE = "nathaniel_db"
 
 URL_DATABASE = f'postgresql+psycopg2://{DB_USERNAME}:{DB_PASSWORD}@localhost:5432/{DB_DATABASE}'
 
-APP_NAME = "My Workbench"
+APP_NAME = "Order Hub"
 
 SECRET_KEY = "123didojqwoi13"
 ALGORITHM = "HS256"
