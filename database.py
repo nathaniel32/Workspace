@@ -33,6 +33,7 @@ class TUser(model_base):
     u_role = Column(SqlEnum(UserRole), nullable=False)
     u_time = Column(Integer, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
+    # child
     orders = relationship("TOrder", back_populates="user")
 
 class TPower(model_base):
@@ -41,8 +42,9 @@ class TPower(model_base):
     p_id = Column(VARCHAR(32), primary_key=True)
     p_kw = Column(Integer, nullable=False)
 
+    # child
     articles = relationship("TArticle", back_populates="power")
-    orders = relationship("TOrder", back_populates="power")
+    order_articles = relationship("TOrderArticle", back_populates="power")
 
 class TSpec(model_base):
     __tablename__ = 't_spec'
@@ -50,6 +52,7 @@ class TSpec(model_base):
     s_id = Column(VARCHAR(32), primary_key=True)
     s_kw = Column(Text, nullable=False)
 
+    # child
     articles = relationship("TArticle", back_populates="spec")
 
 class TArticle(model_base):
@@ -65,29 +68,44 @@ class TArticle(model_base):
         CheckConstraint('a_price >= 0', name='check_a_price_positive'),
     )
 
+    # parent
     power = relationship("TPower", back_populates="articles")
     spec = relationship("TSpec", back_populates="articles")
+    # child
     order_specs = relationship("TOrderSpec", back_populates="article")
 
 class TOrder(model_base):
     __tablename__ = 't_order'
 
     o_id = Column(VARCHAR(32), primary_key=True)
-    p_id = Column(VARCHAR(32), ForeignKey('t_power.p_id'), primary_key=True)
     u_id = Column(VARCHAR(32), ForeignKey('t_user.u_id'), nullable=False)
-    o_name = Column(Text)
     o_description = Column(Text)
     o_time = Column(Integer, nullable=False, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
+    # parent
     user = relationship("TUser", back_populates="orders")
-    power = relationship("TPower", back_populates="orders")
-    order_specs = relationship("TOrderSpec", back_populates="order")
+    # child
+    order_articles = relationship("TOrderArticle", back_populates="order")
+
+class TOrderArticle(model_base):
+    __tablename__ = 't_order_article'
+
+    oa_id = Column(VARCHAR(32), primary_key=True)
+    p_id = Column(VARCHAR(32), ForeignKey('t_power.p_id'), primary_key=True)
+    o_id = Column(VARCHAR(32), ForeignKey('t_order.o_id'), nullable=False)
+    oa_description = Column(Text)
+
+    # parent
+    power = relationship("TPower", back_populates="order_articles")
+    order = relationship("TOrder", back_populates="order_articles")
+    # child
+    order_specs = relationship("TOrderSpec", back_populates="order_article")
 
 class TOrderSpec(model_base):
     __tablename__ = 't_order_spec'
 
     os_id = Column(VARCHAR(32), primary_key=True)
-    o_id = Column(VARCHAR(32), nullable=False)
+    oa_id = Column(VARCHAR(32), nullable=False)
     p_id = Column(VARCHAR(32), nullable=False)
     s_id = Column(VARCHAR(32), nullable=False)
     os_price = Column(DECIMAL(10, 2), nullable=False)
@@ -95,14 +113,15 @@ class TOrderSpec(model_base):
     __table_args__ = (
         CheckConstraint('os_price >= 0', name='check_os_price_positive'),
         ForeignKeyConstraint(
-            ['o_id', 'p_id'], ['t_order.o_id', 't_order.p_id']
+            ['oa_id', 'p_id'], ['t_order_article.oa_id', 't_order_article.p_id']
         ),
         ForeignKeyConstraint(
             ['p_id', 's_id'], ['t_article.p_id', 't_article.s_id']
         ),
     )
 
-    order = relationship("TOrder", back_populates="order_specs")
+    # parent
+    order_article = relationship("TOrderArticle", back_populates="order_specs")
     article = relationship("TArticle", back_populates="order_specs")
 
 # Create all tables

@@ -1,3 +1,6 @@
+-- enum role
+CREATE TYPE user_role_enum AS ENUM ('ADMIN', 'USER', 'GUEST');
+
 -- User
 CREATE TABLE t_user (
     u_id VARCHAR(32) PRIMARY KEY,
@@ -5,8 +8,8 @@ CREATE TABLE t_user (
     u_email TEXT NOT NULL UNIQUE,
     u_password TEXT NOT NULL,
     u_code TEXT,
-    u_role INT NOT NULL,  -- 1 = ADMIN, 2 = USER, 3 = GUEST
-    u_time INT DEFAULT (UNIX_TIMESTAMP())
+    u_role user_role_enum NOT NULL,  -- ADMIN, USER, GUEST
+    u_time INT DEFAULT (EXTRACT(EPOCH FROM now())::int)
 );
 
 -- Power
@@ -36,23 +39,30 @@ CREATE TABLE t_article (
 -- Order
 CREATE TABLE t_order (
     o_id VARCHAR(32),
-    p_id VARCHAR(32),
     u_id VARCHAR(32) NOT NULL,
-    o_name TEXT,
     o_description TEXT,
-    o_time INT NOT NULL DEFAULT (UNIX_TIMESTAMP()),
-    PRIMARY KEY (o_id, p_id),
-    FOREIGN KEY (u_id) REFERENCES t_user(u_id),
+    o_time INT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now())::int),
+    FOREIGN KEY (u_id) REFERENCES t_user(u_id)
+);
+
+-- Order Article
+CREATE TABLE t_order_article (
+    oa_id VARCHAR(32),
+    p_id VARCHAR(32),
+    o_id VARCHAR(32),
+    oa_description TEXT,
+    PRIMARY KEY (oa_id, p_id),
+    FOREIGN KEY (o_id) REFERENCES t_order(o_id),
     FOREIGN KEY (p_id) REFERENCES t_power(p_id)
 );
 
 -- Order Spec
 CREATE TABLE t_order_spec (
     os_id VARCHAR(32) PRIMARY KEY,
-    o_id VARCHAR(32) NOT NULL,
+    oa_id VARCHAR(32) NOT NULL,
     p_id VARCHAR(32) NOT NULL,
     s_id VARCHAR(32) NOT NULL,
     os_price DECIMAL(10,2) NOT NULL CHECK (os_price >= 0), -- deal price
-    FOREIGN KEY (o_id, p_id) REFERENCES t_order(o_id, p_id),
+    FOREIGN KEY (oa_id, p_id) REFERENCES t_order_article(oa_id, p_id),
     FOREIGN KEY (p_id, s_id) REFERENCES t_article(p_id, s_id)
 );
