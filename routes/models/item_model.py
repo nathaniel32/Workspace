@@ -1,6 +1,14 @@
 from pydantic import BaseModel
 from decimal import Decimal
 
+class PowerOut(BaseModel):
+    p_id: str
+    p_power: int
+
+    model_config = {
+        "from_attributes": True,
+    }
+
 class PowerCreate(BaseModel):
     p_power: int
 
@@ -12,6 +20,14 @@ class PowerDelete(BaseModel):
     p_id: str
 
 
+class SpecOut(BaseModel):
+    s_id: str
+    s_spec: str
+
+    model_config = {
+        "from_attributes": True,
+    }
+
 class SpecCreate(BaseModel):
     s_spec: str
 
@@ -21,6 +37,18 @@ class SpecUpdate(BaseModel):
 
 class SpecDelete(BaseModel):
     s_id: str
+
+
+class PriceListOut(BaseModel):
+    p_id: str
+    s_id: str
+    price: Decimal
+    power: int
+    spec: str
+
+    model_config = {
+        "from_attributes": True,
+    }
 
 class PriceChange(BaseModel):
     p_id: str
