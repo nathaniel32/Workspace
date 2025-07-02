@@ -15,22 +15,20 @@ CREATE TABLE t_user (
 -- Power
 CREATE TABLE t_power (
     p_id VARCHAR(32) PRIMARY KEY,
-    p_kw INT NOT NULL
+    p_power INT NOT NULL
 );
 
 -- Spec
 CREATE TABLE t_spec (
     s_id VARCHAR(32) PRIMARY KEY,
-    s_kw TEXT NOT NULL
+    s_spec TEXT NOT NULL
 );
 
--- Article
-CREATE TABLE t_article (
+-- Price List
+CREATE TABLE t_price_list (
     p_id VARCHAR(32),
     s_id VARCHAR(32),
-    a_name TEXT,
-    a_description TEXT,
-    a_price DECIMAL(10,2) NOT NULL CHECK (a_price >= 0),
+    pl_price DECIMAL(10,2) NOT NULL CHECK (pl_price >= 0),
     PRIMARY KEY (p_id, s_id),
     FOREIGN KEY (p_id) REFERENCES t_power(p_id),
     FOREIGN KEY (s_id) REFERENCES t_spec(s_id)
@@ -50,7 +48,7 @@ CREATE TABLE t_order_article (
     oa_id VARCHAR(32),
     p_id VARCHAR(32),
     o_id VARCHAR(32),
-    oa_description TEXT,
+    opl_description TEXT,
     PRIMARY KEY (oa_id, p_id),
     FOREIGN KEY (o_id) REFERENCES t_order(o_id),
     FOREIGN KEY (p_id) REFERENCES t_power(p_id)
@@ -58,11 +56,12 @@ CREATE TABLE t_order_article (
 
 -- Order Spec
 CREATE TABLE t_order_spec (
-    os_id VARCHAR(32) PRIMARY KEY,
+    -- os_id VARCHAR(32) PRIMARY KEY,
     oa_id VARCHAR(32) NOT NULL,
     p_id VARCHAR(32) NOT NULL,
     s_id VARCHAR(32) NOT NULL,
     os_price DECIMAL(10,2) NOT NULL CHECK (os_price >= 0), -- deal price
+    PRIMARY KEY (oa_id, s_id),
     FOREIGN KEY (oa_id, p_id) REFERENCES t_order_article(oa_id, p_id),
-    FOREIGN KEY (p_id, s_id) REFERENCES t_article(p_id, s_id)
+    FOREIGN KEY (p_id, s_id) REFERENCES t_price_list(p_id, s_id)
 );
