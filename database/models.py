@@ -27,7 +27,7 @@ class TUser(model_base):
     u_time = Column(Integer, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
     # child
-    orders = relationship("TOrder", back_populates="user")
+    orders = relationship("TOrder", back_populates="user", cascade="all, delete-orphan")
 
 class TPower(model_base):
     __tablename__ = 't_power'
@@ -36,7 +36,7 @@ class TPower(model_base):
     p_power = Column(Integer, nullable=False)
 
     # child
-    pricelistes = relationship("TPriceList", back_populates="power")
+    pricelistes = relationship("TPriceList", back_populates="power", cascade="all, delete-orphan")
     order_articles = relationship("TOrderArticle", back_populates="power")
 
 class TSpec(model_base):
@@ -46,13 +46,13 @@ class TSpec(model_base):
     s_spec = Column(Text, nullable=False)
 
     # child
-    pricelistes = relationship("TPriceList", back_populates="spec")
+    pricelistes = relationship("TPriceList", back_populates="spec", cascade="all, delete-orphan")
 
 class TPriceList(model_base):
     __tablename__ = 't_price_list'
 
-    p_id = Column(VARCHAR(32), ForeignKey('t_power.p_id'), primary_key=True)
-    s_id = Column(VARCHAR(32), ForeignKey('t_spec.s_id'), primary_key=True)
+    p_id = Column(VARCHAR(32), ForeignKey('t_power.p_id', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True)
+    s_id = Column(VARCHAR(32), ForeignKey('t_spec.s_id', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True)
     pl_price = Column(DECIMAL(10, 2), nullable=False)
 
     __table_args__ = (
@@ -63,34 +63,34 @@ class TPriceList(model_base):
     power = relationship("TPower", back_populates="pricelistes")
     spec = relationship("TSpec", back_populates="pricelistes")
     # child
-    order_specs = relationship("TOrderSpec", back_populates="pricelist", overlaps="order_article,order_specs")
+    order_specs = relationship("TOrderSpec", back_populates="pricelist", overlaps="order_article,order_specs", cascade="all, delete-orphan")
 
 class TOrder(model_base):
     __tablename__ = 't_order'
 
     o_id = Column(VARCHAR(32), primary_key=True)
-    u_id = Column(VARCHAR(32), ForeignKey('t_user.u_id'), nullable=False)
+    u_id = Column(VARCHAR(32), ForeignKey('t_user.u_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
     o_description = Column(Text)
     o_time = Column(Integer, nullable=False, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
     # parent
     user = relationship("TUser", back_populates="orders")
     # child
-    order_articles = relationship("TOrderArticle", back_populates="order")
+    order_articles = relationship("TOrderArticle", back_populates="order", cascade="all, delete-orphan")
 
 class TOrderArticle(model_base):
     __tablename__ = 't_order_article'
 
     oa_id = Column(VARCHAR(32), primary_key=True)
-    p_id = Column(VARCHAR(32), ForeignKey('t_power.p_id'), primary_key=True)
-    o_id = Column(VARCHAR(32), ForeignKey('t_order.o_id'), nullable=False)
+    p_id = Column(VARCHAR(32), ForeignKey('t_power.p_id', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True)
+    o_id = Column(VARCHAR(32), ForeignKey('t_order.o_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
     opl_description = Column(Text)
 
     # parent
     power = relationship("TPower", back_populates="order_articles")
     order = relationship("TOrder", back_populates="order_articles")
     # child
-    order_specs = relationship("TOrderSpec", back_populates="order_article", overlaps="pricelist,order_specs")
+    order_specs = relationship("TOrderSpec", back_populates="order_article", overlaps="pricelist,order_specs", cascade="all, delete-orphan")
 
 class TOrderSpec(model_base):
     __tablename__ = 't_order_spec'
@@ -102,8 +102,8 @@ class TOrderSpec(model_base):
 
     __table_args__ = (
         CheckConstraint('os_price >= 0', name='check_os_price_positive'),
-        ForeignKeyConstraint(['oa_id', 'p_id'], ['t_order_article.oa_id', 't_order_article.p_id']),
-        ForeignKeyConstraint(['p_id', 's_id'], ['t_price_list.p_id', 't_price_list.s_id']),
+        ForeignKeyConstraint(['oa_id', 'p_id'], ['t_order_article.oa_id', 't_order_article.p_id'], ondelete='CASCADE', onupdate='RESTRICT'),
+        ForeignKeyConstraint(['p_id', 's_id'], ['t_price_list.p_id', 't_price_list.s_id'], ondelete='RESTRICT', onupdate='RESTRICT'),
     )
 
     # parent
