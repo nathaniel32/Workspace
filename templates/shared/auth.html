@@ -1,0 +1,41 @@
+<div>
+    {{ registered }}
+    {% if not registered %}
+        <h2>Login</h2>
+        <div>
+            <div>{{ '{{ v_login }}' }}</div>
+
+            <label>Email:</label>
+            <input type="text" v-model="v_login.email">
+            <br><br>
+
+            <label>Password:</label>
+            <input type="password" v-model="v_login.password" required>
+
+            <br><br>
+            <button @click="f_login">Login</button>
+        </div>
+        <br><br><br><br><br>
+
+        <h2>Sign Up</h2>
+        <div>
+            <div>{{ '{{ v_signup }}' }}</div>
+            
+            <label>Username:</label>
+            <input type="text" v-model="v_signup.username" required>
+            <br><br>
+
+            <label>Email:</label>
+            <input type="text" v-model="v_signup.email" required>
+            <br><br>
+            
+            <label>Password:</label>
+            <input type="password" v-model="v_signup.password" required>
+            <br><br>
+            
+            <button @click="f_signup">Signup</button>
+        </div>
+    {% else %}
+        <button @click="f_logout">Logout</button>
+    {% endif %}
+</div>

@@ -5,8 +5,8 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from fastapi import Depends, HTTPException, status, Request, Body, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from fastapi.responses import JSONResponse
-from datetime import datetime, timedelta, timezone
-from jose import ExpiredSignatureError, JWTError, jwt
+from datetime import timedelta
+from jose import ExpiredSignatureError, JWTError
 from passlib.context import CryptContext
 import config
 from routes.models.auth_model import Validation
@@ -38,32 +38,36 @@ class AuthAPI:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=strong_password_message)
 
         try:
+            # TODO Hanya Hapus yg blm terauth email
             prev_user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
-            if prev_user:
+            
+            # hapus yg belum di aktivasi email
+            if prev_user and prev_user.u_status == database.models.UserStatus.NOT_ACTIVATED:
                 db.delete(prev_user)
                 db.flush()
+
+            # Cek apakah ini user pertama
+            user_count = db.query(database.models.TUser).count()
+
             new_user = database.models.TUser(
-                u_id=routes.utils.generate_id(),
-                u_name=name,
-                u_email=form_oauth_data.username,
-                u_password=pwd_context.hash(form_oauth_data.password),
-                u_role='USER',
+                u_id = routes.utils.generate_id(),
+                u_name = name,
+                u_email = form_oauth_data.username,
+                u_password = pwd_context.hash(form_oauth_data.password),
+                u_role = database.models.UserRole.ADMIN if user_count == 0 else database.models.UserRole.USER,
+                u_status = database.models.UserStatus.ACTIVATED, # HARUS DI GANTI JIKA INGIN DENGAN AKTIVASI EMAIL
                 u_code = routes.utils.generate_code(6)
             )
             db.add(new_user)
             db.commit()
 
         except IntegrityError as e:
-            db.rollback()  # Rollback transaksi jika terjadi error
+            db.rollback()
+            
             if "u_email" in str(e.orig):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Die E-Mail-Adresse ist bereits registriert"
-                )
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Beim Speichern der Benutzerdaten ist ein Fehler aufgetreten " + str(e)
-            )
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Die E-Mail-Adresse ist bereits registriert")
+            
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Beim Speichern der Benutzerdaten ist ein Fehler aufgetreten " + str(e))
         
         except SQLAlchemyError as e:
             db.rollback()
@@ -91,8 +95,9 @@ class AuthAPI:
         u_id = user.u_id
         u_name = user.u_name
         u_role = user.u_role
+        u_status = user.u_status
 
-        access_token = routes.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role}, timedelta(hours=24))
+        access_token = routes.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role, "status": u_status}, timedelta(hours=24))
 
         response = JSONResponse(content={"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}) #access_token, token_type, buat swagger
         response.set_cookie(

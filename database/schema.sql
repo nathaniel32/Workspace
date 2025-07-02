@@ -1,5 +1,6 @@
 -- enum role
 CREATE TYPE user_role_enum AS ENUM ('ADMIN', 'USER', 'GUEST');
+CREATE TYPE user_status_enum AS ENUM ('NOT_ACTIVATED', 'ACTIVATED', 'LOCKED', 'DELETED');
 
 -- User
 CREATE TABLE t_user (
@@ -9,19 +10,20 @@ CREATE TABLE t_user (
     u_password TEXT NOT NULL,
     u_code TEXT,
     u_role user_role_enum NOT NULL,  -- ADMIN, USER, GUEST
+    u_status user_status_enum NOT NULL, -- NOT_ACTIVATED, ACTIVATED, LOCKED, DELETED
     u_time INT DEFAULT (EXTRACT(EPOCH FROM now())::int)
 );
 
 -- Power
 CREATE TABLE t_power (
     p_id VARCHAR(32) PRIMARY KEY,
-    p_power INT NOT NULL
+    p_power INT NOT NULL UNIQUE
 );
 
 -- Spec
 CREATE TABLE t_spec (
     s_id VARCHAR(32) PRIMARY KEY,
-    s_spec TEXT NOT NULL
+    s_spec TEXT NOT NULL UNIQUE
 );
 
 -- Price List

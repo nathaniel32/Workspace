@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Column, Integer, Text, ForeignKey, func, Enum as SqlEnum,
+    Column, Integer, Text, ForeignKey, Enum as SqlEnum,
     CheckConstraint, DECIMAL, ForeignKeyConstraint, text
 )
 from sqlalchemy.dialects.postgresql import VARCHAR
@@ -15,6 +15,12 @@ class UserRole(str, Enum):
     USER = 'USER'   # Karyawan  : bisa input orderan, update orderan
     GUEST = 'GUEST' # Client    : hanya bisa read pricelist
 
+class UserStatus(str, Enum):
+    NOT_ACTIVATED = 'NOT_ACTIVATED'
+    ACTIVATED = 'ACTIVATED'
+    LOCKED = 'LOCKED'
+    DELETED = 'DELETED'
+
 class TUser(model_base):
     __tablename__ = 't_user'
 
@@ -24,6 +30,7 @@ class TUser(model_base):
     u_password = Column(Text, nullable=False)
     u_code = Column(Text)
     u_role = Column(SqlEnum(UserRole), nullable=False)
+    u_status = Column(SqlEnum(UserStatus), nullable=False)
     u_time = Column(Integer, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
     # child
@@ -33,7 +40,7 @@ class TPower(model_base):
     __tablename__ = 't_power'
 
     p_id = Column(VARCHAR(32), primary_key=True)
-    p_power = Column(Integer, nullable=False)
+    p_power = Column(Integer, nullable=False, unique=True)
 
     # child
     pricelistes = relationship("TPriceList", back_populates="power", cascade="all, delete-orphan")
@@ -43,7 +50,7 @@ class TSpec(model_base):
     __tablename__ = 't_spec'
 
     s_id = Column(VARCHAR(32), primary_key=True)
-    s_spec = Column(Text, nullable=False)
+    s_spec = Column(Text, nullable=False, unique=True)
 
     # child
     pricelistes = relationship("TPriceList", back_populates="spec", cascade="all, delete-orphan")

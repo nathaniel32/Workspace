@@ -1,8 +1,8 @@
 from fastapi import Depends, Request, Body, APIRouter
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import routes.utils
 from database.models import UserRole
+
 class Frontend:
     def __init__(self):
         self.router = APIRouter(tags=["App"])
@@ -28,13 +28,13 @@ class Frontend:
                 role = payload.get('role')
 
                 if role == UserRole.USER:
-                    return self.templates.TemplateResponse("user.html", {"request": request, "payload": payload})
+                    return self.templates.TemplateResponse("role/user.html", {"request": request, "payload": payload, "registered": True})
                 if role == UserRole.ADMIN:
-                    return self.templates.TemplateResponse("admin.html", {"request": request, "payload": payload})
+                    return self.templates.TemplateResponse("role/admin.html", {"request": request, "payload": payload, "registered": True})
                 if role == UserRole.GUEST:
-                    return self.templates.TemplateResponse("guest.html", {"request": request, "payload": payload})
+                    return self.templates.TemplateResponse("role/guest.html", {"request": request, "payload": payload, "registered": True})
 
-            return self.templates.TemplateResponse("auth.html", {"request": request}, status_code=401)
+            return self.templates.TemplateResponse("shared/base.html", {"request": request, "registered": False}, status_code=401)
         except Exception as e:
             print("Unexpected error:", e)
-            return self.templates.TemplateResponse("auth.html", {"request": request}, status_code=500)
+            return self.templates.TemplateResponse("shared/base.html", {"request": request, "registered": False}, status_code=500)
