@@ -20,7 +20,7 @@ class AuthAPI:
         self.router.add_api_route("/login", self.f_login, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/validate", self.f_validate, methods=["POST"], status_code=status.HTTP_200_OK) # oauth buat app lain
 
-    async def f_signup(self, request: Request, db: database.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
+    def f_signup(self, request: Request, db: database.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
         form_oauth_data.username = form_oauth_data.username.strip()
         name = name.strip()
         
@@ -76,9 +76,9 @@ class AuthAPI:
                 detail=f"Unerwarteter Fehler: {str(e)}"
             )
 
-        return await self.f_login(request, db, form_oauth_data)
+        return self.f_login(request, db, form_oauth_data)
 
-    async def f_login(self, request: Request, db: database.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends()):
+    def f_login(self, request: Request, db: database.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends()):
         user = db.query(database.TUser).filter(database.TUser.u_email == form_oauth_data.username).first()
         if not user or not pwd_context.verify(form_oauth_data.password, user.u_password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="falsche E-Mail oder falsches Passwort")
@@ -93,7 +93,7 @@ class AuthAPI:
         access_token = utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role}, timedelta(hours=24))
         return {"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}
 
-    async def f_validate(self, form_data: ValidationBaseModel, token: str = Depends(oauth2_scheme)):
+    def f_validate(self, form_data: ValidationBaseModel, token: str = Depends(oauth2_scheme)):
         try:
             payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM], audience=form_data.aud, issuer=config.APP_NAME)
             print(payload)

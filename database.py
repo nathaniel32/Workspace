@@ -73,7 +73,7 @@ class TArticle(model_base):
     power = relationship("TPower", back_populates="articles")
     spec = relationship("TSpec", back_populates="articles")
     # child
-    order_specs = relationship("TOrderSpec", back_populates="article")
+    order_specs = relationship("TOrderSpec", back_populates="article", overlaps="order_article,order_specs")
 
 class TOrder(model_base):
     __tablename__ = 't_order'
@@ -100,7 +100,7 @@ class TOrderArticle(model_base):
     power = relationship("TPower", back_populates="order_articles")
     order = relationship("TOrder", back_populates="order_articles")
     # child
-    order_specs = relationship("TOrderSpec", back_populates="order_article")
+    order_specs = relationship("TOrderSpec", back_populates="order_article", overlaps="article,order_specs")
 
 class TOrderSpec(model_base):
     __tablename__ = 't_order_spec'
@@ -113,17 +113,13 @@ class TOrderSpec(model_base):
 
     __table_args__ = (
         CheckConstraint('os_price >= 0', name='check_os_price_positive'),
-        ForeignKeyConstraint(
-            ['oa_id', 'p_id'], ['t_order_article.oa_id', 't_order_article.p_id']
-        ),
-        ForeignKeyConstraint(
-            ['p_id', 's_id'], ['t_article.p_id', 't_article.s_id']
-        ),
+        ForeignKeyConstraint(['oa_id', 'p_id'], ['t_order_article.oa_id', 't_order_article.p_id']),
+        ForeignKeyConstraint(['p_id', 's_id'], ['t_article.p_id', 't_article.s_id']),
     )
 
     # parent
-    order_article = relationship("TOrderArticle", back_populates="order_specs")
-    article = relationship("TArticle", back_populates="order_specs")
+    order_article = relationship("TOrderArticle", back_populates="order_specs", overlaps="order_specs,article")
+    article = relationship("TArticle", back_populates="order_specs", overlaps="order_specs,article")
 
 # Create all tables
 model_base.metadata.create_all(bind=database_engine)
