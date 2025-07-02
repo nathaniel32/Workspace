@@ -40,3 +40,6 @@ def is_strong_password(password):
         return False, "Passwort muss mindestens ein Sonderzeichen enthalten."
     
     return True, "Passwort ist stark genug."
+
+def generate_id():
+    return str(uuid.uuid4()).replace('-', '')

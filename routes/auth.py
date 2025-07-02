@@ -1,7 +1,6 @@
 import routes.utils
 import database.connection
 import database.models
-import uuid
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from fastapi import Depends, HTTPException, status, Request, Body, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -9,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 import config
-from routes.models.auth_model import ValidationBaseModel
+from routes.models.auth_model import Validation
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -42,7 +41,7 @@ class AuthAPI:
                 db.delete(prev_user)
                 db.flush()
             new_user = database.models.TUser(
-                u_id=str(uuid.uuid4()).replace('-', ''),
+                u_id=routes.utils.generate_id(),
                 u_name=name,
                 u_email=form_oauth_data.username,
                 u_password=pwd_context.hash(form_oauth_data.password),
@@ -94,7 +93,7 @@ class AuthAPI:
         access_token = routes.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role}, timedelta(hours=24))
         return {"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}
 
-    def f_validate(self, form_data: ValidationBaseModel, token: str = Depends(oauth2_scheme)):
+    def f_validate(self, form_data: Validation, token: str = Depends(oauth2_scheme)):
         try:
             payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM], audience=form_data.aud, issuer=config.APP_NAME)
             print(payload)

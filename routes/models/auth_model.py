@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
-class ValidationBaseModel(BaseModel):
+class Validation(BaseModel):
     ip: str
     aud: str

@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.auth import AuthAPI
+from routes.item import ItemAPI
 from routes.debug import DebugAPI
 from fastapi.staticfiles import StaticFiles
 import config
@@ -10,8 +11,9 @@ class App:
     def __init__(self):
         self.app = FastAPI()
         self.setup_middleware()
-        self.app.mount("/", StaticFiles(directory="public", html=True), name="public")
+        self.app.mount("/app", StaticFiles(directory="public", html=True), name="public")
         self.app.include_router(AuthAPI().router)
+        self.app.include_router(ItemAPI().router)
         self.app.include_router(DebugAPI().router)
 
     def setup_middleware(self):
