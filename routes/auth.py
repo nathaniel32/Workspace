@@ -1,5 +1,6 @@
 import utils
-import database
+import database.connection
+import database.models
 import uuid
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from fastapi import Depends, HTTPException, status, Request, Body, APIRouter
@@ -20,7 +21,7 @@ class AuthAPI:
         self.router.add_api_route("/login", self.f_login, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/validate", self.f_validate, methods=["POST"], status_code=status.HTTP_200_OK) # oauth buat app lain
 
-    def f_signup(self, request: Request, db: database.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
+    def f_signup(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
         form_oauth_data.username = form_oauth_data.username.strip()
         name = name.strip()
         
@@ -36,11 +37,11 @@ class AuthAPI:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=strong_password_message)
 
         try:
-            prev_user = db.query(database.TUser).filter(database.TUser.u_email == form_oauth_data.username).first()
+            prev_user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
             if prev_user:
                 db.delete(prev_user)
                 db.flush()
-            new_user = database.TUser(
+            new_user = database.models.TUser(
                 u_id=str(uuid.uuid4()).replace('-', ''),
                 u_name=name,
                 u_email=form_oauth_data.username,
@@ -78,8 +79,8 @@ class AuthAPI:
 
         return self.f_login(request, db, form_oauth_data)
 
-    def f_login(self, request: Request, db: database.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends()):
-        user = db.query(database.TUser).filter(database.TUser.u_email == form_oauth_data.username).first()
+    def f_login(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends()):
+        user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
         if not user or not pwd_context.verify(form_oauth_data.password, user.u_password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="falsche E-Mail oder falsches Passwort")
         

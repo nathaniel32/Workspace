@@ -1,26 +1,19 @@
 from sqlalchemy import (
-    create_engine, Column, Integer, Text, ForeignKey, func, Enum as SqlEnum,
+    Column, Integer, Text, ForeignKey, func, Enum as SqlEnum,
     CheckConstraint, DECIMAL, ForeignKeyConstraint, text
 )
 from sqlalchemy.dialects.postgresql import VARCHAR
-from sqlalchemy.orm import sessionmaker, relationship, Session
-from sqlalchemy.ext.declarative import declarative_base
-from typing import Annotated
-from fastapi import Depends
-import config
 from enum import Enum
-
-database_engine = create_engine(config.URL_DATABASE)
-
-session_local = sessionmaker(autocommit=False, autoflush=False, bind=database_engine)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 model_base = declarative_base()
 
-# Enum untuk role user
+# role user
 class UserRole(str, Enum):
-    ADMIN = 'ADMIN'
-    USER = 'USER'
-    GUEST = 'GUEST'
+    ADMIN = 'ADMIN' # Admun     : bisa delete, ganti harga, dll
+    USER = 'USER'   # Karyawan  : bisa input orderan, update orderan
+    GUEST = 'GUEST' # Client    : hanya bisa read pricelist
 
 class TUser(model_base):
     __tablename__ = 't_user'
@@ -31,7 +24,6 @@ class TUser(model_base):
     u_password = Column(Text, nullable=False)
     u_code = Column(Text)
     u_role = Column(SqlEnum(UserRole), nullable=False)
-    #u_role = Column(SqlEnum(UserRole, name='userrole', schema='public', create_type=True), nullable=False)
     u_time = Column(Integer, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
     # child
@@ -103,7 +95,6 @@ class TOrderArticle(model_base):
 class TOrderSpec(model_base):
     __tablename__ = 't_order_spec'
 
-    # os_id = Column(VARCHAR(32), primary_key=True)
     oa_id = Column(VARCHAR(32), nullable=False, primary_key=True)
     s_id = Column(VARCHAR(32), nullable=False, primary_key=True)
     p_id = Column(VARCHAR(32), nullable=False)
@@ -118,15 +109,3 @@ class TOrderSpec(model_base):
     # parent
     order_article = relationship("TOrderArticle", back_populates="order_specs", overlaps="order_specs,pricelist")
     pricelist = relationship("TPriceList", back_populates="order_specs", overlaps="order_specs,pricelist")
-
-# Create all tables
-model_base.metadata.create_all(bind=database_engine)
-
-def get_db():
-    db = session_local()
-    try:
-        yield db
-    finally:
-        db.close()
-
-db_dependency = Annotated[Session, Depends(get_db)]

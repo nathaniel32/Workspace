@@ -65,3 +65,41 @@ CREATE TABLE t_order_spec (
     FOREIGN KEY (oa_id, p_id) REFERENCES t_order_article(oa_id, p_id),
     FOREIGN KEY (p_id, s_id) REFERENCES t_price_list(p_id, s_id)
 );
+
+
+CREATE OR REPLACE FUNCTION trg_add_price_list_on_power()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO t_price_list (p_id, s_id, pl_price)
+    SELECT NEW.p_id, s.s_id, 0.00
+    FROM t_spec s
+    ON CONFLICT (p_id, s_id) DO NOTHING; -- jika sudah ada, hindari duplikasi
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE TRIGGER trg_after_power_insert
+AFTER INSERT ON t_power
+FOR EACH ROW
+EXECUTE FUNCTION trg_add_price_list_on_power();
+
+
+CREATE OR REPLACE FUNCTION trg_add_price_list_on_spec()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO t_price_list (p_id, s_id, pl_price)
+    SELECT p.p_id, NEW.s_id, 0.00
+    FROM t_power p
+    ON CONFLICT (p_id, s_id) DO NOTHING;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_after_spec_insert
+AFTER INSERT ON t_spec
+FOR EACH ROW
+EXECUTE FUNCTION trg_add_price_list_on_spec();
