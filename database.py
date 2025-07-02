@@ -31,6 +31,7 @@ class TUser(model_base):
     u_password = Column(Text, nullable=False)
     u_code = Column(Text)
     u_role = Column(SqlEnum(UserRole), nullable=False)
+    #u_role = Column(SqlEnum(UserRole, name='userrole', schema='public', create_type=True), nullable=False)
     u_time = Column(Integer, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
     # child

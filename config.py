@@ -3,8 +3,10 @@ SERVICE_PORT = 9000
 
 ORIGINS = []
 
-DB_USERNAME = "nathaniel" #postgres
-DB_PASSWORD = "niel12" #020810
+#DB_USERNAME = "nathaniel"
+#DB_PASSWORD = "niel12"
+DB_USERNAME = "postgres"
+DB_PASSWORD = "020810"
 DB_DATABASE = "nathaniel_db"
 
 URL_DATABASE = f'postgresql+psycopg2://{DB_USERNAME}:{DB_PASSWORD}@localhost:5432/{DB_DATABASE}'
