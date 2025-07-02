@@ -43,3 +43,45 @@ def is_strong_password(password):
 
 def generate_id():
     return str(uuid.uuid4()).replace('-', '')
+
+import config
+import httpx
+from fastapi import HTTPException, status
+
+async def validate_token(token: str, ip: str, aud: str):
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "http://localhost:9000/auth/validate",
+                headers={"Authorization": f"Bearer {token}"},
+                json={"ip": ip, "aud": aud}
+            )
+        
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail="Invalid token"
+            )
+        
+        try:
+            user_data = response.json()
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="Invalid response from token validation service"
+            )
+        
+        return user_data
+        
+    except httpx.RequestError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Error connecting to token validation service: {str(e)}"
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}"
+        )

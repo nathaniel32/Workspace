@@ -4,6 +4,7 @@ import database.models
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from fastapi import Depends, HTTPException, status, Request, Body, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.responses import JSONResponse
 from datetime import datetime, timedelta, timezone
 from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
@@ -91,9 +92,23 @@ class AuthAPI:
         u_role = user.u_role
 
         access_token = routes.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role}, timedelta(hours=24))
-        return {"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}
+
+        response = JSONResponse(content={"message": "Anmeldung erfolgreich"})
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=False,      # HTTPS = True
+            samesite="Lax",    # atau 'Strict' / 'None'
+            max_age=86400,     # 24 jam
+            path="/"
+        )
+        return response
+        
+        # return {"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}
 
     def f_validate(self, form_data: Validation, token: str = Depends(oauth2_scheme)):
+        print("Token", token)
         try:
             payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM], audience=form_data.aud, issuer=config.APP_NAME)
             print(payload)

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required>
+        <br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <form id="signupForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username1" name="username" required>
+        <label for="email">Email:</label>
+        <input type="text" id="email1" name="email" required>
+        <br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password1" name="password" required>
+        <br><br>
+        <button type="submit">Signup</button>
+    </form>
+
+    <script>
+        const loginForm = document.getElementById("loginForm");
+        loginForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const formData = new URLSearchParams();
+            formData.append("username", document.getElementById("email").value);
+            formData.append("password", document.getElementById("password").value);
+
+            console.log(formData)
+
+            try {
+                const response = await fetch("/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail);
+                }
+
+                const data = await response.json();
+                alert("Login berhasil! Token: " + data.message);
+            } catch (error) {
+                alert("Error: " + error.message);
+            }
+        });
+
+        const signupForm = document.getElementById("signupForm");
+        signupForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const formData = new URLSearchParams();
+            formData.append("username", document.getElementById("email1").value);
+            formData.append("password", document.getElementById("password1").value);
+            formData.append("name", document.getElementById("username1").value);
+
+            console.log(formData)
+
+            try {
+                const response = await fetch("/auth/signup", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail);
+                }
+
+                const data = await response.json();
+                alert("singup berhasil! Token: " + data.message);
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+</body>
+</html>
