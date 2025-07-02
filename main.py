@@ -3,12 +3,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.auth import AuthAPI
 from routes.debug import DebugAPI
+from fastapi.staticfiles import StaticFiles
 import config
 
 class App:
     def __init__(self):
         self.app = FastAPI()
         self.setup_middleware()
+        self.app.mount("/", StaticFiles(directory="public", html=True), name="public")
         self.app.include_router(AuthAPI().router)
         self.app.include_router(DebugAPI().router)
 
