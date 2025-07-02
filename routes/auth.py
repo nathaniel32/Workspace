@@ -11,14 +11,15 @@ from passlib.context import CryptContext
 import config
 from routes.models.auth_model import Validation
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class AuthAPI:
     def __init__(self):
-        self.router = APIRouter(prefix="/auth", tags=["Authentication"])
+        self.router = APIRouter(prefix="/api/auth", tags=["Authentication"])
         self.router.add_api_route("/signup", self.f_signup, methods=["POST"], status_code=status.HTTP_201_CREATED)
         self.router.add_api_route("/login", self.f_login, methods=["POST"], status_code=status.HTTP_200_OK)
+        self.router.add_api_route("/logout", self.f_logout, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/validate", self.f_validate, methods=["POST"], status_code=status.HTTP_200_OK) # oauth buat app lain
 
     def f_signup(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
@@ -93,40 +94,31 @@ class AuthAPI:
 
         access_token = routes.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role}, timedelta(hours=24))
 
-        response = JSONResponse(content={"message": "Anmeldung erfolgreich"})
+        response = JSONResponse(content={"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}) #access_token, token_type, buat swagger
         response.set_cookie(
             key="access_token",
             value=access_token,
             httponly=True,
             secure=False,      # HTTPS = True
             samesite="Lax",    # atau 'Strict' / 'None'
-            max_age=86400,     # 24 jam
+            max_age=config.ACCESS_TOKEN_EXP_STD * 3600,
             path="/"
         )
         return response
-        
-        # return {"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}
+    
+    def f_logout(self):
+        response = JSONResponse(content={"message": "Logout erfolgreich"})
+        response.delete_cookie(
+            key="access_token",
+            path="/"
+        )
+        return response
 
     def f_validate(self, form_data: Validation, token: str = Depends(oauth2_scheme)):
-        print("Token", token)
+        print(token)
         try:
-            payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM], audience=form_data.aud, issuer=config.APP_NAME)
-            print(payload)
-
-            print("Client IP: " + form_data.ip)
-            print("Client Aud: " + form_data.aud)
-            
-            now = datetime.now(timezone.utc)
-            if payload['exp'] < int(now.timestamp()):
-                raise ExpiredSignatureError("Token has expired.")
-            
-            if payload['nbf'] > int(now.timestamp()):
-                raise JWTError("Token is not yet valid.")
-            
-            if payload["ip"] != form_data.ip:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Falsches IP!")
-            
-            return {"message": "valid", "data": payload}
+            message, payload = routes.utils.validate_token(token=token, ip=form_data.ip, aud=form_data.aud)
+            return {"message": message, "data": payload}
         
         except ExpiredSignatureError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired.")

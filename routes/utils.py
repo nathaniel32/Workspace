@@ -5,6 +5,7 @@ import config
 import random
 import string
 import re
+from jose import ExpiredSignatureError, JWTError, jwt
 
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=config.ACCESS_TOKEN_EXP_STD)):
     to_encode = data.copy()
@@ -44,44 +45,32 @@ def is_strong_password(password):
 def generate_id():
     return str(uuid.uuid4()).replace('-', '')
 
-import config
-import httpx
-from fastapi import HTTPException, status
-
-async def validate_token(token: str, ip: str, aud: str):
+def validate_token(token, ip, aud):
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "http://localhost:9000/auth/validate",
-                headers={"Authorization": f"Bearer {token}"},
-                json={"ip": ip, "aud": aud}
-            )
-        
-        if response.status_code != 200:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail="Invalid token"
-            )
-        
-        try:
-            user_data = response.json()
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail="Invalid response from token validation service"
-            )
-        
-        return user_data
-        
-    except httpx.RequestError as e:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Error connecting to token validation service: {str(e)}"
+        payload = jwt.decode(
+            token,
+            config.SECRET_KEY,
+            algorithms=[config.ALGORITHM],
+            audience=aud,
+            issuer=config.APP_NAME
         )
-    except HTTPException as e:
-        raise e
+
+        now = datetime.now(timezone.utc)
+
+        if payload['exp'] < int(now.timestamp()):
+            raise ExpiredSignatureError("Token has expired.")
+        
+        if payload['nbf'] > int(now.timestamp()):
+            raise JWTError("Token is not yet valid.")
+        
+        if payload["ip"] != ip:
+            raise Exception("Falsches IP!")
+        
+        return "Ok", payload
+    
+    except ExpiredSignatureError:
+        return "Token has expired.", None
+    except JWTError as e:
+        return f"Invalid token: {str(e)}", None
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error: {str(e)}"
-        )
+        return f"An error occurred: {str(e)}", None

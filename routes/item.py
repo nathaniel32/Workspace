@@ -10,7 +10,7 @@ import routes.utils
 
 class ItemAPI:
     def __init__(self):
-        self.router = APIRouter(prefix="/item", tags=["Item"])
+        self.router = APIRouter(prefix="/api/item", tags=["Item"])
         self.router.add_api_route("/power", self.get_all_power, methods=["GET"])
         self.router.add_api_route("/power", self.insert_power, methods=["POST"])
         self.router.add_api_route("/power", self.update_power, methods=["PUT"])

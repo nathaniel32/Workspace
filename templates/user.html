@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Halaman Utama{% endblock %}
+
+{% block content %}
+    <h1>User</h1>
+    <ul>
+    {% for key, value in payload.items() %}
+        <li><strong>{{ key }}:</strong> {{ value }}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

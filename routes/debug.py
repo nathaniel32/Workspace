@@ -5,7 +5,7 @@ from decimal import Decimal
 
 class DebugAPI:
     def __init__(self):
-        self.router = APIRouter(prefix="/debug", tags=["Debug"])
+        self.router = APIRouter(prefix="/api/debug", tags=["Debug"])
         self.router.add_api_route("/request", self.debug_request, methods=["GET"])
         self.router.add_api_route("/add_data", self.debug_add_data, methods=["POST"])
 
