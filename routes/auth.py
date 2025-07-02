@@ -1,4 +1,4 @@
-import utils
+import routes.utils
 import database.connection
 import database.models
 import uuid
@@ -32,7 +32,7 @@ class AuthAPI:
         if not name:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Name cannot be empty!")
         
-        strong_password_value, strong_password_message = utils.is_strong_password(form_oauth_data.password)
+        strong_password_value, strong_password_message = routes.utils.is_strong_password(form_oauth_data.password)
         if not strong_password_value:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=strong_password_message)
 
@@ -47,7 +47,7 @@ class AuthAPI:
                 u_email=form_oauth_data.username,
                 u_password=pwd_context.hash(form_oauth_data.password),
                 u_role='USER',
-                u_code = utils.generate_code(6)
+                u_code = routes.utils.generate_code(6)
             )
             db.add(new_user)
             db.commit()
@@ -91,7 +91,7 @@ class AuthAPI:
         u_name = user.u_name
         u_role = user.u_role
 
-        access_token = utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role}, timedelta(hours=24))
+        access_token = routes.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role}, timedelta(hours=24))
         return {"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}
 
     def f_validate(self, form_data: ValidationBaseModel, token: str = Depends(oauth2_scheme)):
