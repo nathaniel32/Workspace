@@ -25,16 +25,13 @@
             <div>{{ '{{ content.title }}' }}</div>
             <dynamic-component :template="content.template" :data-obj="content.data"></dynamic-component>
         </div>
-        
     </div>
 {% endblock %}
 
 {% block script %}
     <script src="/static/dashboard/main.js"></script>
-
+    <script src="/static/dashboard/user.js" type="module"></script>
     {% if registered == 'ADMIN' %}
-        <script src="/static/dashboard/admin.js"></script>
+        <script src="/static/dashboard/admin.js" type="module"></script>
     {% endif %}
-    
-    <script src="/static/dashboard/user.js"></script>
 {% endblock %}

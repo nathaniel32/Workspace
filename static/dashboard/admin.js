@@ -1,34 +1,118 @@
+import { api_get_all_price_list, api_input_power, api_input_spec, api_update_price, get_unique_sorted_specs, get_unique_sorted_powers, get_price_list_item } from './utils.js';
+
 const dashboard_admin = new Vue({
     data: {
-        name: ['admin', 'admin2', 'admin3'],
-        sub: ''
+        input_power: 0,
+        input_spec: '',
+        price_list: [],
+
+        update_price: {
+            show_popup: false,
+            selected_power_id: null,
+            selected_spec_id: null,
+            selected_power: null,
+            selected_spec: null,
+            new_price: ''
+        }
+    },
+    computed: {
+        table_specs() {
+            return get_unique_sorted_specs(this.price_list);
+        },
+        table_powers() {
+            return get_unique_sorted_powers(this.price_list);
+        }
     },
     methods:{
-        f_init(){
-            dashboard_main.navigations.push({name: "Admin Control Panel", callback: this.f_control_panel});
-            dashboard_main.navigations.push({name: "Admin Statistics", callback: this.f_statistics});
+        f_table_get_price(power_id, spec_id) {
+            return get_price_list_item(this.price_list, power_id, spec_id, 'price');
         },
-        f_control_panel(){
+        
+        f_init(){
+            dashboard_main.navigations.push({name: "Control Panel", callback: this.f_control_panel});
+        },
+
+        //DISPLAY CP
+        async f_control_panel(){
             dashboard_main.content.title = 'Control Panel';
             dashboard_main.content.template = `
                 <div>
-                    <ul>
-                        <li v-for="(item, index) in name" :key="index">{{ item }}</li>
-                    </ul>
-                    <input v-model="sub">
-                    {{ sub }}
+                    <table border="1" cellpadding="5" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Power \\ Spec</th>
+                                <th v-for="spec in table_specs" :key="spec.s_id">{{ spec.spec || '(empty)' }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="power in table_powers" :key="power.p_id">
+                                <td>{{ power.power }}</td>
+                                <td v-for="spec in table_specs" :key="spec.s_id">
+                                    <span @click="f_show_price_popup(power.p_id, spec.s_id)" style="cursor:pointer; color:blue;">
+                                    {{ f_table_get_price(power.p_id, spec.s_id) }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <input v-model="input_power" type="number" placeholder="power" />
+                    <button @click="f_input_power">Add Power</button>
+                    <br>
+                    <input v-model="input_spec" type="text" placeholder="Spec" />
+                    <button @click="f_input_spec">Add Spec</button>
+
+                    <!-- Popup -->
+                    <div v-if="update_price.show_popup" style="position:fixed; top:30%; left:30%; background:#fff; padding:20px; border:1px solid #000;">
+                        <h3>Edit Harga</h3>
+                        <p>Power: {{ update_price.selected_power }}</p>
+                        <p>Spec: {{ update_price.selected_spec }}</p>
+                        <input v-model="update_price.new_price" type="number" placeholder="New Price" />
+                        <br><br>
+                        <button @click="f_update_price">Update</button>
+                        <button @click="update_price.show_popup = false">Cancel</button>
+                    </div>
                 </div>
             `;
             dashboard_main.content.data = this;
+            this.f_get_all_price_list();
         },
-        f_statistics(){
-            dashboard_main.content.title = 'Statistik';
-            dashboard_main.content.template = `
-                <div>
-                    {{ sub }}
-                </div>
-            `;
-            dashboard_main.content.data = this;
+
+        //GET ALL PRICE
+        async f_get_all_price_list(){
+            const res = await api_get_all_price_list();
+            this.price_list = res.data;
+        },
+
+        //INPUT POWER
+        async f_input_power(){
+            const res = await api_input_power(this.input_power);
+            base_vue.f_info(res.message);
+            if (res.success) this.f_get_all_price_list();
+        },
+
+        //INPUT SPEC
+        async f_input_spec(){
+            const res = await api_input_spec(this.input_spec);
+            base_vue.f_info(res.message);
+            if (res.success) this.f_get_all_price_list();
+        },
+
+        f_show_price_popup(power_id, spec_id) {
+            const res = get_price_list_item(this.price_list, power_id, spec_id);
+            this.update_price.selected_power_id = power_id;
+            this.update_price.selected_spec_id = spec_id;
+            this.update_price.selected_power = res.power;
+            this.update_price.selected_spec = res.spec;
+            this.update_price.new_price = res.price;
+            this.update_price.show_popup = true;
+        },
+        async f_update_price() {
+            const res = await api_update_price(this.update_price.selected_power_id, this.update_price.selected_spec_id, this.update_price.new_price);
+            this.f_get_all_price_list();
+            this.update_price.show_popup = false;
+            console.log(res);
+            base_vue.f_info(res.message);
         }
     }
 });

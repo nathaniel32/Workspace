@@ -6,14 +6,14 @@ const base_vue = new Vue({
         v_signup: {username: "Test User", email: "test@exp.com", password: "Tadnxciw123_"},
     },
     methods:{
-        f_info(message, duration){
+        f_info(message, duration=5000){
             this.v_info = message;
             setTimeout(()=>{
                 this.v_info = "";
             }, duration);
         },
         f_init(){
-            console.log("ok");
+            console.log("Ready");
         },
         async f_login(){
             try {
