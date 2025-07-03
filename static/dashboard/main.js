@@ -13,7 +13,7 @@ const DynamicComponent = {
     },
     render(h) {
         if (!this.compiled) return h('div', 'Loading...');
-        // Render dengan context dataObj
+        // context dataObj
         return this.compiled.render.call(this.dataObj, _c=h);
     },
     staticRenderFns() {
