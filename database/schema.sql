@@ -1,5 +1,5 @@
 -- enum role
-CREATE TYPE user_role_enum AS ENUM ('ADMIN', 'USER', 'GUEST');
+CREATE TYPE user_role_enum AS ENUM ('ADMIN', 'USER');
 CREATE TYPE user_status_enum AS ENUM ('NOT_ACTIVATED', 'ACTIVATED', 'LOCKED', 'DELETED');
 
 -- User
@@ -9,7 +9,7 @@ CREATE TABLE t_user (
     u_email TEXT NOT NULL UNIQUE,
     u_password TEXT NOT NULL,
     u_code TEXT,
-    u_role user_role_enum NOT NULL,  -- ADMIN, USER, GUEST
+    u_role user_role_enum NOT NULL,  -- ADMIN, USER
     u_status user_status_enum NOT NULL, -- NOT_ACTIVATED, ACTIVATED, LOCKED, DELETED
     u_time INT DEFAULT (EXTRACT(EPOCH FROM now())::int)
 );
