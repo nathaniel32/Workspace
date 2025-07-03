@@ -1,6 +1,6 @@
 const dashboard_admin = new Vue({
     data: {
-        name: ['admin', 'joshua', 'yes'],
+        name: ['admin', 'admin2', 'admin3'],
         sub: ''
     },
     methods:{
@@ -9,9 +9,9 @@ const dashboard_admin = new Vue({
             dashboard_main.navigations.push({name: "Admin Statistics", callback: this.f_statistics});
         },
         f_control_panel(){
+            dashboard_main.content.title = 'Control Panel';
             dashboard_main.content.template = `
                 <div>
-                    <strong style="color:red">Ini teks tebal merah</strong>
                     <ul>
                         <li v-for="(item, index) in name" :key="index">{{ item }}</li>
                     </ul>
@@ -22,10 +22,9 @@ const dashboard_admin = new Vue({
             dashboard_main.content.data = this;
         },
         f_statistics(){
-            console.log(this.sub)
+            dashboard_main.content.title = 'Statistik';
             dashboard_main.content.template = `
                 <div>
-                    <strong style="color:red">Ini teks tebal merah</strong>
                     {{ sub }}
                 </div>
             `;

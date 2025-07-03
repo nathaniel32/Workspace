@@ -26,6 +26,7 @@ const dashboard_main = new Vue({
     data: {
         navigations: [],
         content: {
+            title: "",
             template: "",
             data: ""
         },
