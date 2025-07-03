@@ -1,4 +1,4 @@
-import { api_get_all_price_list, get_unique_sorted_specs, get_unique_sorted_powers, get_price_list_item } from './utils.js';
+import { api_get_all_price_list, get_unique_sorted_specs, get_unique_sorted_powers, get_price_list_item, format_price } from './utils.js';
 
 const dashboard_user = new Vue({
     //el: '#dashboard_user',
@@ -43,7 +43,7 @@ const dashboard_user = new Vue({
             this.f_get_all_price_list();
         },
         f_table_get_price(power_id, spec_id) {
-            return get_price_list_item(this.price_list, power_id, spec_id, 'price');
+            return format_price(get_price_list_item(this.price_list, power_id, spec_id, 'price'));
         },
         //GET ALL PRICE
         async f_get_all_price_list(){

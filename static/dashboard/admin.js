@@ -1,4 +1,4 @@
-import { api_get_all_price_list, api_input_power, api_input_spec, api_update_price, get_unique_sorted_specs, get_unique_sorted_powers, get_price_list_item } from './utils.js';
+import { api_get_all_price_list, api_input_power, api_input_spec, api_update_price, get_unique_sorted_specs, get_unique_sorted_powers, get_price_list_item, format_price, beautify_format_price, deformat_price } from './utils.js';
 
 const dashboard_admin = new Vue({
     data: {
@@ -25,7 +25,7 @@ const dashboard_admin = new Vue({
     },
     methods:{
         f_table_get_price(power_id, spec_id) {
-            return get_price_list_item(this.price_list, power_id, spec_id, 'price');
+            return format_price(get_price_list_item(this.price_list, power_id, spec_id, 'price'));
         },
         
         f_init(){
@@ -67,7 +67,7 @@ const dashboard_admin = new Vue({
                         <h3>Edit Harga</h3>
                         <p>Power: {{ update_price.selected_power }}</p>
                         <p>Spec: {{ update_price.selected_spec }}</p>
-                        <input v-model="update_price.new_price" type="number" placeholder="New Price" />
+                        <input v-model="update_price.new_price" type="text" @input="format_price_input" placeholder="New Price" />
                         <br><br>
                         <button @click="f_update_price">Update</button>
                         <button @click="update_price.show_popup = false">Cancel</button>
@@ -104,15 +104,22 @@ const dashboard_admin = new Vue({
             this.update_price.selected_spec_id = spec_id;
             this.update_price.selected_power = res.power;
             this.update_price.selected_spec = res.spec;
-            this.update_price.new_price = res.price;
+            this.update_price.new_price = format_price(res.price);
             this.update_price.show_popup = true;
         },
         async f_update_price() {
-            const res = await api_update_price(this.update_price.selected_power_id, this.update_price.selected_spec_id, this.update_price.new_price);
+            //let price_string = this.update_price.new_price.replace(/\D/g, ''); // hanya angka
+            let price_string = deformat_price(this.update_price.new_price);
+            let price = Number(price_string);
+            const res = await api_update_price(this.update_price.selected_power_id, this.update_price.selected_spec_id, Number(price));
             this.f_get_all_price_list();
             this.update_price.show_popup = false;
             console.log(res);
             base_vue.f_info(res.message);
+        },
+
+        format_price_input(e) {
+            this.update_price.new_price = beautify_format_price(e.target.value);
         }
     }
 });
