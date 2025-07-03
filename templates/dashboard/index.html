@@ -5,7 +5,7 @@
 {% block content %}
     <div id="dashboard_main">
         <nav v-for="navigation in navigations" @click="navigation.callback()">{{ '{{ navigation.name }}' }}</nav>
-        <dynamic-component :template="content" :data-obj="contentData"></dynamic-component>
+        <dynamic-component :template="content.template" :data-obj="content.data"></dynamic-component>
     </div>
 {% endblock %}
 

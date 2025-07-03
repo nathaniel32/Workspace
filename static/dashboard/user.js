@@ -9,7 +9,7 @@ const dashboard_user = new Vue({
             dashboard_main.navigations.push({name: "client", callback: this.f_client});
         },
         f_client(){
-            dashboard_main.content = `
+            dashboard_main.content.template = `
                 <div>
                     <strong style="color:red">Ini teks tebal merah</strong>
                     <ul>
@@ -19,7 +19,7 @@ const dashboard_user = new Vue({
                     client {{ sub }}
                 </div>
             `;
-            dashboard_main.contentData = this;
+            dashboard_main.content.data = this;
             console.log("client");
         }
     }

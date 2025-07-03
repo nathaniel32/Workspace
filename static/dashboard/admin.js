@@ -5,10 +5,11 @@ const dashboard_admin = new Vue({
     },
     methods:{
         f_init(){
-            dashboard_main.navigations.push({name: "admin", callback: this.f_admin});
+            dashboard_main.navigations.push({name: "Admin Control Panel", callback: this.f_control_panel});
+            dashboard_main.navigations.push({name: "Admin Statistics", callback: this.f_statistics});
         },
-        f_admin(){
-            dashboard_main.content = `
+        f_control_panel(){
+            dashboard_main.content.template = `
                 <div>
                     <strong style="color:red">Ini teks tebal merah</strong>
                     <ul>
@@ -18,8 +19,17 @@ const dashboard_admin = new Vue({
                     {{ sub }}
                 </div>
             `;
-            dashboard_main.contentData = this;
-            console.log("admin");
+            dashboard_main.content.data = this;
+        },
+        f_statistics(){
+            console.log(this.sub)
+            dashboard_main.content.template = `
+                <div>
+                    <strong style="color:red">Ini teks tebal merah</strong>
+                    {{ sub }}
+                </div>
+            `;
+            dashboard_main.content.data = this;
         }
     }
 });
