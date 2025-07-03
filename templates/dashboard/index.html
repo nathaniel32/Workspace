@@ -1,0 +1,20 @@
+{% extends "shared/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div id="dashboard_main">
+        <nav v-for="navigation in navigations" @click="navigation.callback()">{{ '{{ navigation.name }}' }}</nav>
+        <dynamic-component :template="content" :data-obj="contentData"></dynamic-component>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="/static/dashboard/main.js"></script>
+
+    {% if registered == 'ADMIN' %}
+        <script src="/static/dashboard/admin.js"></script>
+    {% endif %}
+    
+    <script src="/static/dashboard/user.js"></script>
+{% endblock %}

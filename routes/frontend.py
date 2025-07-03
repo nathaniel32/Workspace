@@ -14,5 +14,5 @@ class Frontend:
         return routes.utils.return_site(request=request, templates=self.templates, url=url, redirect=True)
 
     async def dashboard(self, request: Request):
-        url = "site/dashboard.html"
+        url = "dashboard/index.html"
         return routes.utils.return_site(request=request, templates=self.templates, url=url)

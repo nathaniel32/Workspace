@@ -78,53 +78,19 @@ def validate_token(token, ip, aud):
 
 ###############################################################################################
 
-NAV_ITEMS = {
-    "dashboard": {"url": "/dashboard", "name": "Dashboard"},
-    "pricelist": {"url": "/dashboard/pricelist", "name": "Price List"},
-    "dricelist": {"url": "/dashboard/dricelist", "name": "Price List"},
-    "input": {"url": "/dashboard/input", "name": "Input"},
-    "statistic": {"url": "/dashboard/statistic", "name": "Statistic"},
-    "control": {"url": "/dashboard/control", "name": "Price List"},
-    "login": {"url": "/", "name": "Login"}
-}
-
-def navigation_url(role=None):
-    if role == UserRole.ADMIN:
-        keys = ["dashboard", "pricelist", "input", "statistic", "control"]
-    elif role == UserRole.USER:
-        keys = ["dashboard", "dricelist", "input"]
-    else:
-        return [NAV_ITEMS["login"]]
-
-    return [NAV_ITEMS[key] for key in keys]
-
-
-def request_init(request):
-    try:
-        access_token = request.cookies.get("access_token")
-        user_ip = request.client.host
-        aud = request.headers.get("user-agent")
-
-        message, payload = validate_token(access_token, user_ip, aud)
-        if not payload:
-            raise ValueError("Invalid token payload")
-
-        role = payload.get('role')
-        navigation = navigation_url(role)
-        return navigation, payload
-
-    except Exception as e:
-        return navigation_url(), None
-
 from fastapi.responses import RedirectResponse
 
 def return_site(request, templates, url, redirect=False):
-    navigation, payload = request_init(request)
+    access_token = request.cookies.get("access_token")
+    user_ip = request.client.host
+    aud = request.headers.get("user-agent")
+
+    message, payload = validate_token(access_token, user_ip, aud)
 
     context = {
         "request": request,
-        "navigation": navigation,
-        "registered": payload is not None
+        "data": None,
+        "registered": payload.get("role") if payload else None
     }
 
     if payload and payload.get("role"):

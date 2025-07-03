@@ -5,18 +5,12 @@
     <title>{% block title %}Base{% endblock %}</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <!-- <link rel="stylesheet" href="/static/styles.css" /> -->
-    <script src="/static/shared/utils.js"></script>
 </head>
 <body>
     <header id="base">
         <h1>{{ self.title() }}</h1>
 
         <div>{{ '{{ v_info }}' }}</div>
-
-        <br>
-
-        <!-- Nav -->
-        {% include "shared/nav.html" %}
         
         <br>
         
@@ -26,7 +20,7 @@
 
     <script src="/static/shared/base.js"></script>
     
-    <main id="role">
+    <main>
         {% block content %}
         <!-- Konten halaman -->
         {% endblock %}
