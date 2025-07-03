@@ -13,7 +13,6 @@ model_base = declarative_base()
 class UserRole(str, Enum):
     ADMIN = 'ADMIN' # Admun     : bisa delete, ganti harga, dll
     USER = 'USER'   # Karyawan  : bisa input orderan, update orderan
-    GUEST = 'GUEST' # Client    : hanya bisa read pricelist
 
 class UserStatus(str, Enum):
     NOT_ACTIVATED = 'NOT_ACTIVATED'

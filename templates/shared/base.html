@@ -2,20 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>{% block title %}My Website{% endblock %}</title>
+    <title>{% block title %}Base{% endblock %}</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <!-- <link rel="stylesheet" href="/static/styles.css" /> -->
     <script src="/static/shared/utils.js"></script>
 </head>
 <body>
     <header id="base">
-        <h1>My Website Header</h1>
-        <div>{{ '{{ v_info }}' }}</div>
-        <nav>
-            <a href="/">Home</a> |
-            <a href="/about">About</a>
-        </nav>
+        <h1>{{ self.title() }}</h1>
 
+        <div>{{ '{{ v_info }}' }}</div>
+
+        <br>
+
+        <!-- Nav -->
+        {% include "shared/nav.html" %}
+        
+        <br>
+        
+        <!-- Auth -->
         {% include "shared/auth.html" %}
     </header>
 

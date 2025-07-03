@@ -1,16 +1,16 @@
 {% extends "shared/base.html" %}
 
-{% block title %}Halaman Utama{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-    <h1>Guest</h1>
+    <h1>Dashboard</h1>
     <ul>
-    {% for key, value in payload.items() %}
+    {% for key, value in request.items() %}
         <li><strong>{{ key }}:</strong> {{ value }}</li>
     {% endfor %}
     </ul>
 {% endblock %}
 
 {% block script %}
-    <script src="/static/role/guest.js"></script>
+    <script src="/static/site/dashboard.js"></script>
 {% endblock %}
