@@ -8,6 +8,5 @@
     "APP_NAME": "Workspace",
     "SECRET_KEY": "123didojqwoi13",
     "ALGORITHM": "HS256",
-    "ACCESS_TOKEN_EXP_STD": 24,
-    "VERIFIED_ACCOUNT_CODE": 1
+    "ACCESS_TOKEN_EXP": 24
 }
