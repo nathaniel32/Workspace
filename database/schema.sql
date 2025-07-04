@@ -41,7 +41,8 @@ CREATE TABLE t_price_list (
 -- Order
 CREATE TABLE t_order (
     o_id VARCHAR(32),
-    u_id VARCHAR(32) NOT NULL,
+    -- o_orderid TEXT UNIQUE NOT NULL,   !OPTIONAL JIKA ID SUDAH DI TENTUKAN!
+    u_id VARCHAR(32) NOT NULL,  -- id pegawai yang menginput
     o_description TEXT,
     o_time INT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now())::int),
     FOREIGN KEY (u_id) REFERENCES t_user(u_id) ON DELETE CASCADE ON UPDATE RESTRICT
@@ -64,12 +65,13 @@ CREATE TABLE t_order_spec (
     oa_id VARCHAR(32) NOT NULL,
     p_id VARCHAR(32) NOT NULL,
     s_id VARCHAR(32) NOT NULL,
-    os_price DECIMAL(10,2) NOT NULL CHECK (os_price >= 0), -- deal price
+    os_price DECIMAL(10,2) NOT NULL CHECK (os_price >= 0), -- deal/current price
     PRIMARY KEY (oa_id, s_id),
     FOREIGN KEY (oa_id, p_id) REFERENCES t_order_article(oa_id, p_id) ON DELETE CASCADE ON UPDATE RESTRICT,
     FOREIGN KEY (p_id, s_id) REFERENCES t_price_list(p_id, s_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
+---------------------------------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION trg_add_price_list_on_power()
 RETURNS TRIGGER AS $$
