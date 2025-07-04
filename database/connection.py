@@ -3,11 +3,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from typing import Annotated
 from fastapi import Depends
-import config
+from utils import config
 from database.models import model_base
 from database.trigger import create_triggers 
 
-database_engine = create_engine(config.URL_DATABASE)
+URL_DATABASE = f'postgresql+psycopg2://{config.DB_USERNAME}:{config.DB_PASSWORD}@localhost:5432/{config.DB_DATABASE}'
+
+database_engine = create_engine(URL_DATABASE)
 
 session_local = sessionmaker(autocommit=False, autoflush=False, bind=database_engine)
 
