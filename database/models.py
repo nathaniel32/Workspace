@@ -40,6 +40,7 @@ class TPower(model_base):
 
     p_id = Column(VARCHAR(32), primary_key=True)
     p_power = Column(Integer, nullable=False, unique=True)
+    p_unit = Column(Integer, nullable=False)
 
     # child
     pricelistes = relationship("TPriceList", back_populates="power", cascade="all, delete-orphan")
@@ -60,7 +61,7 @@ class TPriceList(model_base):
     p_id = Column(VARCHAR(32), ForeignKey('t_power.p_id', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True)
     s_id = Column(VARCHAR(32), ForeignKey('t_spec.s_id', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True)
     pl_price = Column(DECIMAL(10, 2), nullable=False)
-
+    pl_description = Column(Text)
     __table_args__ = (
         CheckConstraint('pl_price >= 0', name='check_pl_price_positive'),
     )

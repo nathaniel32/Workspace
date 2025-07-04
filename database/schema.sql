@@ -17,7 +17,8 @@ CREATE TABLE t_user (
 -- Power
 CREATE TABLE t_power (
     p_id VARCHAR(32) PRIMARY KEY,
-    p_power INT NOT NULL UNIQUE
+    p_power INT NOT NULL UNIQUE,
+    p_unit INT NOT NULL
 );
 
 -- Spec
@@ -31,6 +32,7 @@ CREATE TABLE t_price_list (
     p_id VARCHAR(32),
     s_id VARCHAR(32),
     pl_price DECIMAL(10,2) NOT NULL CHECK (pl_price >= 0),
+    pl_description TEXT,    -- BARU
     PRIMARY KEY (p_id, s_id),
     FOREIGN KEY (p_id) REFERENCES t_power(p_id) ON DELETE CASCADE ON UPDATE RESTRICT,
     FOREIGN KEY (s_id) REFERENCES t_spec(s_id) ON DELETE CASCADE ON UPDATE RESTRICT
