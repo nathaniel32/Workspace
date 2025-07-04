@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import uuid
 from jose import jwt
-import config
+from utils import config
 import random
 import string
 import re

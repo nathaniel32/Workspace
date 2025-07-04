@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from datetime import timedelta
 from jose import ExpiredSignatureError, JWTError
 from passlib.context import CryptContext
-import config
+from utils import config
 from routes.api.models.auth_model import Validation
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")

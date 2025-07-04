@@ -5,7 +5,7 @@ from routes.api.auth import AuthAPI
 from routes.api.item import ItemAPI
 from routes.api.debug import DebugAPI
 from routes.frontend import Frontend
-import config
+from utils import config
 from fastapi.staticfiles import StaticFiles
 
 class App:
