@@ -3,10 +3,10 @@ import database.connection
 import database.models
 from typing import List
 from fastapi import HTTPException, status, APIRouter
-from routes.models.item_model import PowerOut, PowerCreate, PowerUpdate, PowerDelete
-from routes.models.item_model import SpecOut, SpecCreate, SpecUpdate, SpecDelete
-from routes.models.item_model import PriceListOut, PriceChange
-import routes.utils
+from routes.api.models.item_model import PowerOut, PowerCreate, PowerUpdate, PowerDelete
+from routes.api.models.item_model import SpecOut, SpecCreate, SpecUpdate, SpecDelete
+from routes.api.models.item_model import PriceListOut, PriceChange
+import routes.api.utils
 
 class ItemAPI:
     def __init__(self):
@@ -31,7 +31,7 @@ class ItemAPI:
     def insert_power(self, power: PowerCreate, db: database.connection.db_dependency):
         try:
             new_power = database.models.TPower(
-                p_id=routes.utils.generate_id(),
+                p_id=routes.api.utils.generate_id(),
                 p_power=power.p_power
             )
             db.add(new_power)
@@ -72,7 +72,7 @@ class ItemAPI:
     def insert_spec(self, spec: SpecCreate, db: database.connection.db_dependency):
         try:
             new_spec = database.models.TSpec(
-                s_id=routes.utils.generate_id(),
+                s_id=routes.api.utils.generate_id(),
                 s_spec=spec.s_spec
             )
             db.add(new_spec)

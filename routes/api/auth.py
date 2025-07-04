@@ -1,4 +1,4 @@
-import routes.utils
+import routes.api.utils
 import database.connection
 import database.models
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -9,7 +9,7 @@ from datetime import timedelta
 from jose import ExpiredSignatureError, JWTError
 from passlib.context import CryptContext
 import config
-from routes.models.auth_model import Validation
+from routes.api.models.auth_model import Validation
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -33,7 +33,7 @@ class AuthAPI:
         if not name:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Name cannot be empty!")
         
-        strong_password_value, strong_password_message = routes.utils.is_strong_password(form_oauth_data.password)
+        strong_password_value, strong_password_message = routes.api.utils.is_strong_password(form_oauth_data.password)
         if not strong_password_value:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=strong_password_message)
 
@@ -50,13 +50,13 @@ class AuthAPI:
             user_count = db.query(database.models.TUser).count()
 
             new_user = database.models.TUser(
-                u_id = routes.utils.generate_id(),
+                u_id = routes.api.utils.generate_id(),
                 u_name = name,
                 u_email = form_oauth_data.username,
                 u_password = pwd_context.hash(form_oauth_data.password),
                 u_role = database.models.UserRole.ADMIN if user_count == 0 else database.models.UserRole.USER,
                 u_status = database.models.UserStatus.ACTIVATED, # HARUS DI GANTI JIKA INGIN DENGAN AKTIVASI EMAIL
-                u_code = routes.utils.generate_code(6)
+                u_code = routes.api.utils.generate_code(6)
             )
             db.add(new_user)
             db.commit()
@@ -97,7 +97,7 @@ class AuthAPI:
         u_role = user.u_role
         u_status = user.u_status
 
-        access_token = routes.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role, "status": u_status}, timedelta(hours=24))
+        access_token = routes.api.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role, "status": u_status}, timedelta(hours=24))
 
         response = JSONResponse(content={"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}) #access_token, token_type, buat swagger
         response.set_cookie(
@@ -122,7 +122,7 @@ class AuthAPI:
     def f_validate(self, form_data: Validation, token: str = Depends(oauth2_scheme)):
         print(token)
         try:
-            message, payload = routes.utils.validate_token(token=token, ip=form_data.ip, aud=form_data.aud)
+            message, payload = routes.api.utils.validate_token(token=token, ip=form_data.ip, aud=form_data.aud)
             return {"message": message, "data": payload}
         
         except ExpiredSignatureError:

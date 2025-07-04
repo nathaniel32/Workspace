@@ -1,9 +1,9 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.auth import AuthAPI
-from routes.item import ItemAPI
-from routes.debug import DebugAPI
+from routes.api.auth import AuthAPI
+from routes.api.item import ItemAPI
+from routes.api.debug import DebugAPI
 from routes.frontend import Frontend
 import config
 from fastapi.staticfiles import StaticFiles
