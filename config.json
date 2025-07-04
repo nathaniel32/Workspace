@@ -1,0 +1,13 @@
+{
+    "SERVICE_HOST": "localhost",
+    "SERVICE_PORT": 9000,
+    "ORIGINS": [],
+    "DB_USERNAME": "nathaniel",
+    "DB_PASSWORD": "niel12",
+    "DB_DATABASE": "nathaniel_db",
+    "APP_NAME": "Workspace",
+    "SECRET_KEY": "123didojqwoi13",
+    "ALGORITHM": "HS256",
+    "ACCESS_TOKEN_EXP_STD": 24,
+    "VERIFIED_ACCOUNT_CODE": 1
+}
