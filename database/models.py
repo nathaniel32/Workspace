@@ -40,7 +40,7 @@ class TPower(model_base):
 
     p_id = Column(VARCHAR(32), primary_key=True)
     p_power = Column(Integer, nullable=False, unique=True)
-    p_unit = Column(Integer, nullable=False)
+    p_unit = Column(Integer, nullable=False, default=0)
 
     # child
     pricelistes = relationship("TPriceList", back_populates="power", cascade="all, delete-orphan")
