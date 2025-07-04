@@ -127,11 +127,11 @@ export function get_unique_sorted_specs(priceList) {
     }
 
     // Sort berdasarkan spec (string)
-    uniqueSpecs.sort((a, b) => {
+    /* uniqueSpecs.sort((a, b) => {
         if (a.spec < b.spec) return -1;
         if (a.spec > b.spec) return 1;
         return 0;
-    });
+    }); */
 
     return uniqueSpecs;
 }
