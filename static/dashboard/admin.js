@@ -25,10 +25,14 @@ const dashboard_admin = new Vue({
         }
     },
     methods:{
+        //mendapatkan harga setiap cell
         f_table_get_price(power_id, spec_id) {
             return format_price(get_price_list_item(this.price_list, power_id, spec_id, 'price'));
         },
-        
+        //mendapatkan deskripsi setiap cell
+        f_table_get_price_description(power_id, spec_id) {
+            return get_price_list_item(this.price_list, power_id, spec_id, 'description');
+        },
         f_init(){
             dashboard_main.navigations.push({name: "Control Panel", callback: this.f_control_panel});
         },
@@ -48,10 +52,11 @@ const dashboard_admin = new Vue({
                         <tbody>
                             <tr v-for="power in table_powers" :key="power.p_id">
                                 <td>{{ power.power }}</td>
-                                <td v-for="spec in table_specs" :key="spec.s_id">
-                                    <span @click="f_show_price_popup(power.p_id, spec.s_id)" style="cursor:pointer; color:blue;">
-                                    {{ f_table_get_price(power.p_id, spec.s_id) }}
-                                    </span>
+                                <td v-for="spec in table_specs" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id)" style="cursor:pointer; color:blue;">
+                                    <div>
+                                        <strong>{{ f_table_get_price(power.p_id, spec.s_id) }}</strong><br>
+                                        <small>{{ f_table_get_price_description(power.p_id, spec.s_id) }}</small>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

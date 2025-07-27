@@ -14,6 +14,12 @@ const dashboard_user = new Vue({
         }
     },
     methods:{
+        f_table_get_price(power_id, spec_id) {
+            return format_price(get_price_list_item(this.price_list, power_id, spec_id, 'price'));
+        },
+        f_table_get_price_description(power_id, spec_id) {
+            return get_price_list_item(this.price_list, power_id, spec_id, 'description');
+        },
         f_init(){
             dashboard_main.navigations.push({name: "Price List", callback: this.f_price_list});
         },
@@ -32,7 +38,10 @@ const dashboard_user = new Vue({
                             <tr v-for="power in table_powers" :key="power.p_id">
                                 <td>{{ power.power }}</td>
                                 <td v-for="spec in table_specs" :key="spec.s_id">
-                                    {{ f_table_get_price(power.p_id, spec.s_id) }}
+                                    <div>
+                                        <strong>{{ f_table_get_price(power.p_id, spec.s_id) }}</strong><br>
+                                        <small>{{ f_table_get_price_description(power.p_id, spec.s_id) }}</small>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -41,9 +50,6 @@ const dashboard_user = new Vue({
             `;
             dashboard_main.content.data = this;
             this.f_get_all_price_list();
-        },
-        f_table_get_price(power_id, spec_id) {
-            return format_price(get_price_list_item(this.price_list, power_id, spec_id, 'price'));
         },
         //GET ALL PRICE
         async f_get_all_price_list(){
