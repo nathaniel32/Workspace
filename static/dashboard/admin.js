@@ -50,8 +50,16 @@ const dashboard_admin = new Vue({
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="power in table_powers" :key="power.p_id">
-                                <td>{{ power.power }}</td>
+                            <tr v-for="(power, index) in table_powers" :key="power.p_id">
+                                <td>
+                                    {{ power.power }}
+                                    <span v-if="table_powers[index + 1]">
+                                        - {{ table_powers[index + 1].power - 1 }}
+                                    </span>
+                                    <span v-else>
+                                        =<
+                                    </span>
+                                </td>
                                 <td v-for="spec in table_specs" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id)" style="cursor:pointer; color:blue;">
                                     <div>
                                         <strong>{{ f_table_get_price(power.p_id, spec.s_id) }}</strong><br>
