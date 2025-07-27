@@ -19,14 +19,24 @@ const dashboard_user_price_list = new Vue({
                     <div style="border:1px solid black">
                         Order
                         <br>
+                        * Order 1
+                        <br>
+                        * Order 2
+                        <br>
                         <button @click="f_input_order">Add New Order</button>
                     </div>
                     <div style="border:1px solid black">
-                        Order_artikel
+                        OrderID = A1203
+                        <br>
+                        * Mesin 1
+                        <br>
+                        * Mesin 1
                         <br>
                         <button @click="f_input_order">Add New Artikel</button>
                     </div>
                     <div style="border:1px solid black">
+                        Order Artikel ID = JWIJD3
+                        <br>
                         <label>Power</label>
                         <input type="number" v-model="input_power">
                         
