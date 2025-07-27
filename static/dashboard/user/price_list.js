@@ -1,7 +1,7 @@
-import { api_get_all_price_list, get_unique_sorted_specs, get_unique_sorted_powers, get_price_list_item, format_price } from './utils.js';
+import { get_unique_sorted_specs, get_unique_sorted_powers, get_price_list_item, format_price } from '../utils.js';
+import { api_get_all_price_list } from '../api.js';
 
-const dashboard_user = new Vue({
-    //el: '#dashboard_user',
+const dashboard_user_price_list = new Vue({
     data: {
         price_list: []
     },
@@ -21,9 +21,9 @@ const dashboard_user = new Vue({
             return get_price_list_item(this.price_list, power_id, spec_id, 'description');
         },
         f_init(){
-            dashboard_main.navigations.push({name: "Price List", callback: this.f_price_list});
+            dashboard_main.navigations.push({name: "Price List", callback: this.f_template});
         },
-        f_price_list(){
+        f_template(){
             dashboard_main.content.title = 'Price List';
             dashboard_main.content.template = `
                 <div>
@@ -67,4 +67,4 @@ const dashboard_user = new Vue({
     }
 });
 
-dashboard_user.f_init();
+dashboard_user_price_list.f_init();

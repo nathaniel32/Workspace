@@ -1,6 +1,7 @@
-import { api_get_all_price_list, api_input_power, api_input_spec, api_update_price, get_unique_sorted_specs, get_unique_sorted_powers, get_price_list_item, format_price, beautify_format_price, deformat_price } from './utils.js';
+import { get_unique_sorted_specs, get_unique_sorted_powers, get_price_list_item, format_price, beautify_format_price, deformat_price } from '../utils.js';
+import { api_get_all_price_list, api_input_power, api_input_spec, api_update_price } from '../api.js';
 
-const dashboard_admin = new Vue({
+const dashboard_admin_control_panel = new Vue({
     data: {
         input_power: 0,
         input_spec: '',
@@ -34,11 +35,11 @@ const dashboard_admin = new Vue({
             return get_price_list_item(this.price_list, power_id, spec_id, 'description');
         },
         f_init(){
-            dashboard_main.navigations.push({name: "Control Panel", callback: this.f_control_panel});
+            dashboard_main.navigations.push({name: "Control Panel", callback: this.f_template});
         },
 
         //DISPLAY CP
-        async f_control_panel(){
+        async f_template(){
             dashboard_main.content.title = 'Control Panel';
             dashboard_main.content.template = `
                 <div>
@@ -143,4 +144,4 @@ const dashboard_admin = new Vue({
     }
 });
 
-dashboard_admin.f_init();
+dashboard_admin_control_panel.f_init();

@@ -30,8 +30,9 @@
 
 {% block script %}
     <script src="/static/dashboard/main.js"></script>
-    <script src="/static/dashboard/user.js" type="module"></script>
+    <script src="/static/dashboard/user/price_list.js" type="module"></script>
+    <script src="/static/dashboard/user/input_order.js" type="module"></script>
     {% if registered == 'ADMIN' %}
-        <script src="/static/dashboard/admin.js" type="module"></script>
+        <script src="/static/dashboard/admin/control_panel.js" type="module"></script>
     {% endif %}
 {% endblock %}
