@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from decimal import Decimal
+from typing import Optional
 
 class PowerOut(BaseModel):
     p_id: str
@@ -42,6 +43,7 @@ class SpecDelete(BaseModel):
 class PriceListOut(BaseModel):
     p_id: str
     s_id: str
+    description: Optional[str] = None
     price: Decimal
     power: int
     spec: str
@@ -53,4 +55,5 @@ class PriceListOut(BaseModel):
 class PriceChange(BaseModel):
     p_id: str
     s_id: str
+    pl_description: str
     pl_price: Decimal

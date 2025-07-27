@@ -12,6 +12,7 @@ const dashboard_admin = new Vue({
             selected_spec_id: null,
             selected_power: null,
             selected_spec: null,
+            new_description: null,
             new_price: ''
         }
     },
@@ -67,6 +68,10 @@ const dashboard_admin = new Vue({
                         <h3>Edit Harga</h3>
                         <p>Power: {{ update_price.selected_power }}</p>
                         <p>Spec: {{ update_price.selected_spec }}</p>
+                        Description
+                        <input v-model="update_price.new_description" type="text" placeholder="Description" />
+                        <br>
+                        Price
                         <input v-model="update_price.new_price" type="text" @input="format_price_input" placeholder="New Price" />
                         <br><br>
                         <button @click="f_update_price">Update</button>
@@ -102,6 +107,7 @@ const dashboard_admin = new Vue({
             const res = get_price_list_item(this.price_list, power_id, spec_id);
             this.update_price.selected_power_id = power_id;
             this.update_price.selected_spec_id = spec_id;
+            this.update_price.new_description = res.description;
             this.update_price.selected_power = res.power;
             this.update_price.selected_spec = res.spec;
             this.update_price.new_price = format_price(res.price);
@@ -111,7 +117,7 @@ const dashboard_admin = new Vue({
             //let price_string = this.update_price.new_price.replace(/\D/g, ''); // hanya angka
             let price_string = deformat_price(this.update_price.new_price);
             let price = Number(price_string);
-            const res = await api_update_price(this.update_price.selected_power_id, this.update_price.selected_spec_id, Number(price));
+            const res = await api_update_price(this.update_price.selected_power_id, this.update_price.selected_spec_id, this.update_price.new_description, Number(price));
             this.f_get_all_price_list();
             this.update_price.show_popup = false;
             console.log(res);

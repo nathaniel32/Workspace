@@ -123,6 +123,7 @@ class ItemAPI:
                 PriceListOut(
                     p_id=price.p_id,
                     s_id=price.s_id,
+                    description=price.pl_description,
                     price=price.pl_price,
                     power=power_val,
                     spec=spec_val,
@@ -140,6 +141,7 @@ class ItemAPI:
             if not db_price:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Kombinasi power & spec tidak ditemukan")
 
+            db_price.pl_description = price.pl_description
             db_price.pl_price = price.pl_price
             db.commit()
             return {"message": "Harga berhasil diperbarui"}

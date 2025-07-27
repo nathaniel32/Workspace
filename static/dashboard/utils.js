@@ -75,7 +75,7 @@ export async function api_input_spec(spec) {
     }
 }
 
-export async function api_update_price(p_id, s_id, new_price) {
+export async function api_update_price(p_id, s_id, new_description, new_price) {
     try {
         const response = await fetch('/api/item/price', {
             method: 'PUT',
@@ -86,6 +86,7 @@ export async function api_update_price(p_id, s_id, new_price) {
             body: JSON.stringify({
                 p_id: p_id,
                 s_id: s_id,
+                pl_description: new_description,
                 pl_price: new_price
             })
         });
