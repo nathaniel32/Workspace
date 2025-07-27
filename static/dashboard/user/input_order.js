@@ -8,21 +8,25 @@ const dashboard_user_price_list = new Vue({
     },
     methods: {
         async f_init() {
-            dashboard_main.navigations.push({ name: "Input Order", callback: this.f_template });
+            dashboard_main.navigations.push({ name: "Manage Order", callback: this.f_template });
             const res = await api_get_all_spec();
             this.spec_list = res.data;
         },
         f_template() {
-            dashboard_main.content.title = 'Input Order';
+            dashboard_main.content.title = 'Manage Order';
             dashboard_main.content.template = `
                 <div>
-                    <br>
-                    Order ID:
-                    <br>
-                    Client Name:
-                    <br>
-                    <br>
-                    <div>
+                    <div style="border:1px solid black">
+                        Order
+                        <br>
+                        <button @click="f_input_order">Add New Order</button>
+                    </div>
+                    <div style="border:1px solid black">
+                        Order_artikel
+                        <br>
+                        <button @click="f_input_order">Add New Artikel</button>
+                    </div>
+                    <div style="border:1px solid black">
                         <label>Power</label>
                         <input type="number" v-model="input_power">
                         
@@ -34,6 +38,8 @@ const dashboard_user_price_list = new Vue({
                         </div>
 
                         <button @click="f_input_order">Submit</button>
+                        <br>
+                        <button>Submit Artikel</button>
                     </div>
                 </div>
             `;
