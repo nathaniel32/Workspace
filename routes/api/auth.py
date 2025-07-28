@@ -38,7 +38,6 @@ class AuthAPI:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=strong_password_message)
 
         try:
-            # TODO Hanya Hapus yg blm terauth email
             prev_user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
             
             # hapus yg belum di aktivasi email
@@ -85,42 +84,47 @@ class AuthAPI:
         return self.f_login(request, db, form_oauth_data)
 
     def f_login(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends()):
-        user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
-        if not user or not pwd_context.verify(form_oauth_data.password, user.u_password):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="falsche E-Mail oder falsches Passwort")
-        
-        u_email = form_oauth_data.username
-        u_ip = request.client.host
-        u_aud = request.headers.get("user-agent")
-        u_id = user.u_id
-        u_name = user.u_name
-        u_role = user.u_role
-        u_status = user.u_status
+        try:
+            user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
+            if not user or not pwd_context.verify(form_oauth_data.password, user.u_password):
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="falsche E-Mail oder falsches Passwort")
+            
+            u_email = form_oauth_data.username
+            u_ip = request.client.host
+            u_aud = request.headers.get("user-agent")
+            u_id = user.u_id
+            u_name = user.u_name
+            u_role = user.u_role
+            u_status = user.u_status
 
-        access_token = routes.api.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role, "status": u_status}, timedelta(hours=24))
+            access_token = routes.api.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role, "status": u_status}, timedelta(hours=24))
 
-        response = JSONResponse(content={"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}) #access_token, token_type, buat swagger
-        response.set_cookie(
-            key="access_token",
-            value=access_token,
-            httponly=True,
-            secure=False,      # HTTPS = True
-            samesite="Lax",    # atau 'Strict' / 'None'
-            max_age=config.ACCESS_TOKEN_EXP * 3600,
-            path="/"
-        )
-        return response
+            response = JSONResponse(content={"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}) #access_token, token_type, buat swagger
+            response.set_cookie(
+                key="access_token",
+                value=access_token,
+                httponly=True,
+                secure=False,      # HTTPS = True
+                samesite="Lax",    # atau 'Strict' / 'None'
+                max_age=config.ACCESS_TOKEN_EXP * 3600,
+                path="/"
+            )
+            return response
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
     def f_logout(self):
-        response = JSONResponse(content={"message": "Logout erfolgreich"})
-        response.delete_cookie(
-            key="access_token",
-            path="/"
-        )
-        return response
+        try:
+            response = JSONResponse(content={"message": "Logout erfolgreich"})
+            response.delete_cookie(
+                key="access_token",
+                path="/"
+            )
+            return response
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     def f_validate(self, form_data: Validation, token: str = Depends(oauth2_scheme)):
-        print(token)
         try:
             message, payload = routes.api.utils.validate_token(token=token, ip=form_data.ip, aud=form_data.aud)
             return {"message": message, "data": payload}

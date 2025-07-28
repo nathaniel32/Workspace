@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.api.auth import AuthAPI
 from routes.api.item import ItemAPI
+from routes.api.order import OrderAPI
 from routes.api.debug import DebugAPI
 from routes.frontend import Frontend
 from utils import config
@@ -16,6 +17,7 @@ class App:
         self.app.include_router(Frontend().router)
         self.app.include_router(AuthAPI().router)
         self.app.include_router(ItemAPI().router)
+        self.app.include_router(OrderAPI().router)
         self.app.include_router(DebugAPI().router)
 
     def setup_middleware(self):

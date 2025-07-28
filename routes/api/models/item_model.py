@@ -57,3 +57,13 @@ class PriceChange(BaseModel):
     s_id: str
     pl_description: str
     pl_price: Decimal
+
+class OrderOut(BaseModel):
+    o_id: str
+    u_id: int
+    o_description: str
+    o_time: int
+
+    model_config = {
+        "from_attributes": True,
+    }

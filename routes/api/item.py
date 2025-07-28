@@ -25,8 +25,11 @@ class ItemAPI:
         self.router.add_api_route("/price", self.change_price, methods=["PUT"])
 
     def get_all_power(self, db: database.connection.db_dependency) -> List[PowerOut]:
-        powers = db.query(database.models.TPower).all()
-        return [PowerOut.model_validate(p) for p in powers]
+        try:
+            powers = db.query(database.models.TPower).all()
+            return [PowerOut.model_validate(p) for p in powers]
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     def insert_power(self, power: PowerCreate, db: database.connection.db_dependency):
         try:
@@ -66,8 +69,11 @@ class ItemAPI:
     
 
     def get_all_spec(self, db: database.connection.db_dependency) -> List[SpecOut]:
-        specs = db.query(database.models.TSpec).all()
-        return [SpecOut.model_validate(s) for s in specs]
+        try:
+            specs = db.query(database.models.TSpec).all()
+            return [SpecOut.model_validate(s) for s in specs]
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
     def insert_spec(self, spec: SpecCreate, db: database.connection.db_dependency):
         try:
@@ -106,30 +112,33 @@ class ItemAPI:
     
         
     def get_all_price(self, db: database.connection.db_dependency):
-        results = (
-            db.query(
-                database.models.TPriceList,
-                database.models.TPower.p_power,
-                database.models.TSpec.s_spec,
-            )
-            .join(database.models.TPower, database.models.TPriceList.p_id == database.models.TPower.p_id)
-            .join(database.models.TSpec, database.models.TPriceList.s_id == database.models.TSpec.s_id)
-            .all()
-        )
-
-        price_list = []
-        for price, power_val, spec_val in results:
-            price_list.append(
-                PriceListOut(
-                    p_id=price.p_id,
-                    s_id=price.s_id,
-                    description=price.pl_description,
-                    price=price.pl_price,
-                    power=power_val,
-                    spec=spec_val,
+        try:
+            results = (
+                db.query(
+                    database.models.TPriceList,
+                    database.models.TPower.p_power,
+                    database.models.TSpec.s_spec,
                 )
+                .join(database.models.TPower, database.models.TPriceList.p_id == database.models.TPower.p_id)
+                .join(database.models.TSpec, database.models.TPriceList.s_id == database.models.TSpec.s_id)
+                .all()
             )
-        return price_list
+
+            price_list = []
+            for price, power_val, spec_val in results:
+                price_list.append(
+                    PriceListOut(
+                        p_id=price.p_id,
+                        s_id=price.s_id,
+                        description=price.pl_description,
+                        price=price.pl_price,
+                        power=power_val,
+                        spec=spec_val,
+                    )
+                )
+            return price_list
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
     def change_price(self, price: PriceChange, db: database.connection.db_dependency):
         try:
