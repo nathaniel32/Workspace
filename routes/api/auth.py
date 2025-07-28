@@ -124,9 +124,9 @@ class AuthAPI:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    def f_validate(self, form_data: Validation, token: str = Depends(oauth2_scheme)):
+    def f_validate(self, input: Validation, token: str = Depends(oauth2_scheme)):
         try:
-            message, payload = routes.api.utils.validate_token(token=token, ip=form_data.ip, aud=form_data.aud)
+            message, payload = routes.api.utils.validate_token(token=token, ip=input.ip, aud=input.aud)
             return {"message": message, "data": payload}
         
         except ExpiredSignatureError:

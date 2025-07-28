@@ -1,12 +1,13 @@
-import { api_get_all_specs, api_get_all_orders, api_input_order } from '../api.js'; //api_input_order
+import { api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_artikel } from '../api.js'; //api_input_order
 
 const dashboard_user_price_list = new Vue({
     data: {
         spec_list: [],
         order_list: [],
         input_order_description: null,
+        selected_order_id: null,
         input_order_artikel_power: null,
-        input_order_artikel_specs: []
+        input_order_artikel_id_specs: []
     },
     methods: {
         async f_init() {
@@ -26,7 +27,7 @@ const dashboard_user_price_list = new Vue({
                     <div style="border:1px solid black">
                         Order
                         <ul v-for="order in order_list" :key="order.o_id">
-                            <li>{{ order.o_description }}</li>
+                            <li>{{ order.o_description }} - {{ order.o_id }}</li>
                         </ul>
                         <input type="text" v-model="input_order_description">
                         <button @click="f_input_order">Add New Order</button>
@@ -37,14 +38,14 @@ const dashboard_user_price_list = new Vue({
                         <br>
                         * Mesin 1
                         <br>
-                        Order ID = JWIJD3
+                        Order ID <input type="number" v-model="selected_order_id">
                         <br>
                         <label>Power</label>
                         <input type="number" v-model="input_order_artikel_power">
                         
                         <div v-for="spec in spec_list" :key="spec.s_id">
                             <label>
-                                <input type="checkbox" :value="spec.s_id" v-model="input_order_artikel_specs">
+                                <input type="checkbox" :value="spec.s_id" v-model="input_order_artikel_id_specs">
                                 {{ spec.s_spec || '(empty)' }}
                             </label>
                         </div>
@@ -62,12 +63,9 @@ const dashboard_user_price_list = new Vue({
             this.f_get_order_list();
         },
         async f_input_order_artikel() {
-            const payload = {
-                power: this.input_order_artikel_power,
-                specs: this.input_order_artikel_specs
-            };
-            console.log(payload)
-            //await api_input_order(payload);
+            const res = await api_input_order_artikel(this.selected_order_id, this.input_order_artikel_power, this.input_order_artikel_id_specs);
+            console.log(res);
+            base_vue.f_info(res.message);
         }
     }
 });

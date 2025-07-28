@@ -31,11 +31,11 @@ class ItemAPI:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    def insert_power(self, power: PowerCreate, db: database.connection.db_dependency):
+    def insert_power(self, input: PowerCreate, db: database.connection.db_dependency):
         try:
             new_power = database.models.TPower(
                 p_id=routes.api.utils.generate_id(),
-                p_power=power.p_power
+                p_power=input.p_power
             )
             db.add(new_power)
             db.commit()
@@ -45,12 +45,12 @@ class ItemAPI:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-    def update_power(self, power: PowerUpdate, db: database.connection.db_dependency):
+    def update_power(self, input: PowerUpdate, db: database.connection.db_dependency):
         try:
-            db_power = db.query(database.models.TPower).filter_by(p_id=power.p_id).first()
+            db_power = db.query(database.models.TPower).filter_by(p_id=input.p_id).first()
             if not db_power:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Power tidak ditemukan")
-            db_power.p_power = power.p_power
+            db_power.p_power = input.p_power
             db.commit()
             return {"message": "Power berhasil diperbarui"}
         except Exception as e:
@@ -58,9 +58,9 @@ class ItemAPI:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-    def delete_power(self, power: PowerDelete, db: database.connection.db_dependency):
+    def delete_power(self, input: PowerDelete, db: database.connection.db_dependency):
         try:
-            db_power = db.query(database.models.TPower).filter_by(p_id=power.p_id).first()
+            db_power = db.query(database.models.TPower).filter_by(p_id=input.p_id).first()
             if not db_power:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Power tidak ditemukan")
             db.delete(db_power)
@@ -78,11 +78,11 @@ class ItemAPI:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-    def insert_spec(self, spec: SpecCreate, db: database.connection.db_dependency):
+    def insert_spec(self, input: SpecCreate, db: database.connection.db_dependency):
         try:
             new_spec = database.models.TSpec(
                 s_id=routes.api.utils.generate_id(),
-                s_spec=spec.s_spec
+                s_spec=input.s_spec
             )
             db.add(new_spec)
             db.commit()
@@ -91,21 +91,21 @@ class ItemAPI:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
-    def update_spec(self, spec: SpecUpdate, db: database.connection.db_dependency):
+    def update_spec(self, input: SpecUpdate, db: database.connection.db_dependency):
         try:
-            db_spec = db.query(database.models.TSpec).filter_by(s_id=spec.s_id).first()
+            db_spec = db.query(database.models.TSpec).filter_by(s_id=input.s_id).first()
             if not db_spec:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Spec tidak ditemukan")
-            db_spec.s_spec = spec.s_spec
+            db_spec.s_spec = input.s_spec
             db.commit()
             return {"message": "Spec berhasil diperbarui"}
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    def delete_spec(self, spec: SpecDelete, db: database.connection.db_dependency):
+    def delete_spec(self, input: SpecDelete, db: database.connection.db_dependency):
         try:
-            db_spec = db.query(database.models.TSpec).filter_by(s_id=spec.s_id).first()
+            db_spec = db.query(database.models.TSpec).filter_by(s_id=input.s_id).first()
             if not db_spec:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Spec tidak ditemukan")
             db.delete(db_spec)
@@ -145,18 +145,18 @@ class ItemAPI:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-    def change_price(self, price: PriceChange, db: database.connection.db_dependency):
+    def change_price(self, input: PriceChange, db: database.connection.db_dependency):
         try:
             db_price = db.query(database.models.TPriceList).filter_by(
-                p_id=price.p_id,
-                s_id=price.s_id
+                p_id=input.p_id,
+                s_id=input.s_id
             ).first()
 
             if not db_price:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Kombinasi power & spec tidak ditemukan")
 
-            db_price.pl_description = price.pl_description
-            db_price.pl_price = price.pl_price
+            db_price.pl_description = input.pl_description
+            db_price.pl_price = input.pl_price
             db.commit()
             return {"message": "Harga berhasil diperbarui"}
         except Exception as e:

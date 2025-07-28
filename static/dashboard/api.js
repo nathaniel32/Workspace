@@ -92,6 +92,35 @@ export async function api_input_order(description) {
     }
 }
 
+export async function api_input_order_artikel(order_id, order_artikel_power, order_artikel_id_specs) {
+    try {
+        const response = await fetch('/api/order/order-artikel', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                o_id: order_id,
+                power: order_artikel_power,
+                s_ids: order_artikel_id_specs
+            })
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.message || errorResult.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { success: true, message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        return { success: false, message: error.message || "Unknown error", data: null };
+    }
+}
+
 export async function api_input_power(power) {
     try {
         const response = await fetch('/api/item/power', {

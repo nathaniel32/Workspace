@@ -1,9 +1,13 @@
 from pydantic import BaseModel
-from decimal import Decimal
-from typing import Optional
+from typing import List
 
-class OutputCreate(BaseModel):
+class OrderCreate(BaseModel):
     o_description: str
+
+class OrderArtikelCreate(BaseModel):
+    o_id: str # order
+    power: str # power
+    s_ids: List[str] # specs
 
 class OrderOut(BaseModel):
     o_id: str
