@@ -21,7 +21,7 @@ export async function api_get_all_price_list() {
     }
 }
 
-export async function api_get_all_spec() {
+export async function api_get_all_specs() {
     try {
         const response = await fetch('/api/item/spec', {
             method: 'GET',
@@ -36,6 +36,55 @@ export async function api_get_all_spec() {
             throw new Error(errorMsg);
         }
         
+        return { success: true, message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        return { success: false, message: error.message || "Unknown error", data: null };
+    }
+}
+
+export async function api_get_all_orders() {
+    try {
+        const response = await fetch('/api/order/order', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { success: true, message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        return { success: false, message: error.message || "Unknown error", data: null };
+    }
+}
+
+export async function api_input_order(description) {
+    try {
+        const response = await fetch('/api/order/order', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                o_description: description
+            })
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.message || errorResult.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
         return { success: true, message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);

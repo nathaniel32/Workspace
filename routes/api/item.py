@@ -42,6 +42,7 @@ class ItemAPI:
             db.refresh(new_power)
             return {"message": "Power berhasil ditambahkan", "p_id": new_power.p_id}
         except Exception as e:
+            db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
     def update_power(self, power: PowerUpdate, db: database.connection.db_dependency):
@@ -53,6 +54,7 @@ class ItemAPI:
             db.commit()
             return {"message": "Power berhasil diperbarui"}
         except Exception as e:
+            db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
@@ -65,6 +67,7 @@ class ItemAPI:
             db.commit()
             return {"message": "Power berhasil dihapus"}
         except Exception as e:
+            db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
 
@@ -97,6 +100,7 @@ class ItemAPI:
             db.commit()
             return {"message": "Spec berhasil diperbarui"}
         except Exception as e:
+            db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     def delete_spec(self, spec: SpecDelete, db: database.connection.db_dependency):
@@ -108,6 +112,7 @@ class ItemAPI:
             db.commit()
             return {"message": "Spec berhasil dihapus"}
         except Exception as e:
+            db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
         
@@ -155,5 +160,6 @@ class ItemAPI:
             db.commit()
             return {"message": "Harga berhasil diperbarui"}
         except Exception as e:
+            db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     

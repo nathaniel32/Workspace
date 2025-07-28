@@ -7,7 +7,7 @@ class OutputCreate(BaseModel):
 
 class OrderOut(BaseModel):
     o_id: str
-    u_id: int
+    u_id: str
     o_description: str
     o_time: int
 
