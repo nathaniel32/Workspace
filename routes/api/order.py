@@ -3,7 +3,7 @@ import database.connection
 import database.models
 from typing import List
 from fastapi import HTTPException, status, APIRouter
-from routes.api.models.item_model import OrderOut
+from routes.api.models.order_model import OrderOut
 import routes.api.utils
 
 class OrderAPI:

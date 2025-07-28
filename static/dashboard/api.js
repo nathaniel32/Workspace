@@ -98,6 +98,7 @@ export async function api_input_spec(spec) {
 }
 
 export async function api_update_price(p_id, s_id, new_description, new_price) {
+    console.log(new_price, new_description)
     try {
         const response = await fetch('/api/item/price', {
             method: 'PUT',
