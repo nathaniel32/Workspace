@@ -2,9 +2,9 @@ import { api_get_all_specs, api_get_all_orders, api_input_order } from '../api.j
 
 const dashboard_user_price_list = new Vue({
     data: {
+        spec_list: [],
         order_list: [],
         input_order_description: null,
-        spec_list: [],
         input_order_artikel_power: null,
         input_order_artikel_specs: []
     },
