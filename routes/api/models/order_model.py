@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 from decimal import Decimal
+from typing import Optional
 
 class OrderCreate(BaseModel):
     o_description: str
@@ -21,10 +22,21 @@ class OrderOut(BaseModel):
         "from_attributes": True,
     }
 
+class PriceListOut(BaseModel):
+    p_id: str
+    s_id: str
+    pl_price: Decimal
+    pl_description: Optional[str] = None
+
+    model_config = {
+        "from_attributes": True,
+    }
+
 class OrderSpecSchema(BaseModel):
     s_id: str
     p_id: str
     os_price: Decimal
+    price_list: Optional[PriceListOut]
 
     model_config = {
         "from_attributes": True,

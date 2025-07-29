@@ -19,7 +19,21 @@ const dashboard_admin_control_panel = new Vue({
             new_price: ''
         }
     },
+    computed: {
+        corrective_spec_count() {
+            return this.spec_list.filter(spec => spec.s_corrective === true).length;
+        },
+        combined_specs() {
+            return [
+                ...this.f_spec_list_corrective_filter(false),
+                ...this.f_spec_list_corrective_filter(true)
+            ];
+        }
+    },
     methods:{
+        f_spec_list_corrective_filter(is_corrective) {
+            return this.spec_list.filter(spec => spec.s_corrective === is_corrective);
+        },
         //mendapatkan harga setiap cell
         f_table_get_price(power_id, spec_id) {
             return format_price(get_price_list_item(this.price_list, power_id, spec_id, 'pl_price'));
@@ -47,14 +61,18 @@ const dashboard_admin_control_panel = new Vue({
                     <table border="1" cellpadding="5" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Power \\ Spec</th>
-                                <th v-for="spec in spec_list" :key="spec.s_id">{{ spec.s_spec || '(empty)' }} - {{ spec.s_corrective }}</th>
+                                <th rowspan="2">Power \\ Spec</th>
+                                <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
+                                <th :colspan="corrective_spec_count">Corrective Price</th>
+                            </tr>
+                            <tr>
+                                <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(power, index) in power_list" :key="power.p_id">
                                 <td>{{ f_get_power_range(power, power_list[index + 1]) }}</td>
-                                <td v-for="spec in spec_list" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id, f_get_power_range(power, power_list[index + 1]), spec.s_spec)" style="cursor:pointer; color:blue;">
+                                <td v-for="spec in combined_specs" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id, f_get_power_range(power, power_list[index + 1]), spec.s_spec)" style="cursor:pointer; color:blue;">
                                     <div>
                                         <strong>{{ f_table_get_price(power.p_id, spec.s_id) }}</strong><br>
                                         <small>{{ f_table_get_price_description(power.p_id, spec.s_id) }}</small>

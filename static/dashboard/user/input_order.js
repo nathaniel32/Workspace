@@ -11,7 +11,29 @@ const dashboard_user_price_list = new Vue({
         input_order_article_description: null,
         input_order_article_id_specs: []
     },
+    computed: {
+        corrective_spec_count() {
+            return this.spec_list.filter(spec => spec.s_corrective === true).length;
+        },
+        combined_specs() {
+            return [
+                ...this.f_spec_list_corrective_filter(false),
+                ...this.f_spec_list_corrective_filter(true)
+            ];
+        }
+    },
     methods: {
+        f_spec_list_corrective_filter(is_corrective) {
+            return this.spec_list.filter(spec => spec.s_corrective === is_corrective);
+        },
+        f_get_order_article_spec_price(specs, s_id) {
+            const spec = specs.find(s => s.s_id === s_id);
+            return spec ? Number(spec.os_price).toLocaleString() : '-';
+        },
+        f_get_order_article_spec_description(specs, s_id) {
+            const spec = specs.find(s => s.s_id === s_id);
+            return spec?.pricelist?.pl_description || '-';
+        },
         async f_init() {
             dashboard_main.navigations.push({ name: "Manage Order", callback: this.f_template });
             const res_spec = await api_get_all_specs();
@@ -39,18 +61,25 @@ const dashboard_user_price_list = new Vue({
                         <button @click="f_input_order">Add New Order</button>
                     </div>
                     <div style="border:1px solid black">
-                        <table>
+                        <table border="1" cellpadding="5" cellspacing="0">
                             <thead>
                                 <tr>
-                                    <th>Artikel</th>
-                                    <th v-for="spec in spec_list" :key="spec.s_id">{{ spec.s_spec }}</th>
+                                    <th rowspan="2">No</th>
+                                    <th rowspan="2">Motor KW</th>
+                                    <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
+                                    <th :colspan="corrective_spec_count">Corrective Price</th>
+                                </tr>
+                                <tr>
+                                    <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(item, index) in order_article_list" :key="item.oa_id">
                                     <td>{{ item.oa_description }}</td>
-                                    <td v-for="spec in spec_list" :key="spec.s_id">
-                                        {{ f_get_order_article_spec_price(item.specs, spec.s_id) }}
+                                    <td>{{ item.oa_power }}</td>
+                                    <td v-for="spec in combined_specs" :key="spec.s_id">
+                                        <strong>{{ f_get_order_article_spec_price(item.specs, spec.s_id) }}</strong><br>
+                                        <small>{{ f_get_order_article_spec_description(item.specs, spec.s_id) }}</small>
                                     </td>
                                 </tr>
                             </tbody>
@@ -74,10 +103,6 @@ const dashboard_user_price_list = new Vue({
                 </div>
             `;
             dashboard_main.content.data = this;
-        },
-        f_get_order_article_spec_price(specs, s_id) {
-            const spec = specs.find(s => s.s_id === s_id);
-            return spec ? Number(spec.os_price).toLocaleString() : '-';
         },
         async f_input_order() {
             const res = await api_input_order(this.input_order_description);

@@ -69,7 +69,8 @@ class OrderAPI:
     def get_order_articles_with_specs(self, o_id: str, db: database.connection.db_dependency) -> List[OrderArticleOut]:
         try:
             articles = db.query(database.models.TOrderArticle).options(
-                joinedload(database.models.TOrderArticle.order_specs)  # eager load specs
+                joinedload(database.models.TOrderArticle.order_specs)  # load specs
+                    .joinedload(database.models.TOrderSpec.pricelist)
             ).filter(
                 database.models.TOrderArticle.o_id == o_id
             ).all()
