@@ -18,7 +18,7 @@ class OrderAPI:
         self.router.add_api_route("/order", self.get_all_order, methods=["GET"])
         self.router.add_api_route("/order", self.insert_order, methods=["POST"])
         self.router.add_api_route("/order-article", self.insert_order_article, methods=["POST"])
-        self.router.add_api_route("/order-article/{o_id}", self.get_all_order_article, methods=["GET"])
+        self.router.add_api_route("/order-article/{o_id}", self.get_order_articles_with_specs, methods=["GET"])
 
     def get_all_order(self, db: database.connection.db_dependency) -> List[OrderOut]:
         try:
@@ -66,7 +66,7 @@ class OrderAPI:
             logger.error("Unhandled exception: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
         
-    def get_all_order_article(self, o_id: str, db: database.connection.db_dependency) -> List[OrderArticleOut]:
+    def get_order_articles_with_specs(self, o_id: str, db: database.connection.db_dependency) -> List[OrderArticleOut]:
         try:
             articles = db.query(database.models.TOrderArticle).options(
                 joinedload(database.models.TOrderArticle.order_specs)  # eager load specs
@@ -87,6 +87,8 @@ class OrderAPI:
                 }
                 for article in articles
             ]
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         

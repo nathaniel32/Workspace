@@ -26,8 +26,9 @@ class OrderSpecSchema(BaseModel):
     p_id: str
     os_price: Decimal
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True,
+    }
 
 class OrderArticleOut(BaseModel):
     oa_id: str

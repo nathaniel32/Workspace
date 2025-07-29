@@ -1,9 +1,10 @@
-import { api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article } from '../api.js'; //api_input_order
+import { api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_specs } from '../api.js'; //api_input_order
 
 const dashboard_user_price_list = new Vue({
     data: {
         spec_list: [],
         order_list: [],
+        order_article_list: [],
         input_order_description: null,
         selected_order_id: null,
         input_order_article_power: null,
@@ -21,6 +22,12 @@ const dashboard_user_price_list = new Vue({
             const res_order = await api_get_all_orders();
             this.order_list = res_order.data;
         },
+        async f_get_order_articles_with_specs(o_id) {
+            console.log(o_id);
+            const res_order = await get_order_articles_with_specs(o_id);
+            this.order_article_list = res_order.data;
+            console.log(this.order_article_list);
+        },
         f_template() {
             dashboard_main.content.title = 'Manage Order';
             dashboard_main.content.template = `
@@ -28,7 +35,7 @@ const dashboard_user_price_list = new Vue({
                     <div style="border:1px solid black">
                         Order
                         <ul v-for="order in order_list" :key="order.o_id">
-                            <li>{{ order.o_description }} - {{ order.o_id }}</li>
+                            <li @click="f_get_order_articles_with_specs(order.o_id)">{{ order.o_description }} - {{ order.o_id }}</li>
                         </ul>
                         <input type="text" v-model="input_order_description">
                         <button @click="f_input_order">Add New Order</button>
