@@ -3,12 +3,12 @@ import database.connection
 import database.models
 from typing import List
 from fastapi import HTTPException, status, APIRouter
-from routes.api.models.order_model import OrderOut, OrderCreate, OrderArtikelCreate
+from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut
 import routes.api.utils
 import logging
 import traceback
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import joinedload
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,8 @@ class OrderAPI:
         self.router = APIRouter(prefix="/api/order", tags=["Order"])
         self.router.add_api_route("/order", self.get_all_order, methods=["GET"])
         self.router.add_api_route("/order", self.insert_order, methods=["POST"])
-        self.router.add_api_route("/order-artikel", self.insert_order_artikel, methods=["POST"])
+        self.router.add_api_route("/order-article", self.insert_order_article, methods=["POST"])
+        self.router.add_api_route("/order-article/{o_id}", self.get_all_order_article, methods=["GET"])
 
     def get_all_order(self, db: database.connection.db_dependency) -> List[OrderOut]:
         try:
@@ -65,7 +66,31 @@ class OrderAPI:
             logger.error("Unhandled exception: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
         
-    def insert_order_artikel(self, request: Request, input: OrderArtikelCreate, db: database.connection.db_dependency):
+    def get_all_order_article(self, o_id: str, db: database.connection.db_dependency) -> List[OrderArticleOut]:
+        try:
+            articles = db.query(database.models.TOrderArticle).options(
+                joinedload(database.models.TOrderArticle.order_specs)  # eager load specs
+            ).filter(
+                database.models.TOrderArticle.o_id == o_id
+            ).all()
+
+            if not articles:
+                raise HTTPException(status_code=404, detail="Order articles not found.")
+
+            return [
+                {
+                    "oa_id": article.oa_id,
+                    "o_id": article.o_id,
+                    "p_id": article.p_id,
+                    "opl_description": article.opl_description,
+                    "specs": article.order_specs  # will be auto converted to OrderSpecSchema
+                }
+                for article in articles
+            ]
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        
+    def insert_order_article(self, request: Request, input: OrderArticleCreate, db: database.connection.db_dependency):
         try:
             access_token = request.cookies.get("access_token")
             user_ip = request.client.host
@@ -107,14 +132,14 @@ class OrderAPI:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No suitable power found.")
 
             # 3. Insert TOrderArticle
-            new_order_artikel = database.models.TOrderArticle(
+            new_order_article = database.models.TOrderArticle(
                 oa_id=routes.api.utils.generate_id(),
                 p_id=selected_power_id,
                 o_id=input.o_id,
                 opl_description=input.oa_description
             )
-            db.add(new_order_artikel)
-            db.flush()  # supaya new_order_artikel.oa_id ada di session
+            db.add(new_order_article)
+            db.flush()  # supaya new_order_article.oa_id ada di session
 
             # 4. Ambil harga dan spec dari TPriceList berdasarkan selected_power_id dan input.s_ids
             price_list_entries = db.query(database.models.TPriceList).filter(
@@ -125,7 +150,7 @@ class OrderAPI:
             # 5. Insert TOrderSpec berdasarkan price_list_entries
             order_specs = [
                 database.models.TOrderSpec(
-                    oa_id=new_order_artikel.oa_id,  # pake id yg baru dibuat
+                    oa_id=new_order_article.oa_id,  # pake id yg baru dibuat
                     s_id=pl.s_id,
                     p_id=pl.p_id,
                     os_price=pl.pl_price

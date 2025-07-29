@@ -92,9 +92,9 @@ export async function api_input_order(description) {
     }
 }
 
-export async function api_input_order_artikel(order_id, order_artikel_power, order_artikel_description, order_artikel_id_specs) {
+export async function api_input_order_article(order_id, order_article_power, order_article_description, order_article_id_specs) {
     try {
-        const response = await fetch('/api/order/order-artikel', {
+        const response = await fetch('/api/order/order-article', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -102,9 +102,9 @@ export async function api_input_order_artikel(order_id, order_artikel_power, ord
             },
             body: JSON.stringify({
                 o_id: order_id,
-                power: order_artikel_power,
-                oa_description: order_artikel_description,
-                s_ids: order_artikel_id_specs
+                power: order_article_power,
+                oa_description: order_article_description,
+                s_ids: order_article_id_specs
             })
         });
 

@@ -1,4 +1,4 @@
-import { api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_artikel } from '../api.js'; //api_input_order
+import { api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article } from '../api.js'; //api_input_order
 
 const dashboard_user_price_list = new Vue({
     data: {
@@ -6,9 +6,9 @@ const dashboard_user_price_list = new Vue({
         order_list: [],
         input_order_description: null,
         selected_order_id: null,
-        input_order_artikel_power: null,
-        input_order_artikel_description: null,
-        input_order_artikel_id_specs: []
+        input_order_article_power: null,
+        input_order_article_description: null,
+        input_order_article_id_specs: []
     },
     methods: {
         async f_init() {
@@ -41,19 +41,19 @@ const dashboard_user_price_list = new Vue({
                         <br>
                         Order ID <input type="text" v-model="selected_order_id">
                         <br>
-                        Order ID <input type="text" v-model="input_order_artikel_description">
+                        Order ID <input type="text" v-model="input_order_article_description">
                         <br>
                         <label>Power</label>
-                        <input type="number" v-model="input_order_artikel_power">
+                        <input type="number" v-model="input_order_article_power">
                         
                         <div v-for="spec in spec_list" :key="spec.s_id">
                             <label>
-                                <input type="checkbox" :value="spec.s_id" v-model="input_order_artikel_id_specs">
+                                <input type="checkbox" :value="spec.s_id" v-model="input_order_article_id_specs">
                                 {{ spec.s_spec || '(empty)' }}
                             </label>
                         </div>
 
-                        <button @click="f_input_order_artikel">Submit Artikel</button>
+                        <button @click="f_input_order_article">Submit Article</button>
                     </div>
                 </div>
             `;
@@ -65,8 +65,8 @@ const dashboard_user_price_list = new Vue({
             base_vue.f_info(res.message);
             this.f_get_order_list();
         },
-        async f_input_order_artikel() {
-            const res = await api_input_order_artikel(this.selected_order_id, this.input_order_artikel_power, this.input_order_artikel_description, this.input_order_artikel_id_specs);
+        async f_input_order_article() {
+            const res = await api_input_order_article(this.selected_order_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_specs);
             console.log(res);
             base_vue.f_info(res.message);
         }
