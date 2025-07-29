@@ -24,6 +24,7 @@ class PowerDelete(BaseModel):
 class SpecOut(BaseModel):
     s_id: str
     s_spec: str
+    s_corrective: bool
 
     model_config = {
         "from_attributes": True,
@@ -44,10 +45,8 @@ class SpecDelete(BaseModel):
 class PriceListOut(BaseModel):
     p_id: str
     s_id: str
-    description: Optional[str] = None
-    price: Decimal
-    power: int
-    spec: str
+    pl_description: Optional[str] = None
+    pl_price: Decimal
 
     model_config = {
         "from_attributes": True,

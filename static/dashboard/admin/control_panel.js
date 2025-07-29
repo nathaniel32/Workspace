@@ -1,5 +1,5 @@
-import { get_unique_sorted_specs, get_unique_sorted_powers, get_price_list_item, format_price, beautify_format_price, deformat_price } from '../utils.js';
-import { api_get_all_price_list, api_input_power, api_input_spec, api_update_price } from '../api.js';
+import { get_price_list_item, format_price, beautify_format_price, deformat_price } from '../utils.js';
+import { api_get_all_price_list, api_get_all_powers, api_get_all_specs, api_input_power, api_input_spec, api_update_price } from '../api.js';
 
 const dashboard_admin_control_panel = new Vue({
     data: {
@@ -7,7 +7,8 @@ const dashboard_admin_control_panel = new Vue({
         input_spec: '',
         input_spec_corrective: true,
         price_list: [],
-
+        power_list: [],
+        spec_list: [],
         update_price: {
             show_popup: false,
             selected_power_id: null,
@@ -18,22 +19,21 @@ const dashboard_admin_control_panel = new Vue({
             new_price: ''
         }
     },
-    computed: {
-        table_specs() {
-            return get_unique_sorted_specs(this.price_list);
-        },
-        table_powers() {
-            return get_unique_sorted_powers(this.price_list);
-        }
-    },
     methods:{
         //mendapatkan harga setiap cell
         f_table_get_price(power_id, spec_id) {
-            return format_price(get_price_list_item(this.price_list, power_id, spec_id, 'price'));
+            return format_price(get_price_list_item(this.price_list, power_id, spec_id, 'pl_price'));
         },
         //mendapatkan deskripsi setiap cell
         f_table_get_price_description(power_id, spec_id) {
-            return get_price_list_item(this.price_list, power_id, spec_id, 'description');
+            return get_price_list_item(this.price_list, power_id, spec_id, 'pl_description');
+        },
+        f_get_power_range(power_start, power_end) {
+            if (power_end) {
+                return `${power_start.p_power} - ${power_end.p_power - 1}`;
+            } else {
+                return `${power_start.p_power} <=`;
+            }
         },
         f_init(){
             dashboard_main.navigations.push({name: "Control Panel", callback: this.f_template});
@@ -48,21 +48,13 @@ const dashboard_admin_control_panel = new Vue({
                         <thead>
                             <tr>
                                 <th>Power \\ Spec</th>
-                                <th v-for="spec in table_specs" :key="spec.s_id">{{ spec.spec || '(empty)' }}</th>
+                                <th v-for="spec in spec_list" :key="spec.s_id">{{ spec.s_spec || '(empty)' }} - {{ spec.s_corrective }}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(power, index) in table_powers" :key="power.p_id">
-                                <td>
-                                    {{ power.power }}
-                                    <span v-if="table_powers[index + 1]">
-                                        - {{ table_powers[index + 1].power - 1 }}
-                                    </span>
-                                    <span v-else>
-                                        =<
-                                    </span>
-                                </td>
-                                <td v-for="spec in table_specs" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id)" style="cursor:pointer; color:blue;">
+                            <tr v-for="(power, index) in power_list" :key="power.p_id">
+                                <td>{{ f_get_power_range(power, power_list[index + 1]) }}</td>
+                                <td v-for="spec in spec_list" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id, f_get_power_range(power, power_list[index + 1]), spec.s_spec)" style="cursor:pointer; color:blue;">
                                     <div>
                                         <strong>{{ f_table_get_price(power.p_id, spec.s_id) }}</strong><br>
                                         <small>{{ f_table_get_price_description(power.p_id, spec.s_id) }}</small>
@@ -98,13 +90,26 @@ const dashboard_admin_control_panel = new Vue({
             `;
             dashboard_main.content.data = this;
             this.f_get_all_price_list();
+            this.f_get_all_powers();
+            this.f_get_all_specs();
         },
 
         //GET ALL PRICE
         async f_get_all_price_list(){
             const res = await api_get_all_price_list();
             this.price_list = res.data;
-            console.log(this.price_list)
+        },
+
+        //GET ALL POWERS
+        async f_get_all_powers(){
+            const res = await api_get_all_powers();
+            this.power_list = res.data;
+        },
+
+        //GET ALL SPECS
+        async f_get_all_specs(){
+            const res = await api_get_all_specs();
+            this.spec_list = res.data;
         },
 
         //INPUT POWER
@@ -121,14 +126,14 @@ const dashboard_admin_control_panel = new Vue({
             if (res.success) this.f_get_all_price_list();
         },
 
-        f_show_price_popup(power_id, spec_id) {
+        f_show_price_popup(power_id, spec_id, power_range, spec) {
             const res = get_price_list_item(this.price_list, power_id, spec_id);
             this.update_price.selected_power_id = power_id;
             this.update_price.selected_spec_id = spec_id;
-            this.update_price.new_description = res.description;
-            this.update_price.selected_power = res.power;
-            this.update_price.selected_spec = res.spec;
-            this.update_price.new_price = format_price(res.price);
+            this.update_price.new_description = res.pl_description;
+            this.update_price.selected_power = power_range;
+            this.update_price.selected_spec = spec;
+            this.update_price.new_price = format_price(res.pl_price);
             this.update_price.show_popup = true;
         },
         async f_update_price() {
@@ -138,7 +143,6 @@ const dashboard_admin_control_panel = new Vue({
             const res = await api_update_price(this.update_price.selected_power_id, this.update_price.selected_spec_id, this.update_price.new_description, Number(price));
             this.f_get_all_price_list();
             this.update_price.show_popup = false;
-            console.log(res);
             base_vue.f_info(res.message);
         },
 

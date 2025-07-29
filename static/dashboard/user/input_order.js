@@ -17,17 +17,14 @@ const dashboard_user_price_list = new Vue({
             const res_spec = await api_get_all_specs();
             this.spec_list = res_spec.data;
             this.f_get_order_list();
-            console.log(this.spec_list)
         },
         async f_get_order_list() {
             const res_order = await api_get_all_orders();
             this.order_list = res_order.data;
         },
         async f_get_order_articles_with_specs(o_id) {
-            console.log(o_id);
             const res_order = await get_order_articles_with_specs(o_id);
             this.order_article_list = res_order.data;
-            console.log(this.order_article_list);
         },
         f_template() {
             dashboard_main.content.title = 'Manage Order';
@@ -84,13 +81,11 @@ const dashboard_user_price_list = new Vue({
         },
         async f_input_order() {
             const res = await api_input_order(this.input_order_description);
-            console.log(res);
             base_vue.f_info(res.message);
             this.f_get_order_list();
         },
         async f_input_order_article() {
             const res = await api_input_order_article(this.selected_order_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_specs);
-            console.log(res);
             base_vue.f_info(res.message);
         }
     }

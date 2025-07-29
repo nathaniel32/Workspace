@@ -26,7 +26,7 @@ class ItemAPI:
 
     def get_all_power(self, db: database.connection.db_dependency) -> List[PowerOut]:
         try:
-            powers = db.query(database.models.TPower).all()
+            powers = db.query(database.models.TPower).order_by(database.models.TPower.p_power.asc()).all()
             return [PowerOut.model_validate(p) for p in powers]
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
@@ -119,30 +119,8 @@ class ItemAPI:
         
     def get_all_price(self, db: database.connection.db_dependency):
         try:
-            results = (
-                db.query(
-                    database.models.TPriceList,
-                    database.models.TPower.p_power,
-                    database.models.TSpec.s_spec,
-                )
-                .join(database.models.TPower, database.models.TPriceList.p_id == database.models.TPower.p_id)
-                .join(database.models.TSpec, database.models.TPriceList.s_id == database.models.TSpec.s_id)
-                .all()
-            )
-
-            price_list = []
-            for price, power_val, spec_val in results:
-                price_list.append(
-                    PriceListOut(
-                        p_id=price.p_id,
-                        s_id=price.s_id,
-                        description=price.pl_description,
-                        price=price.pl_price,
-                        power=power_val,
-                        spec=spec_val,
-                    )
-                )
-            return price_list
+            results = db.query(database.models.TPriceList).all()
+            return [PriceListOut.model_validate(p) for p in results]
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
