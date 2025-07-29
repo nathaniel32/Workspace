@@ -7,6 +7,7 @@ class OrderCreate(BaseModel):
 class OrderArtikelCreate(BaseModel):
     o_id: str # order
     power: str # power
+    oa_description: str
     s_ids: List[str] # specs
 
 class OrderOut(BaseModel):

@@ -8,6 +8,7 @@ import routes.api.utils
 import logging
 import traceback
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
@@ -84,24 +85,59 @@ class OrderAPI:
             print(input.s_ids)
             print(user_id)
 
-            # TODO
-            # check if "userid and o_id"  in TOrder
-            # input power new TOrderArtikel
-            # get TOrderArtikel ID, input spec to TOrderSpec
+            # 1. Check order milik user
+            selected_order = db.query(database.models.TOrder).filter(
+                database.models.TOrder.o_id == input.o_id,
+                database.models.TOrder.u_id == user_id
+            ).first()
 
-            return 1
-        
-            new_order = database.models.TOrder(
-                o_id=routes.api.utils.generate_id(),
-                u_id=user_id,
-                o_description=input.o_description
+            print("Data " + input.o_id)
+
+            # 2. Cari power_id sesuai power input (<= input.power)
+            selected_power_id = db.query(database.models.TPower.p_id)\
+                .filter(database.models.TPower.p_power <= input.power)\
+                .order_by(database.models.TPower.p_power.desc())\
+                .limit(1)\
+                .scalar()
+
+            if not selected_order:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found or not owned by user.")
+
+            if not selected_power_id:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No suitable power found.")
+
+            # 3. Insert TOrderArticle
+            new_order_artikel = database.models.TOrderArticle(
+                oa_id=routes.api.utils.generate_id(),
+                p_id=selected_power_id,
+                o_id=input.o_id,
+                opl_description=input.oa_description
             )
+            db.add(new_order_artikel)
+            db.flush()  # supaya new_order_artikel.oa_id ada di session
 
-            db.add(new_order)
+            # 4. Ambil harga dan spec dari TPriceList berdasarkan selected_power_id dan input.s_ids
+            price_list_entries = db.query(database.models.TPriceList).filter(
+                database.models.TPriceList.p_id == selected_power_id,
+                database.models.TPriceList.s_id.in_(input.s_ids)
+            ).all()
+
+            # 5. Insert TOrderSpec berdasarkan price_list_entries
+            order_specs = [
+                database.models.TOrderSpec(
+                    oa_id=new_order_artikel.oa_id,  # pake id yg baru dibuat
+                    s_id=pl.s_id,
+                    p_id=pl.p_id,
+                    os_price=pl.pl_price
+                )
+                for pl in price_list_entries
+            ]
+            db.add_all(order_specs)
+
+            # 6. Commit semua perubahan
             db.commit()
-            db.refresh(new_order)
 
-            return {"message": "Order berhasil ditambahkan", "o_id": new_order.o_id}
+            return {"message": "Order berhasil ditambahkan", "o_id": input.o_id}
 
         except SQLAlchemyError as db_err:
             db.rollback()
@@ -109,8 +145,8 @@ class OrderAPI:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error.")
 
         except HTTPException:
-            raise # buat 401
+            raise  # re-raise
 
-        except Exception as e:
+        except Exception:
             logger.error("Unhandled exception: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")

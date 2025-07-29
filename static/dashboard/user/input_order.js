@@ -7,6 +7,7 @@ const dashboard_user_price_list = new Vue({
         input_order_description: null,
         selected_order_id: null,
         input_order_artikel_power: null,
+        input_order_artikel_description: null,
         input_order_artikel_id_specs: []
     },
     methods: {
@@ -38,7 +39,9 @@ const dashboard_user_price_list = new Vue({
                         <br>
                         * Mesin 1
                         <br>
-                        Order ID <input type="number" v-model="selected_order_id">
+                        Order ID <input type="text" v-model="selected_order_id">
+                        <br>
+                        Order ID <input type="text" v-model="input_order_artikel_description">
                         <br>
                         <label>Power</label>
                         <input type="number" v-model="input_order_artikel_power">
@@ -63,7 +66,7 @@ const dashboard_user_price_list = new Vue({
             this.f_get_order_list();
         },
         async f_input_order_artikel() {
-            const res = await api_input_order_artikel(this.selected_order_id, this.input_order_artikel_power, this.input_order_artikel_id_specs);
+            const res = await api_input_order_artikel(this.selected_order_id, this.input_order_artikel_power, this.input_order_artikel_description, this.input_order_artikel_id_specs);
             console.log(res);
             base_vue.f_info(res.message);
         }
