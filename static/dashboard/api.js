@@ -171,7 +171,7 @@ export async function api_input_power(power) {
     }
 }
 
-export async function api_input_spec(spec) {
+export async function api_input_spec(spec, corrective) {
     try {
         const response = await fetch('/api/item/spec', {
             method: 'POST',
@@ -180,7 +180,8 @@ export async function api_input_spec(spec) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                s_spec: spec
+                s_spec: spec,
+                s_corrective: corrective
             })
         });
 

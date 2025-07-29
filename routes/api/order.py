@@ -82,8 +82,9 @@ class OrderAPI:
                     "oa_id": article.oa_id,
                     "o_id": article.o_id,
                     "p_id": article.p_id,
-                    "opl_description": article.opl_description,
-                    "specs": article.order_specs  # will be auto converted to OrderSpecSchema
+                    "oa_power": article.oa_power,
+                    "oa_description": article.oa_description,
+                    "specs": article.order_specs  # OrderSpecSchema
                 }
                 for article in articles
             ]
@@ -138,7 +139,8 @@ class OrderAPI:
                 oa_id=routes.api.utils.generate_id(),
                 p_id=selected_power_id,
                 o_id=input.o_id,
-                opl_description=input.oa_description
+                oa_power=input.power,
+                oa_description=input.oa_description
             )
             db.add(new_order_article)
             db.flush()  # supaya new_order_article.oa_id ada di session

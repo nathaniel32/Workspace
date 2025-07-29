@@ -80,11 +80,11 @@ class DebugAPI:
 
         # TOrderArticle
         order_articles = [
-            database.models.TOrderArticle(oa_id='oa1', p_id='power1', o_id='order1', opl_description='FP-01-PM-P1'),
-            database.models.TOrderArticle(oa_id='oa2', p_id='power2', o_id='order2', opl_description='FP-01-SP-P2'),
-            database.models.TOrderArticle(oa_id='oa3', p_id='power3', o_id='order2', opl_description='FP-01-PM-P2'),
-            database.models.TOrderArticle(oa_id='oa4', p_id='power4', o_id='order3', opl_description='FP-01-PM-P2'),
-            database.models.TOrderArticle(oa_id='oa5', p_id='power2', o_id='order3', opl_description='FP-01-PM-P2'),
+            database.models.TOrderArticle(oa_id='oa1', p_id='power1', o_id='order1', oa_description='FP-01-PM-P1'),
+            database.models.TOrderArticle(oa_id='oa2', p_id='power2', o_id='order2', oa_description='FP-01-SP-P2'),
+            database.models.TOrderArticle(oa_id='oa3', p_id='power3', o_id='order2', oa_description='FP-01-PM-P2'),
+            database.models.TOrderArticle(oa_id='oa4', p_id='power4', o_id='order3', oa_description='FP-01-PM-P2'),
+            database.models.TOrderArticle(oa_id='oa5', p_id='power2', o_id='order3', oa_description='FP-01-PM-P2'),
         ]
 
         # TOrderSpec

@@ -5,6 +5,7 @@ const dashboard_admin_control_panel = new Vue({
     data: {
         input_power: 0,
         input_spec: '',
+        input_spec_corrective: true,
         price_list: [],
 
         update_price: {
@@ -75,6 +76,8 @@ const dashboard_admin_control_panel = new Vue({
                     <button @click="f_input_power">Add Power</button>
                     <br>
                     <input v-model="input_spec" type="text" placeholder="Spec" />
+                    {{ input_spec_corrective }}
+                    <input v-model="input_spec_corrective" type="checkbox"/>
                     <button @click="f_input_spec">Add Spec</button>
 
                     <!-- Popup -->
@@ -101,6 +104,7 @@ const dashboard_admin_control_panel = new Vue({
         async f_get_all_price_list(){
             const res = await api_get_all_price_list();
             this.price_list = res.data;
+            console.log(this.price_list)
         },
 
         //INPUT POWER
@@ -112,7 +116,7 @@ const dashboard_admin_control_panel = new Vue({
 
         //INPUT SPEC
         async f_input_spec(){
-            const res = await api_input_spec(this.input_spec);
+            const res = await api_input_spec(this.input_spec, this.input_spec_corrective);
             base_vue.f_info(res.message);
             if (res.success) this.f_get_all_price_list();
         },

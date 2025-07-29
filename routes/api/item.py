@@ -82,7 +82,8 @@ class ItemAPI:
         try:
             new_spec = database.models.TSpec(
                 s_id=routes.api.utils.generate_id(),
-                s_spec=input.s_spec
+                s_spec=input.s_spec,
+                s_corrective=input.s_corrective
             )
             db.add(new_spec)
             db.commit()

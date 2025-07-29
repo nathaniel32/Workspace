@@ -1,6 +1,6 @@
 from sqlalchemy import (
     Column, Integer, Text, ForeignKey, Enum as SqlEnum,
-    CheckConstraint, DECIMAL, ForeignKeyConstraint, text
+    CheckConstraint, DECIMAL, ForeignKeyConstraint, text, Boolean
 )
 from sqlalchemy.dialects.postgresql import VARCHAR
 from enum import Enum
@@ -51,6 +51,7 @@ class TSpec(model_base):
 
     s_id = Column(VARCHAR(32), primary_key=True)
     s_spec = Column(Text, nullable=False, unique=True)
+    s_corrective = Column(Boolean, default=False)
 
     # child
     pricelistes = relationship("TPriceList", back_populates="spec", cascade="all, delete-orphan")
@@ -77,7 +78,7 @@ class TOrder(model_base):
 
     o_id = Column(VARCHAR(32), primary_key=True)
     u_id = Column(VARCHAR(32), ForeignKey('t_user.u_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
-    o_description = Column(Text)
+    o_description = Column(Text, nullable=False)
     o_time = Column(Integer, nullable=False, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
     # parent
@@ -91,7 +92,8 @@ class TOrderArticle(model_base):
     oa_id = Column(VARCHAR(32), primary_key=True)
     p_id = Column(VARCHAR(32), ForeignKey('t_power.p_id', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True)
     o_id = Column(VARCHAR(32), ForeignKey('t_order.o_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
-    opl_description = Column(Text)
+    oa_power = Column(Integer, nullable=False)
+    oa_description = Column(Text, nullable=False)
 
     # parent
     power = relationship("TPower", back_populates="order_articles")

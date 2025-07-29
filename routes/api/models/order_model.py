@@ -34,7 +34,8 @@ class OrderArticleOut(BaseModel):
     oa_id: str
     o_id: str
     p_id: str
-    opl_description: str | None = None
+    oa_power: int
+    oa_description: str | None = None
     specs: List[OrderSpecSchema]
 
     model_config = {

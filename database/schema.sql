@@ -24,7 +24,8 @@ CREATE TABLE t_power (
 -- Spec
 CREATE TABLE t_spec (
     s_id VARCHAR(32) PRIMARY KEY,
-    s_spec TEXT NOT NULL UNIQUE
+    s_spec TEXT NOT NULL UNIQUE,
+    s_corrective BOOLEAN DEFAULT FALSE
 );
 
 -- Price List
@@ -43,7 +44,7 @@ CREATE TABLE t_order (
     o_id VARCHAR(32),
     -- o_orderid TEXT UNIQUE NOT NULL,   !OPTIONAL JIKA ID SUDAH DI TENTUKAN!
     u_id VARCHAR(32) NOT NULL,  -- id pegawai yang menginput
-    o_description TEXT,
+    o_description TEXT NOT NULL,
     o_time INT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now())::int),
     FOREIGN KEY (u_id) REFERENCES t_user(u_id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
@@ -53,7 +54,8 @@ CREATE TABLE t_order_article (
     oa_id VARCHAR(32),
     p_id VARCHAR(32),
     o_id VARCHAR(32),
-    opl_description TEXT,
+    oa_power INT NOT NULL UNIQUE,
+    oa_description TEXT NOT NULL, -- Equiptment No
     PRIMARY KEY (oa_id, p_id),
     FOREIGN KEY (o_id) REFERENCES t_order(o_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
     FOREIGN KEY (p_id) REFERENCES t_power(p_id) ON DELETE RESTRICT ON UPDATE RESTRICT

@@ -31,6 +31,7 @@ class SpecOut(BaseModel):
 
 class SpecCreate(BaseModel):
     s_spec: str
+    s_corrective: bool
 
 class SpecUpdate(BaseModel):
     s_id: str

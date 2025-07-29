@@ -17,6 +17,7 @@ const dashboard_user_price_list = new Vue({
             const res_spec = await api_get_all_specs();
             this.spec_list = res_spec.data;
             this.f_get_order_list();
+            console.log(this.spec_list)
         },
         async f_get_order_list() {
             const res_order = await api_get_all_orders();
@@ -41,11 +42,22 @@ const dashboard_user_price_list = new Vue({
                         <button @click="f_input_order">Add New Order</button>
                     </div>
                     <div style="border:1px solid black">
-                        <br>
-                        * Mesin 1
-                        <br>
-                        * Mesin 1
-                        <br>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Artikel</th>
+                                    <th v-for="spec in spec_list" :key="spec.s_id">{{ spec.s_spec }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in order_article_list" :key="item.oa_id">
+                                    <td>{{ item.oa_description }}</td>
+                                    <td v-for="spec in spec_list" :key="spec.s_id">
+                                        {{ f_get_order_article_spec_price(item.specs, spec.s_id) }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                         Order ID <input type="text" v-model="selected_order_id">
                         <br>
                         Order Description <input type="text" v-model="input_order_article_description">
@@ -65,6 +77,10 @@ const dashboard_user_price_list = new Vue({
                 </div>
             `;
             dashboard_main.content.data = this;
+        },
+        f_get_order_article_spec_price(specs, s_id) {
+            const spec = specs.find(s => s.s_id === s_id);
+            return spec ? Number(spec.os_price).toLocaleString() : '-';
         },
         async f_input_order() {
             const res = await api_input_order(this.input_order_description);
