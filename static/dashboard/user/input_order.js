@@ -48,7 +48,7 @@ const dashboard_user_price_list = new Vue({
                         <br>
                         Order ID <input type="text" v-model="selected_order_id">
                         <br>
-                        Order ID <input type="text" v-model="input_order_article_description">
+                        Order Description <input type="text" v-model="input_order_article_description">
                         <br>
                         <label>Power</label>
                         <input type="number" v-model="input_order_article_power">
