@@ -3,7 +3,7 @@ import database.connection
 import database.models
 from typing import List
 from fastapi import HTTPException, status, APIRouter
-from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut
+from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderSpecSchema, PriceListOut
 import routes.api.utils
 import logging
 import traceback
@@ -78,7 +78,7 @@ class OrderAPI:
             if not articles:
                 raise HTTPException(status_code=404, detail="Order articles not found.")
 
-            return [
+            """ return [
                 {
                     "oa_id": article.oa_id,
                     "o_id": article.o_id,
@@ -87,6 +87,26 @@ class OrderAPI:
                     "oa_description": article.oa_description,
                     "specs": article.order_specs  # OrderSpecSchema
                 }
+                for article in articles
+            ] """
+            
+            return [
+                OrderArticleOut(
+                    oa_id=article.oa_id,
+                    o_id=article.o_id,
+                    p_id=article.p_id,
+                    oa_power=article.oa_power,
+                    oa_description=article.oa_description,
+                    specs=[
+                        OrderSpecSchema(
+                            s_id=spec.s_id,
+                            p_id=spec.p_id,
+                            os_price=spec.os_price,
+                            price_list=PriceListOut.model_validate(spec.pricelist) if spec.pricelist else None
+                        )
+                        for spec in article.order_specs
+                    ]
+                )
                 for article in articles
             ]
         except HTTPException:

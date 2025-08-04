@@ -47,6 +47,7 @@ const dashboard_user_price_list = new Vue({
         async f_get_order_articles_with_specs(o_id) {
             const res_order = await get_order_articles_with_specs(o_id);
             this.order_article_list = res_order.data;
+            console.log(this.order_article_list)
         },
         f_template() {
             dashboard_main.content.title = 'Manage Order';
