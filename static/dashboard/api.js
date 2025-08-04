@@ -166,6 +166,31 @@ export async function api_input_order_article(order_id, order_article_power, ord
     }
 }
 
+export async function api_delete_order_article(oa_id) {
+    try {
+        const response = await fetch(`/api/order/order-article`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ oa_id })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { success: true, message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        return { success: false, message: error.message || "Unknown error", data: null };
+    }
+}
+
 export async function api_input_power(power) {
     try {
         const response = await fetch('/api/item/power', {

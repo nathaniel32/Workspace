@@ -1,4 +1,4 @@
-import { api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_specs } from '../api.js'; //api_input_order
+import { api_delete_order_article, api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_specs } from '../api.js'; //api_input_order
 import { format_price } from '../utils.js';
 
 const dashboard_user_price_list = new Vue({
@@ -45,8 +45,11 @@ const dashboard_user_price_list = new Vue({
             const res_order = await api_get_all_orders();
             this.order_list = res_order.data;
         },
-        async f_get_order_articles_with_specs(o_id) {
-            const res_order = await get_order_articles_with_specs(o_id);
+        async f_get_order_articles_with_specs(o_id=null) {
+            if(o_id){
+                this.selected_order_id = o_id
+            }
+            const res_order = await get_order_articles_with_specs(this.selected_order_id);
             this.order_article_list = res_order.data;
         },
         f_sum_order_article(specs) {
@@ -101,7 +104,7 @@ const dashboard_user_price_list = new Vue({
                                     <td>
                                         <strong>{{ f_sum_order_article(item.specs) }}</strong>
                                     </td>
-                                    <button>Delete</Button>
+                                    <button @click="f_delete_order_article(item.oa_id)">Delete</Button>
                                 </tr>
                                 <tr>
                                     <td :colspan="combined_specs.length + 2">Total</td>
@@ -129,6 +132,11 @@ const dashboard_user_price_list = new Vue({
             `;
             dashboard_main.content.data = this;
         },
+        async f_delete_order_article(oa_id) {
+            const res = await api_delete_order_article(oa_id);
+            base_vue.f_info(res.message);
+            this.f_get_order_articles_with_specs();
+        },
         async f_input_order() {
             const res = await api_input_order(this.input_order_description);
             base_vue.f_info(res.message);
@@ -137,6 +145,7 @@ const dashboard_user_price_list = new Vue({
         async f_input_order_article() {
             const res = await api_input_order_article(this.selected_order_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_specs);
             base_vue.f_info(res.message);
+            this.f_get_order_articles_with_specs();
         }
     }
 });
