@@ -3,7 +3,7 @@ import database.connection
 import database.models
 from typing import List
 from fastapi import HTTPException, status, APIRouter
-from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderSpecSchema, PriceListOut
+from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderSpecSchema, PriceListOut, OrderArticleDelete
 import routes.api.utils
 import logging
 import traceback
@@ -19,7 +19,8 @@ class OrderAPI:
         self.router.add_api_route("/order", self.insert_order, methods=["POST"])
         self.router.add_api_route("/order-article", self.insert_order_article, methods=["POST"])
         self.router.add_api_route("/order-article/{o_id}", self.get_order_articles_with_specs, methods=["GET"])
-
+        self.router.add_api_route("/order-article", self.delete_order_article, methods=["DELETE"])
+        
     def get_all_order(self, db: database.connection.db_dependency) -> List[OrderOut]:
         try:
             orders = db.query(database.models.TOrder).all()
@@ -112,6 +113,20 @@ class OrderAPI:
         except HTTPException:
             raise
         except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        
+    def delete_order_article(self, input: OrderArticleDelete, db: database.connection.db_dependency):
+        try:
+            db_spec = db.query(database.models.TOrderArticle).filter_by(oa_id=input.oa_id).first()
+            if not db_spec:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Spec tidak ditemukan")
+            db.delete(db_spec)
+            db.commit()
+            return {"message": "Order Article berhasil dihapus"}
+        except HTTPException:
+            raise
+        except Exception as e:
+            db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
     def insert_order_article(self, request: Request, input: OrderArticleCreate, db: database.connection.db_dependency):

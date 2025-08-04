@@ -60,6 +60,9 @@ class AuthAPI:
             db.add(new_user)
             db.commit()
 
+        except HTTPException:
+            raise
+
         except IntegrityError as e:
             db.rollback()
             
@@ -110,6 +113,8 @@ class AuthAPI:
                 path="/"
             )
             return response
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
@@ -121,6 +126,8 @@ class AuthAPI:
                 path="/"
             )
             return response
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
@@ -129,6 +136,8 @@ class AuthAPI:
             message, payload = routes.api.utils.validate_token(token=token, ip=input.ip, aud=input.aud)
             return {"message": message, "data": payload}
         
+        except HTTPException:
+            raise
         except ExpiredSignatureError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired.")
         except JWTError as e:

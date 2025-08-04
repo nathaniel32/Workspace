@@ -53,3 +53,6 @@ class OrderArticleOut(BaseModel):
     model_config = {
         "from_attributes": True,
     }
+
+class OrderArticleDelete(BaseModel):
+    oa_id: str

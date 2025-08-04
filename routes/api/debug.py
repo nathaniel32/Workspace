@@ -118,6 +118,8 @@ class DebugAPI:
             ])
             db.commit()
             return {"message": "Dummy data inserted successfully"}
+        except HTTPException:
+            raise
         except Exception as e:
             db.rollback()
             from fastapi import HTTPException

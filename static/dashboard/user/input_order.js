@@ -1,4 +1,5 @@
 import { api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_specs } from '../api.js'; //api_input_order
+import { format_price } from '../utils.js';
 
 const dashboard_user_price_list = new Vue({
     data: {
@@ -28,11 +29,11 @@ const dashboard_user_price_list = new Vue({
         },
         f_get_order_article_spec_price(specs, s_id) {
             const spec = specs.find(s => s.s_id === s_id);
-            return spec ? Number(spec.os_price).toLocaleString() : '-';
+            return spec ? format_price(spec.os_price) : '-';
         },
         f_get_order_article_spec_description(specs, s_id) {
             const spec = specs.find(s => s.s_id === s_id);
-            return spec?.pricelist?.pl_description || '-';
+            return spec?.price_list.pl_description || '-';
         },
         async f_init() {
             dashboard_main.navigations.push({ name: "Manage Order", callback: this.f_template });
@@ -47,7 +48,21 @@ const dashboard_user_price_list = new Vue({
         async f_get_order_articles_with_specs(o_id) {
             const res_order = await get_order_articles_with_specs(o_id);
             this.order_article_list = res_order.data;
-            console.log(this.order_article_list)
+        },
+        f_sum_order_article(specs) {
+            const row_price = specs.reduce((sum, item) => sum + parseFloat(item.os_price), 0);
+            return format_price(row_price.toFixed(2));
+        },
+        f_sum_order(order_articles) {
+            const total_price = order_articles.reduce((sumOrder, item) => {
+                const specsSum = item.specs.reduce((sumSpecs, spec) => {
+                    const osPrice = parseFloat(spec.os_price) || 0;
+                    //const plPrice = parseFloat(spec.price_list.pl_price) || 0;
+                    return sumSpecs + osPrice;
+                }, 0);
+                return sumOrder + specsSum;
+            }, 0);
+            return format_price(total_price.toFixed(2));
         },
         f_template() {
             dashboard_main.content.title = 'Manage Order';
@@ -69,6 +84,7 @@ const dashboard_user_price_list = new Vue({
                                     <th rowspan="2">Motor KW</th>
                                     <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
                                     <th :colspan="corrective_spec_count">Corrective Price</th>
+                                    <th rowspan="2">Summe</th>
                                 </tr>
                                 <tr>
                                     <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
@@ -82,6 +98,14 @@ const dashboard_user_price_list = new Vue({
                                         <strong>{{ f_get_order_article_spec_price(item.specs, spec.s_id) }}</strong><br>
                                         <small>{{ f_get_order_article_spec_description(item.specs, spec.s_id) }}</small>
                                     </td>
+                                    <td>
+                                        <strong>{{ f_sum_order_article(item.specs) }}</strong>
+                                    </td>
+                                    <button>Delete</Button>
+                                </tr>
+                                <tr>
+                                    <td :colspan="combined_specs.length + 2">Total</td>
+                                    <td>{{ f_sum_order(order_article_list) }}</td>
                                 </tr>
                             </tbody>
                         </table>

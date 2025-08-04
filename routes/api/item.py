@@ -28,6 +28,8 @@ class ItemAPI:
         try:
             powers = db.query(database.models.TPower).order_by(database.models.TPower.p_power.asc()).all()
             return [PowerOut.model_validate(p) for p in powers]
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
@@ -41,6 +43,8 @@ class ItemAPI:
             db.commit()
             db.refresh(new_power)
             return {"message": "Power berhasil ditambahkan", "p_id": new_power.p_id}
+        except HTTPException:
+            raise
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
@@ -53,6 +57,8 @@ class ItemAPI:
             db_power.p_power = input.p_power
             db.commit()
             return {"message": "Power berhasil diperbarui"}
+        except HTTPException:
+            raise
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
@@ -66,6 +72,8 @@ class ItemAPI:
             db.delete(db_power)
             db.commit()
             return {"message": "Power berhasil dihapus"}
+        except HTTPException:
+            raise
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
@@ -75,6 +83,8 @@ class ItemAPI:
         try:
             specs = db.query(database.models.TSpec).all()
             return [SpecOut.model_validate(s) for s in specs]
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
@@ -89,6 +99,8 @@ class ItemAPI:
             db.commit()
             db.refresh(new_spec)
             return {"message": "Spec berhasil ditambahkan", "p_id": new_spec.s_id}
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
@@ -100,6 +112,8 @@ class ItemAPI:
             db_spec.s_spec = input.s_spec
             db.commit()
             return {"message": "Spec berhasil diperbarui"}
+        except HTTPException:
+            raise
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
@@ -112,6 +126,8 @@ class ItemAPI:
             db.delete(db_spec)
             db.commit()
             return {"message": "Spec berhasil dihapus"}
+        except HTTPException:
+            raise
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
@@ -121,6 +137,8 @@ class ItemAPI:
         try:
             results = db.query(database.models.TPriceList).all()
             return [PriceListOut.model_validate(p) for p in results]
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
@@ -138,6 +156,8 @@ class ItemAPI:
             db_price.pl_price = input.pl_price
             db.commit()
             return {"message": "Harga berhasil diperbarui"}
+        except HTTPException:
+            raise
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
