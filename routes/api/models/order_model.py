@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import List
 from decimal import Decimal
 from typing import Optional
+from database.models import OrderStatus
 
 class OrderCreate(BaseModel):
     o_description: str
@@ -17,6 +18,7 @@ class OrderOut(BaseModel):
     u_id: str
     o_description: str
     o_time: int
+    o_status: OrderStatus
 
     model_config = {
         "from_attributes": True,

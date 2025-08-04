@@ -1,6 +1,7 @@
 -- enum role
 CREATE TYPE user_role_enum AS ENUM ('ADMIN', 'USER');
 CREATE TYPE user_status_enum AS ENUM ('NOT_ACTIVATED', 'ACTIVATED', 'LOCKED', 'DELETED');
+CREATE TYPE order_status_enum AS ENUM ('PENDING', 'PROCESSING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED', 'FAILED', 'ON_HOLD');
 
 -- User
 CREATE TABLE t_user (
@@ -46,6 +47,7 @@ CREATE TABLE t_order (
     u_id VARCHAR(32) NOT NULL,  -- id pegawai yang menginput
     o_description TEXT NOT NULL,
     o_time INT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now())::int),
+    o_status order_status_enum NOT NULL DEFAULT 'PENDING',
     FOREIGN KEY (u_id) REFERENCES t_user(u_id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
 

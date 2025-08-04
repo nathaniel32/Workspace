@@ -20,6 +20,17 @@ class UserStatus(str, Enum):
     LOCKED = 'LOCKED'
     DELETED = 'DELETED'
 
+class OrderStatus(str, Enum):
+    PROCESSING = "PROCESSING"
+    PENDING = "PENDING"
+    CONFIRMED = "CONFIRMED"
+    SHIPPED = "SHIPPED"
+    DELIVERED = "DELIVERED"
+    CANCELLED = "CANCELLED"
+    RETURNED = "RETURNED"
+    FAILED = "FAILED"
+    ON_HOLD = "ON_HOLD"
+
 class TUser(model_base):
     __tablename__ = 't_user'
 
@@ -28,7 +39,7 @@ class TUser(model_base):
     u_email = Column(Text, nullable=False, unique=True)
     u_password = Column(Text, nullable=False)
     u_code = Column(Text)
-    u_role = Column(SqlEnum(UserRole), nullable=False)
+    u_role = Column(SqlEnum(UserRole), nullable=False, default=UserRole.USER)
     u_status = Column(SqlEnum(UserStatus), nullable=False)
     u_time = Column(Integer, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
@@ -80,6 +91,7 @@ class TOrder(model_base):
     u_id = Column(VARCHAR(32), ForeignKey('t_user.u_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
     o_description = Column(Text, nullable=False)
     o_time = Column(Integer, nullable=False, server_default=text("EXTRACT(EPOCH FROM now())::int"))
+    o_status = Column(SqlEnum(OrderStatus), nullable=False, default=OrderStatus.PENDING)
 
     # parent
     user = relationship("TUser", back_populates="orders")
