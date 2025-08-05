@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.api.auth import AuthAPI
 from routes.api.item import ItemAPI
 from routes.api.order import OrderAPI
-from routes.api.debug import DebugAPI
+from routes.api.sql_workbench import SQLWorkbenchAPI
 from routes.frontend import Frontend
 from utils import config
 from fastapi.staticfiles import StaticFiles
@@ -18,7 +18,7 @@ class App:
         self.app.include_router(AuthAPI().router)
         self.app.include_router(ItemAPI().router)
         self.app.include_router(OrderAPI().router)
-        self.app.include_router(DebugAPI().router)
+        self.app.include_router(SQLWorkbenchAPI().router)
 
     def setup_middleware(self):
         self.app.add_middleware(

@@ -53,7 +53,7 @@ class AuthAPI:
                 u_name = name,
                 u_email = form_oauth_data.username,
                 u_password = pwd_context.hash(form_oauth_data.password),
-                u_role = database.models.UserRole.ADMIN if user_count == 0 else database.models.UserRole.USER,
+                u_role = database.models.UserRole.ROOT if user_count == 0 else database.models.UserRole.USER,
                 u_status = database.models.UserStatus.ACTIVATED, # HARUS DI GANTI JIKA INGIN DENGAN AKTIVASI EMAIL
                 u_code = routes.api.utils.generate_code(6)
             )

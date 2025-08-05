@@ -91,7 +91,7 @@ const order_management = new Vue({
             if (res_order.data) {
                 this.order_article_list = res_order.data;
             }else{
-                base_vue.f_info(res_order.message);
+                base_vue.f_info("No article found");
                 this.order_article_list = [];
             }
         },
@@ -115,7 +115,7 @@ const order_management = new Vue({
             dashboard_main.content.template = `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div class="lg:col-span-1 bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-semibold mb-4">Orders by Status</h3>
+                        <h3 class="text-lg font-semibold mb-4">Orders</h3>
                         <div class="space-y-2">
                             <div v-for="(orders, status) in grouped_orders" :key="status">
                                 <button @click="active_status_group = active_status_group === status ? null : status" class="w-full text-left font-semibold p-2 rounded-lg hover:bg-gray-200 border flex justify-between items-center">

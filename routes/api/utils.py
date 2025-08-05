@@ -48,6 +48,9 @@ def generate_id():
 
 def validate_token(token, ip, aud):
     try:
+        if not token:
+            raise Exception("Token not found")
+        
         payload = jwt.decode(
             token,
             config.SECRET_KEY,
@@ -87,8 +90,8 @@ def auth_site(request):
 
     context = {
         "request": request,
-        "data": None,
-        "registered": payload.get("role") if payload else None
+        #"message": message,
+        "payload": payload
     }
 
     return payload, context

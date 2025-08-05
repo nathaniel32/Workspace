@@ -47,7 +47,7 @@ const dashboard_admin_control_panel = new Vue({
             if (power_end) {
                 return `${power_start.p_power} - ${power_end.p_power - 1}`;
             } else {
-                return `${power_start.p_power} <=`;
+                return `> ${power_start.p_power}`;
             }
         },
         f_init(){
@@ -63,7 +63,7 @@ const dashboard_admin_control_panel = new Vue({
                         <table class="w-full text-sm text-left text-gray-500">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
-                                    <th rowspan="2" class="py-3 px-6">Power \\ Spec</th>
+                                    <th rowspan="2" class="py-3 px-6">Power</th>
                                     <th rowspan="2" class="py-3 px-6">Number of unit</th>
                                     <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id" class="py-3 px-6">{{ spec.s_spec || '(empty)' }}</th>
                                     <th :colspan="corrective_spec_count" class="py-3 px-6 text-center">Corrective Price</th>
@@ -117,12 +117,12 @@ const dashboard_admin_control_panel = new Vue({
                                     <p><span class="font-semibold">Power:</span> {{ update_price.selected_power }}</p>
                                     <p><span class="font-semibold">Spec:</span> {{ update_price.selected_spec }}</p>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Description</label>
-                                        <input v-model="update_price.new_description" type="text" placeholder="Description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
-                                    </div>
-                                    <div>
                                         <label class="block text-sm font-medium text-gray-700">Price</label>
                                         <input v-model="update_price.new_price" type="text" @input="format_price_input" placeholder="New Price" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                                        <input v-model="update_price.new_description" type="text" placeholder="Description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">

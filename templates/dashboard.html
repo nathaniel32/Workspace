@@ -60,7 +60,10 @@
 {% block script %}
     <script src="/static/dashboard/main.js"></script>
     <script src="/static/dashboard/user/order_management.js" type="module"></script>
-    {% if registered == 'ADMIN' %}
+    {% if payload.role in ['ADMIN', 'ROOT'] %}
         <script src="/static/dashboard/admin/control_panel.js" type="module"></script>
+    {% endif %}
+    {% if payload.role == 'ROOT' %}
+        <script src="/static/dashboard/root/sql_workbench.js" type="module"></script>
     {% endif %}
 {% endblock %}
