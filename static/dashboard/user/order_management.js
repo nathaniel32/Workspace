@@ -79,7 +79,13 @@ const order_management = new Vue({
         },
         async f_get_order_articles_with_specs(order_object=null) {
             if(order_object){
-                this.selected_order_object = order_object
+                if (this.selected_order_object == order_object){
+                    this.selected_order_object = null;
+                    this.order_article_list = [];
+                    return;
+                }else{
+                    this.selected_order_object = order_object;
+                }
             }
             const res_order = await get_order_articles_with_specs(this.selected_order_object.o_id);
             if (res_order.data) {
@@ -128,7 +134,7 @@ const order_management = new Vue({
                             <button @click="f_input_order" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus mr-2"></i>Add New Order</button>
                         </div>
                     </div>
-                    <div class="lg:col-span-3 space-y-6">
+                    <div v-if="selected_order_object" class="lg:col-span-3 space-y-6">
                         <div class="bg-white p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-4">Order Details</h3>
                             <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
@@ -170,7 +176,7 @@ const order_management = new Vue({
                                 </table>
                             </div>
                         </div>
-                        <div v-if="selected_order_object" class="bg-white p-4 rounded-lg shadow-md">
+                        <div class="bg-white p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-2">Add Article to Order</h3>
                             <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mt-5 mb-5">
                                 <div class="font-medium">Deskripsi:</div>
@@ -189,10 +195,6 @@ const order_management = new Vue({
                                 <div>{{ selected_order_object.u_id }}</div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Order ID</label>
-                                    <input type="text" v-model="selected_order_object.o_id" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
-                                </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Description</label>
                                     <input type="text" v-model="input_order_article_description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
