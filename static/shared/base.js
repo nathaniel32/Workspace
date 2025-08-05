@@ -1,11 +1,20 @@
 const base_vue = new Vue({
     el: '#base',
     data: {
+        showAuthModal: false,
+        authTab: 'login',
         v_info: "",
         v_login: {email: "test@exp.com", password: "Tadnxciw123_"},
         v_signup: {username: "Test User", email: "test@exp.com", password: "Tadnxciw123_"},
     },
     methods:{
+        f_openAuth(tab = 'login') {
+            this.authTab = tab;
+            this.showAuthModal = true;
+        },
+        f_closeAuth() {
+            this.showAuthModal = false;
+        },
         f_info(message, duration=5000){
             this.v_info = message;
             setTimeout(()=>{

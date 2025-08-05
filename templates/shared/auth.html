@@ -1,39 +1,54 @@
 <div>
     {% if not registered %}
-        <h2>Login</h2>
-        <div>
-            <div>{{ '{{ v_login }}' }}</div>
+        <div v-if="showAuthModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <!-- Modal Content -->
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+                <button @click="showAuthModal = false" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+                
+                <!-- Tabs -->
+                <div class="flex justify-center mb-4">
+                    <button @click="authTab = 'login'" :class="authTab === 'login' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'" class="px-4 py-2 font-semibold focus:outline-none">
+                        Login
+                    </button>
+                    <button @click="authTab = 'signup'" :class="authTab === 'signup' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'" class="px-4 py-2 font-semibold focus:outline-none">
+                        Sign Up
+                    </button>
+                </div>
 
-            <label>Email:</label>
-            <input type="text" v-model="v_login.email">
-            <br><br>
+                <!-- Login Form -->
+                <div v-if="authTab === 'login'">
+                    <label class="block mb-1 text-sm font-medium">Email</label>
+                    <input type="text" v-model="v_login.email" class="w-full border rounded px-3 py-2 mb-4 text-sm" />
 
-            <label>Password:</label>
-            <input type="password" v-model="v_login.password" required>
+                    <label class="block mb-1 text-sm font-medium">Password</label>
+                    <input type="password" v-model="v_login.password" required class="w-full border rounded px-3 py-2 mb-4 text-sm" />
 
-            <br><br>
-            <button @click="f_login">Login</button>
+                    <button @click="f_login" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm font-medium transition duration-200">
+                        Login
+                    </button>
+                </div>
+
+                <!-- Signup Form -->
+                <div v-if="authTab === 'signup'">
+                    <label class="block mb-1 text-sm font-medium">Username</label>
+                    <input type="text" v-model="v_signup.username" required class="w-full border rounded px-3 py-2 mb-4 text-sm" />
+
+                    <label class="block mb-1 text-sm font-medium">Email</label>
+                    <input type="text" v-model="v_signup.email" required class="w-full border rounded px-3 py-2 mb-4 text-sm" />
+
+                    <label class="block mb-1 text-sm font-medium">Password</label>
+                    <input type="password" v-model="v_signup.password" required class="w-full border rounded px-3 py-2 mb-4 text-sm" />
+
+                    <button @click="f_signup" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md text-sm font-medium transition duration-200">
+                        Sign Up
+                    </button>
+                </div>
+            </div>
         </div>
-        <br><br><br><br><br>
 
-        <h2>Sign Up</h2>
-        <div>
-            <div>{{ '{{ v_signup }}' }}</div>
-            
-            <label>Username:</label>
-            <input type="text" v-model="v_signup.username" required>
-            <br><br>
-
-            <label>Email:</label>
-            <input type="text" v-model="v_signup.email" required>
-            <br><br>
-            
-            <label>Password:</label>
-            <input type="password" v-model="v_signup.password" required>
-            <br><br>
-            
-            <button @click="f_signup">Signup</button>
-        </div>
+        <button @click="showAuthModal = true" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+            Login / Sign Up
+        </button>
     {% else %}
         <button @click="f_logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200 flex items-center space-x-2">
             <i class="fas fa-sign-out-alt"></i>
