@@ -1,8 +1,9 @@
 import { api_delete_order_article, api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_specs } from '../api.js'; //api_input_order
 import { format_price } from '../utils.js';
 
-const dashboard_user_price_list = new Vue({
+const order_management = new Vue({
     data: {
+        title: 'Order Management',
         spec_list: [],
         order_list: [],
         order_article_list: [],
@@ -10,7 +11,8 @@ const dashboard_user_price_list = new Vue({
         selected_order_id: null,
         input_order_article_power: null,
         input_order_article_description: null,
-        input_order_article_id_specs: []
+        input_order_article_id_specs: [],
+        active_status_group: null
     },
     computed: {
         corrective_spec_count() {
@@ -21,6 +23,16 @@ const dashboard_user_price_list = new Vue({
                 ...this.f_spec_list_corrective_filter(false),
                 ...this.f_spec_list_corrective_filter(true)
             ];
+        },
+        grouped_orders() {
+            return this.order_list.reduce((acc, order) => {
+                const status = order.o_status || 'Uncategorized';
+                if (!acc[status]) {
+                    acc[status] = [];
+                }
+                acc[status].push(order);
+                return acc;
+            }, {});
         }
     },
     methods: {
@@ -36,7 +48,7 @@ const dashboard_user_price_list = new Vue({
             return spec?.price_list.pl_description || '-';
         },
         async f_init() {
-            dashboard_main.navigations.push({ name: "Order Management", callback: this.f_template });
+            dashboard_main.navigations.push({ name: this.title, callback: this.f_template });
             const res_spec = await api_get_all_specs();
             this.spec_list = res_spec.data;
             this.f_get_order_list();
@@ -50,7 +62,12 @@ const dashboard_user_price_list = new Vue({
                 this.selected_order_id = o_id
             }
             const res_order = await get_order_articles_with_specs(this.selected_order_id);
-            this.order_article_list = res_order.data;
+            if (res_order.data) {
+                this.order_article_list = res_order.data;
+            }else{
+                base_vue.f_info(res_order.message);
+                this.order_article_list = [];
+            }
         },
         f_sum_order_article(specs) {
             const row_price = specs.reduce((sum, item) => sum + parseFloat(item.os_price), 0);
@@ -68,65 +85,100 @@ const dashboard_user_price_list = new Vue({
             return format_price(total_price.toFixed(2));
         },
         f_template() {
-            dashboard_main.content.title = 'Manage Order';
+            dashboard_main.content.title = this.title;
             dashboard_main.content.template = `
-                <div>
-                    <div style="border:1px solid black">
-                        Order
-                        <ul v-for="order in order_list" :key="order.o_id">
-                            <li @click="f_get_order_articles_with_specs(order.o_id)">DESC: {{ order.o_description }} <br> UNIX: {{ order.o_time }} <br> USER: {{ order.u_id }} <br> STATUS: {{ order.o_status }}</li>
-                        </ul>
-                        <input type="text" v-model="input_order_description">
-                        <button @click="f_input_order">Add New Order</button>
-                    </div>
-                    <div style="border:1px solid black">
-                        <table border="1" cellpadding="5" cellspacing="0">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2">No</th>
-                                    <th rowspan="2">Motor KW</th>
-                                    <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
-                                    <th :colspan="corrective_spec_count">Corrective Price</th>
-                                    <th rowspan="2">Summe</th>
-                                </tr>
-                                <tr>
-                                    <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(item, index) in order_article_list" :key="item.oa_id">
-                                    <td>{{ item.oa_description }}</td>
-                                    <td>{{ item.oa_power }}</td>
-                                    <td v-for="spec in combined_specs" :key="spec.s_id">
-                                        <strong>{{ f_get_order_article_spec_price(item.specs, spec.s_id) }}</strong><br>
-                                        <small>{{ f_get_order_article_spec_description(item.specs, spec.s_id) }}</small>
-                                    </td>
-                                    <td>
-                                        <strong>{{ f_sum_order_article(item.specs) }}</strong>
-                                    </td>
-                                    <button @click="f_delete_order_article(item.oa_id)">Delete</Button>
-                                </tr>
-                                <tr>
-                                    <td :colspan="combined_specs.length + 2">Total</td>
-                                    <td>{{ f_sum_order(order_article_list) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        Order ID <input type="text" v-model="selected_order_id">
-                        <br>
-                        Order Description <input type="text" v-model="input_order_article_description">
-                        <br>
-                        <label>Power</label>
-                        <input type="number" v-model="input_order_article_power">
-                        
-                        <div v-for="spec in spec_list" :key="spec.s_id">
-                            <label>
-                                <input type="checkbox" :value="spec.s_id" v-model="input_order_article_id_specs">
-                                {{ spec.s_spec || '(empty)' }}
-                            </label>
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div class="lg:col-span-1 bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold mb-4">Orders by Status</h3>
+                        <div class="space-y-2">
+                            <div v-for="(orders, status) in grouped_orders" :key="status">
+                                <button @click="active_status_group = active_status_group === status ? null : status" class="w-full text-left font-semibold p-2 rounded-lg hover:bg-gray-200 flex justify-between items-center">
+                                    <span>{{ status }}</span>
+                                    <i class="fas" :class="{'fa-chevron-down': active_status_group === status, 'fa-chevron-right': active_status_group !== status}"></i>
+                                </button>
+                                <div v-if="active_status_group === status" class="pl-4 mt-2 space-y-2">
+                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_specs(order.o_id)" class="p-3 rounded-lg cursor-pointer hover:bg-gray-100 border border-gray-200">
+                                        <p class="font-semibold text-gray-800">{{ order.o_description }}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-                        <button @click="f_input_order_article">Submit Article</button>
+                        <div class="mt-4">
+                            <input type="text" v-model="input_order_description" placeholder="New order description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            <button @click="f_input_order" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus mr-2"></i>Add New Order</button>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-3 space-y-6">
+                        <div class="bg-white p-4 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold mb-4">Order Details</h3>
+                            <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
+                                <table class="w-full text-sm text-left text-gray-500">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                        <tr>
+                                            <th rowspan="2" class="py-3 px-6">No</th>
+                                            <th rowspan="2" class="py-3 px-6">Motor KW</th>
+                                            <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id" class="py-3 px-6">{{ spec.s_spec || '(empty)' }}</th>
+                                            <th :colspan="corrective_spec_count" class="py-3 px-6 text-center">Corrective Price</th>
+                                            <th rowspan="2" class="py-3 px-6">Summe</th>
+                                            <th rowspan="2" class="py-3 px-6">Actions</th>
+                                        </tr>
+                                        <tr>
+                                            <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id" class="py-3 px-6">{{ spec.s_spec || '(empty)' }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, index) in order_article_list" :key="item.oa_id" class="bg-white border-b hover:bg-gray-50">
+                                            <td class="py-4 px-6">{{ item.oa_description }}</td>
+                                            <td class="py-4 px-6">{{ item.oa_power }}</td>
+                                            <td v-for="spec in combined_specs" :key="spec.s_id" class="py-4 px-6">
+                                                <strong>{{ f_get_order_article_spec_price(item.specs, spec.s_id) }}</strong><br>
+                                                <small class="text-gray-500">{{ f_get_order_article_spec_description(item.specs, spec.s_id) }}</small>
+                                            </td>
+                                            <td class="py-4 px-6">
+                                                <strong>{{ f_sum_order_article(item.specs) }}</strong>
+                                            </td>
+                                            <td class="py-4 px-6">
+                                                <button @click="f_delete_order_article(item.oa_id)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr class="bg-gray-50 font-semibold">
+                                            <td :colspan="combined_specs.length + 2" class="py-4 px-6 text-right">Total</td>
+                                            <td class="py-4 px-6">{{ f_sum_order(order_article_list) }}</td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold mb-2">Add Article to Order</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Order ID</label>
+                                    <input type="text" v-model="selected_order_id" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                                    <input type="text" v-model="input_order_article_description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Power</label>
+                                    <input type="number" v-model="input_order_article_power" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Specs</label>
+                                    <div class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
+                                        <div v-for="spec in spec_list" :key="spec.s_id">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" :value="spec.s_id" v-model="input_order_article_id_specs" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                                <span class="ml-2 text-sm text-gray-600">{{ spec.s_spec || '(empty)' }}</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button @click="f_input_order_article" class="mt-4 w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-paper-plane mr-2"></i>Submit Article</button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -150,4 +202,4 @@ const dashboard_user_price_list = new Vue({
     }
 });
 
-dashboard_user_price_list.f_init();
+order_management.f_init();

@@ -3,6 +3,7 @@ import { api_get_all_price_list, api_get_all_powers, api_get_all_specs, api_inpu
 
 const dashboard_admin_control_panel = new Vue({
     data: {
+        title: 'Control Panel',
         input_power: 0,
         input_spec: '',
         input_spec_corrective: true,
@@ -50,61 +51,86 @@ const dashboard_admin_control_panel = new Vue({
             }
         },
         f_init(){
-            dashboard_main.navigations.push({name: "Control Panel", callback: this.f_template});
+            dashboard_main.navigations.push({name: this.title, callback: this.f_template});
         },
 
         //DISPLAY CP
         async f_template(){
-            dashboard_main.content.title = 'Control Panel';
+            dashboard_main.content.title = this.title;
             dashboard_main.content.template = `
-                <div>
-                    <table border="1" cellpadding="5" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th rowspan="2">Power \\ Spec</th>
-                                <th rowspan="2">Number of unit</th>
-                                <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
-                                <th :colspan="corrective_spec_count">Corrective Price</th>
-                            </tr>
-                            <tr>
-                                <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(power, index) in power_list" :key="power.p_id">
-                                <td>{{ f_get_power_range(power, power_list[index + 1]) }}</td>
-                                <td>{{ power.p_unit }}</td>
-                                <td v-for="spec in combined_specs" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id, f_get_power_range(power, power_list[index + 1]), spec.s_spec)" style="cursor:pointer; color:blue;">
-                                    <div>
-                                        <strong>{{ f_table_get_price(power.p_id, spec.s_id) }}</strong><br>
-                                        <small>{{ f_table_get_price_description(power.p_id, spec.s_id) }}</small>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="space-y-6">
+                    <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th rowspan="2" class="py-3 px-6">Power \\ Spec</th>
+                                    <th rowspan="2" class="py-3 px-6">Number of unit</th>
+                                    <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id" class="py-3 px-6">{{ spec.s_spec || '(empty)' }}</th>
+                                    <th :colspan="corrective_spec_count" class="py-3 px-6 text-center">Corrective Price</th>
+                                </tr>
+                                <tr>
+                                    <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id" class="py-3 px-6">{{ spec.s_spec || '(empty)' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(power, index) in power_list" :key="power.p_id" class="bg-white border-b hover:bg-gray-50">
+                                    <td class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap">{{ f_get_power_range(power, power_list[index + 1]) }}</td>
+                                    <td class="py-4 px-6">{{ power.p_unit }}</td>
+                                    <td v-for="spec in combined_specs" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id, f_get_power_range(power, power_list[index + 1]), spec.s_spec)" class="py-4 px-6 cursor-pointer text-blue-600 hover:underline">
+                                        <div>
+                                            <strong>{{ f_table_get_price(power.p_id, spec.s_id) }}</strong><br>
+                                            <small class="text-gray-500">{{ f_table_get_price_description(power.p_id, spec.s_id) }}</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <input v-model="input_power" type="number" placeholder="power" />
-                    <button @click="f_input_power">Add Power</button>
-                    <br>
-                    <input v-model="input_spec" type="text" placeholder="Spec" />
-                    {{ input_spec_corrective }}
-                    <input v-model="input_spec_corrective" type="checkbox"/>
-                    <button @click="f_input_spec">Add Spec</button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-4 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold mb-2">Add Power</h3>
+                            <div class="flex items-center gap-2">
+                                <input v-model="input_power" type="number" placeholder="power" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+                                <button @click="f_input_power" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold mb-2">Add Spec</h3>
+                            <div class="flex items-center gap-2">
+                                <input v-model="input_spec" type="text" placeholder="Spec" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+                                <div class="flex items-center">
+                                    <input v-model="input_spec_corrective" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"/>
+                                    <label class="ml-2 text-sm text-gray-900">Corrective</label>
+                                </div>
+                                <button @click="f_input_spec" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Popup -->
-                    <div v-if="update_price.show_popup" style="position:fixed; top:30%; left:30%; background:#fff; padding:20px; border:1px solid #000;">
-                        <h3>Edit Harga</h3>
-                        <p>Power: {{ update_price.selected_power }}</p>
-                        <p>Spec: {{ update_price.selected_spec }}</p>
-                        Description
-                        <input v-model="update_price.new_description" type="text" placeholder="Description" />
-                        <br>
-                        Price
-                        <input v-model="update_price.new_price" type="text" @input="format_price_input" placeholder="New Price" />
-                        <br><br>
-                        <button @click="f_update_price">Update</button>
-                        <button @click="update_price.show_popup = false">Cancel</button>
+                    <div v-if="update_price.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+                        <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <div class="mt-3 text-center">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Harga</h3>
+                                <div class="mt-2 px-7 py-3 space-y-4 text-left">
+                                    <p><span class="font-semibold">Power:</span> {{ update_price.selected_power }}</p>
+                                    <p><span class="font-semibold">Spec:</span> {{ update_price.selected_spec }}</p>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                                        <input v-model="update_price.new_description" type="text" placeholder="Description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Price</label>
+                                        <input v-model="update_price.new_price" type="text" @input="format_price_input" placeholder="New Price" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
+                                    </div>
+                                </div>
+                                <div class="items-center px-4 py-3">
+                                    <button @click="f_update_price" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
+                                    <button @click="update_price.show_popup = false" class="ml-2 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
