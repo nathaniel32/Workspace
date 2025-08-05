@@ -90,7 +90,7 @@ const base_vue = new Vue({
 
                 const data = await response.json();
                 alert(data.message);
-                window.location.reload();
+                window.location.replace('/');
             } catch (error) {
                 alert("Error: " + error.message);
             }

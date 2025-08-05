@@ -1,6 +1,7 @@
 from fastapi import Request, APIRouter
 from fastapi.templating import Jinja2Templates
 import routes.api.utils
+from fastapi.responses import RedirectResponse
 
 class Frontend:
     def __init__(self):
@@ -10,9 +11,21 @@ class Frontend:
         self.router.add_api_route("/dashboard", self.dashboard, methods=["GET"])
         
     async def root(self, request: Request):
-        url = "/dashboard"
-        return routes.api.utils.return_site(request=request, templates=self.templates, url=url, redirect=True)
+        payload, context= routes.api.utils.auth_site(request=request)
+
+        if payload and payload.get("role"):
+            url = "/dashboard"
+            return RedirectResponse(url=url)
+        
+        url="shared/base.html"
+        return self.templates.TemplateResponse(url, context, status_code=401)
 
     async def dashboard(self, request: Request):
-        url = "dashboard.html"
-        return routes.api.utils.return_site(request=request, templates=self.templates, url=url)
+        payload, context= routes.api.utils.auth_site(request=request)
+        
+        if payload and payload.get("role"):
+            url = "dashboard.html"
+            return self.templates.TemplateResponse(url, context)
+        
+        url = "/"
+        return RedirectResponse(url=url)

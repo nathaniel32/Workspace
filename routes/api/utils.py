@@ -78,9 +78,7 @@ def validate_token(token, ip, aud):
 
 ###############################################################################################
 
-from fastapi.responses import RedirectResponse
-
-def return_site(request, templates, url, redirect=False):
+def auth_site(request):
     access_token = request.cookies.get("access_token")
     user_ip = request.client.host
     aud = request.headers.get("user-agent")
@@ -93,14 +91,4 @@ def return_site(request, templates, url, redirect=False):
         "registered": payload.get("role") if payload else None
     }
 
-    if payload and payload.get("role"):
-        if redirect:
-            return RedirectResponse(url=url)
-        
-        return templates.TemplateResponse(url, context)
-
-    return templates.TemplateResponse(
-        "shared/base.html",
-        context,
-        status_code=401  # Unauthorized
-    )
+    return payload, context
