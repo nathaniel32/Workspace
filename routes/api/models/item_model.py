@@ -5,6 +5,7 @@ from typing import Optional
 class PowerOut(BaseModel):
     p_id: str
     p_power: int
+    p_unit: int
 
     model_config = {
         "from_attributes": True,

@@ -62,6 +62,7 @@ const dashboard_admin_control_panel = new Vue({
                         <thead>
                             <tr>
                                 <th rowspan="2">Power \\ Spec</th>
+                                <th rowspan="2">Number of unit</th>
                                 <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id">{{ spec.s_spec || '(empty)' }}</th>
                                 <th :colspan="corrective_spec_count">Corrective Price</th>
                             </tr>
@@ -72,6 +73,7 @@ const dashboard_admin_control_panel = new Vue({
                         <tbody>
                             <tr v-for="(power, index) in power_list" :key="power.p_id">
                                 <td>{{ f_get_power_range(power, power_list[index + 1]) }}</td>
+                                <td>{{ power.p_unit }}</td>
                                 <td v-for="spec in combined_specs" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id, f_get_power_range(power, power_list[index + 1]), spec.s_spec)" style="cursor:pointer; color:blue;">
                                     <div>
                                         <strong>{{ f_table_get_price(power.p_id, spec.s_id) }}</strong><br>
@@ -134,14 +136,20 @@ const dashboard_admin_control_panel = new Vue({
         async f_input_power(){
             const res = await api_input_power(this.input_power);
             base_vue.f_info(res.message);
-            if (res.success) this.f_get_all_price_list();
+            if (res.success) {
+                this.f_get_all_powers();
+                this.f_get_all_price_list();
+            }
         },
 
         //INPUT SPEC
         async f_input_spec(){
             const res = await api_input_spec(this.input_spec, this.input_spec_corrective);
             base_vue.f_info(res.message);
-            if (res.success) this.f_get_all_price_list();
+            if (res.success) {
+                this.f_get_all_specs();
+                this.f_get_all_price_list();
+            }
         },
 
         f_show_price_popup(power_id, spec_id, power_range, spec) {

@@ -74,7 +74,7 @@ const dashboard_user_price_list = new Vue({
                     <div style="border:1px solid black">
                         Order
                         <ul v-for="order in order_list" :key="order.o_id">
-                            <li @click="f_get_order_articles_with_specs(order.o_id)">{{ order.o_description }} - UNIX {{ order.o_time }}</li>
+                            <li @click="f_get_order_articles_with_specs(order.o_id)">DESC: {{ order.o_description }} <br> UNIX: {{ order.o_time }} <br> USER: {{ order.u_id }} <br> STATUS: {{ order.o_status }}</li>
                         </ul>
                         <input type="text" v-model="input_order_description">
                         <button @click="f_input_order">Add New Order</button>

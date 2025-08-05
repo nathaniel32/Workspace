@@ -1,0 +1,16 @@
+BACKEND:
+* admin bisa hapus spec, power atau update nama
+* admin bisa update unit dari power
+
+* user bisa menupdate order/tugas mereka sendiri
+* user bisa ubah status order/tugas mereka sendiri
+
+* hanya admin yg bisa buat account baru untuk user
+
+FONTEND:
+* order di kelompokan bedasarkan status order
+
+OPTIONAL:
+* simpan semua log
+* grafik penjualan
+* stock management
