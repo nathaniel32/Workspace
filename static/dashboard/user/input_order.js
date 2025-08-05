@@ -36,7 +36,7 @@ const dashboard_user_price_list = new Vue({
             return spec?.price_list.pl_description || '-';
         },
         async f_init() {
-            dashboard_main.navigations.push({ name: "Manage Order", callback: this.f_template });
+            dashboard_main.navigations.push({ name: "Order Management", callback: this.f_template });
             const res_spec = await api_get_all_specs();
             this.spec_list = res_spec.data;
             this.f_get_order_list();

@@ -3,27 +3,56 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-    <style>
-        #dashboard_main{
-            display: flex;
-            padding: 50px;
-            gap: 20px;
-            height: 50vh;
-        }
-
-        nav{
-            display: flex;
-            flex-direction: column;
-        }
-    </style>
-
-    <div id="dashboard_main">
+    <!-- <div id="dashboard_main">
         <nav>
             <button v-for="navigation in navigations" @click="navigation.callback()">{{ '{{ navigation.name }}' }}</button>
         </nav>
         <div>
             <div>{{ '{{ content.title }}' }}</div>
             <dynamic-component :template="content.template" :data-obj="content.data"></dynamic-component>
+        </div>
+    </div> -->
+    <div id="dashboard_main" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+            <!-- Sidebar Navigation -->
+            <nav class="w-64 bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-fit">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-bars mr-3"></i>
+                    Navigation
+                </h2>
+                <div class="space-y-2">
+                    <button 
+                        v-for="(navigation, index) in navigations" 
+                        :key="index"
+                        @click="navigation.callback()" 
+                        class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition duration-200 flex items-center space-x-3 font-medium"
+                    >
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span>{{ '{{ navigation.name }}' }}</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Main Content Area -->
+            <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200">
+                <!-- Content Header -->
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-folder-open mr-3 text-primary-600"></i>
+                        {{ '{{ content.title || "Welcome" }}' }}
+                    </h2>
+                </div>
+
+                <!-- Content Body -->
+                <div class="p-6">
+                    <div v-if="!content.template" class="text-center py-16">
+                        <i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-medium text-gray-600 mb-2">Welcome to Dashboard</h3>
+                        <p class="text-gray-500">Select a navigation item from the sidebar to get started</p>
+                    </div>
+                    <dynamic-component v-else :template="content.template" :data-obj="content.data"></dynamic-component>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
