@@ -8,7 +8,7 @@ const order_management = new Vue({
         order_list: [],
         order_article_list: [],
         input_order_description: null,
-        selected_order_id: null,
+        selected_order_object: null,
         input_order_article_power: null,
         input_order_article_description: null,
         input_order_article_id_specs: [],
@@ -36,6 +36,9 @@ const order_management = new Vue({
         }
     },
     methods: {
+        /* search_order_by_id(id) {
+            return this.order_list.find(item => item.o_id === id);
+        }, */
         f_spec_list_corrective_filter(is_corrective) {
             return this.spec_list.filter(spec => spec.s_corrective === is_corrective);
         },
@@ -62,12 +65,13 @@ const order_management = new Vue({
             if (!res.success) {
                 base_vue.f_info(res.message);
             }
+            console.log(this.order_list)
         },
-        async f_get_order_articles_with_specs(o_id=null) {
-            if(o_id){
-                this.selected_order_id = o_id
+        async f_get_order_articles_with_specs(order_object=null) {
+            if(order_object){
+                this.selected_order_object = order_object
             }
-            const res_order = await get_order_articles_with_specs(this.selected_order_id);
+            const res_order = await get_order_articles_with_specs(this.selected_order_object.o_id);
             if (res_order.data) {
                 this.order_article_list = res_order.data;
             }else{
@@ -103,7 +107,7 @@ const order_management = new Vue({
                                     <i class="fas" :class="{'fa-chevron-down': active_status_group === status, 'fa-chevron-right': active_status_group !== status}"></i>
                                 </button>
                                 <div v-if="active_status_group === status" class="pl-4 mt-2 space-y-2">
-                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_specs(order.o_id)" class="p-3 rounded-lg cursor-pointer hover:bg-gray-100 border border-gray-200">
+                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_specs(order)" class="p-3 rounded-lg cursor-pointer hover:bg-gray-100 border border-gray-200">
                                         <p class="font-semibold text-gray-800">{{ order.o_description }}</p>
                                     </div>
                                 </div>
@@ -156,12 +160,23 @@ const order_management = new Vue({
                                 </table>
                             </div>
                         </div>
-                        <div class="bg-white p-4 rounded-lg shadow-md">
+                        <div v-if="selected_order_object" class="bg-white p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-2">Add Article to Order</h3>
+                            <div>
+                                <div>o_description {{selected_order_object.o_description}}</div>
+    
+                                <div>o_id {{ selected_order_object.o_id }}</div>
+  
+                                <div>o_status {{ selected_order_object.o_status }}</div>
+
+                                <div>o_time {{ selected_order_object.o_time }}</div>
+  
+                                <div>u_id {{ selected_order_object.u_id }}</div>
+                            </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Order ID</label>
-                                    <input type="text" v-model="selected_order_id" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                    <input type="text" v-model="selected_order_object.o_id" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Description</label>
@@ -201,7 +216,7 @@ const order_management = new Vue({
             this.f_get_order_list();
         },
         async f_input_order_article() {
-            const res = await api_input_order_article(this.selected_order_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_specs);
+            const res = await api_input_order_article(this.selected_order_object.o_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_specs);
             base_vue.f_info(res.message);
             this.f_get_order_articles_with_specs();
         }
