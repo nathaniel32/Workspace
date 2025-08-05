@@ -92,7 +92,7 @@ const order_management = new Vue({
                         <h3 class="text-lg font-semibold mb-4">Orders by Status</h3>
                         <div class="space-y-2">
                             <div v-for="(orders, status) in grouped_orders" :key="status">
-                                <button @click="active_status_group = active_status_group === status ? null : status" class="w-full text-left font-semibold p-2 rounded-lg hover:bg-gray-200 flex justify-between items-center">
+                                <button @click="active_status_group = active_status_group === status ? null : status" class="w-full text-left font-semibold p-2 rounded-lg hover:bg-gray-200 border flex justify-between items-center">
                                     <span>{{ status }}</span>
                                     <i class="fas" :class="{'fa-chevron-down': active_status_group === status, 'fa-chevron-right': active_status_group !== status}"></i>
                                 </button>
