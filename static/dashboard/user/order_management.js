@@ -12,7 +12,8 @@ const order_management = new Vue({
         input_order_article_power: null,
         input_order_article_description: null,
         input_order_article_id_specs: [],
-        active_status_group: null
+        active_status_group: null,
+        month_names: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
     },
     computed: {
         corrective_spec_count() {
@@ -39,6 +40,15 @@ const order_management = new Vue({
         /* search_order_by_id(id) {
             return this.order_list.find(item => item.o_id === id);
         }, */
+        f_time_converter(unix) {
+            const date = new Date(unix * 1000);
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const day = date.getDate();
+            const month = date.getMonth();
+            const year = date.getFullYear();
+            return ` ${hours}:${minutes < 10 ? '0' + minutes : minutes} - ${day} ${this.month_names[month]} ${year}`
+        },
         f_spec_list_corrective_filter(is_corrective) {
             return this.spec_list.filter(spec => spec.s_corrective === is_corrective);
         },
@@ -162,16 +172,21 @@ const order_management = new Vue({
                         </div>
                         <div v-if="selected_order_object" class="bg-white p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-2">Add Article to Order</h3>
-                            <div>
-                                <div>o_description {{selected_order_object.o_description}}</div>
-    
-                                <div>o_id {{ selected_order_object.o_id }}</div>
-  
-                                <div>o_status {{ selected_order_object.o_status }}</div>
+                            <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mt-5 mb-5">
+                                <div class="font-medium">Deskripsi:</div>
+                                <div>{{ selected_order_object.o_description }}</div>
 
-                                <div>o_time {{ selected_order_object.o_time }}</div>
-  
-                                <div>u_id {{ selected_order_object.u_id }}</div>
+                                <div class="font-medium">Order ID:</div>
+                                <div>{{ selected_order_object.o_id }}</div>
+
+                                <div class="font-medium">Status:</div>
+                                <div>{{ selected_order_object.o_status }}</div>
+
+                                <div class="font-medium">Waktu Dibuat:</div>
+                                <div>{{ f_time_converter(selected_order_object.o_time) }}</div>
+
+                                <div class="font-medium">User ID:</div>
+                                <div>{{ selected_order_object.u_id }}</div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
