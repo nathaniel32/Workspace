@@ -144,18 +144,27 @@ const dashboard_admin_control_panel = new Vue({
         async f_get_all_price_list(){
             const res = await api_get_all_price_list();
             this.price_list = res.data;
+            if (!res.success) {
+                base_vue.f_info(res.message);
+            }
         },
 
         //GET ALL POWERS
         async f_get_all_powers(){
             const res = await api_get_all_powers();
             this.power_list = res.data;
+            if (!res.success) {
+                base_vue.f_info(res.message);
+            }
         },
 
         //GET ALL SPECS
         async f_get_all_specs(){
             const res = await api_get_all_specs();
             this.spec_list = res.data;
+            if (!res.success) {
+                base_vue.f_info(res.message);
+            }
         },
 
         //INPUT POWER

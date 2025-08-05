@@ -52,10 +52,16 @@ const order_management = new Vue({
             const res_spec = await api_get_all_specs();
             this.spec_list = res_spec.data;
             this.f_get_order_list();
+            if (!res_spec.success) {
+                base_vue.f_info(res_spec.message);
+            }
         },
         async f_get_order_list() {
-            const res_order = await api_get_all_orders();
-            this.order_list = res_order.data;
+            const res = await api_get_all_orders();
+            this.order_list = res.data;
+            if (!res.success) {
+                base_vue.f_info(res.message);
+            }
         },
         async f_get_order_articles_with_specs(o_id=null) {
             if(o_id){
