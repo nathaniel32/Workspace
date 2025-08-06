@@ -485,3 +485,29 @@ export async function api_update_spec(s_id, s_spec, s_corrective) {
         throw error;
     }
 }
+
+export async function api_delete_order(o_id) {
+    console.log(o_id)
+    try {
+        const response = await fetch(`/api/order/order`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ o_id })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}

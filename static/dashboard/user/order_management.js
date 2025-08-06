@@ -1,4 +1,4 @@
-import { api_update_order, api_get_enum_order_status, api_delete_order_article, api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_specs } from '../api.js'; //api_input_order
+import { api_delete_order, api_update_order, api_get_enum_order_status, api_delete_order_article, api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_specs } from '../api.js'; //api_input_order
 import { format_price } from '../utils.js';
 
 const order_management = new Vue({
@@ -98,7 +98,6 @@ const order_management = new Vue({
                     this.order_article_list = [];
                     return;
                 }
-                console.log(order_object, this.selected_order_object)
             }else{
                 order_object = this.selected_order_object;
             }
@@ -230,6 +229,11 @@ const order_management = new Vue({
                                 <div>
                                     <button v-if="(selected_order_object.o_description != change_order_tmp.description) || (selected_order_object.o_status != change_order_tmp.status)" @click="f_change_order" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Change</button>
                                 </div>
+
+                                <div></div>
+                                <div>
+                                    <button @click="f_delete_order" class="mt-2 w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Delete</button>
+                                </div>
                             </div>
                         </div>
                         <div class="bg-white p-4 rounded-lg shadow-md">
@@ -279,6 +283,18 @@ const order_management = new Vue({
                 const res = await api_delete_order_article(oa_id);
                 base_vue.f_info(res.message);
                 this.f_get_order_articles_with_specs();
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
+        },
+        async f_delete_order() {
+            const confirmed = confirm("Are you sure you want to delete this data?");
+            if (!confirmed) return;
+            try {
+                const res = await api_delete_order(this.selected_order_object.o_id);
+                base_vue.f_info(res.message);
+                this.f_get_order_list();
+                this.selected_order_object = null;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }

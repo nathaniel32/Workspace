@@ -3,7 +3,7 @@ import database.connection
 import database.models
 from typing import List
 from fastapi import HTTPException, status, APIRouter
-from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderSpecSchema, PriceListOut, OrderArticleDelete, OrderChange
+from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderSpecSchema, PriceListOut, OrderArticleDelete, OrderChange, OrderDelete
 import routes.api.utils
 import logging
 import traceback
@@ -20,6 +20,7 @@ class OrderAPI:
         self.router.add_api_route("/order", self.get_all_order, methods=["GET"])
         self.router.add_api_route("/order", self.insert_order, methods=["POST"])
         self.router.add_api_route("/order", self.change_order, methods=["PUT"])
+        self.router.add_api_route("/order", self.delete_order, methods=["DELETE"])
         self.router.add_api_route("/order-article", self.insert_order_article, methods=["POST"])
         self.router.add_api_route("/order-article/{o_id}", self.get_order_articles_with_specs, methods=["GET"])
         self.router.add_api_route("/order-article", self.delete_order_article, methods=["DELETE"])
@@ -242,6 +243,20 @@ class OrderAPI:
             query.o_status = input.o_status
             db.commit()
             return {"message": "Order berhasil diperbarui"}
+        except HTTPException:
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        
+    def delete_order(self, input: OrderDelete, db: database.connection.db_dependency):
+        try:
+            query = db.query(database.models.TOrder).filter_by(o_id=input.o_id).first()
+            if not query:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order tidak ditemukan")
+            db.delete(query)
+            db.commit()
+            return {"message": "Order berhasil dihapus"}
         except HTTPException:
             raise
         except Exception as e:
