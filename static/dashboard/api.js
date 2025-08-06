@@ -276,3 +276,31 @@ export async function api_update_price(p_id, s_id, new_description, new_price) {
         return { success: false, message: error.message || "Unknown error", data: null };
     }
 }
+
+export async function api_workbench_query(query) {
+    try {
+        const response = await fetch('/api/workbench/query', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: query
+            })
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.message || errorResult.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { success: true, message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+        //return { success: false, message: error.message || "Unknown error", data: null };
+    }
+}

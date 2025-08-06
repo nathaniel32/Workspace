@@ -75,7 +75,6 @@ const order_management = new Vue({
             if (!res.success) {
                 base_vue.f_info(res.message);
             }
-            console.log(this.order_list)
         },
         async f_get_order_articles_with_specs(order_object=null) {
             if(order_object){
@@ -137,7 +136,7 @@ const order_management = new Vue({
                         <div class="bg-white p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-4">Order Details</h3>
                             <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-                                <table class="w-full text-sm text-left text-gray-500">
+                                <table v-if="order_article_list.length > 0" class="w-full text-sm text-left text-gray-500">
                                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                         <tr>
                                             <th rowspan="2" class="py-3 px-6">Equipment No</th>
@@ -173,6 +172,10 @@ const order_management = new Vue({
                                         </tr>
                                     </tbody>
                                 </table>
+                                <div v-else class="p-12 text-center">
+                                    <i class="fas fa-search text-3xl opacity-50"></i>
+                                    <h3 class="text-lg font-semibold mb-2">No Results</h3>
+                                </div>
                             </div>
                         </div>
                         <div class="bg-white p-4 rounded-lg shadow-md">

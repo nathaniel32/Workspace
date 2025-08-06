@@ -1,3 +1,5 @@
+import { api_workbench_query } from '../api.js';
+
 const dashboard_root_workbench = new Vue({
     data: {
         title: 'SQL Workbench',
@@ -143,17 +145,12 @@ ORDER BY enum_name, e.enumsortorder;` }
             this.displayedResults = [];
 
             try {
-                const response = await fetch('/api/workbench/query', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: this.sqlQuery })
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.detail || 'Execution failed');
-                this.queryResult = data.data || [];
+                const res = await api_workbench_query(this.sqlQuery);
+                this.queryResult = res.data.data || [];
                 this.displayedResults = this.queryResult.slice(0, this.rowsPerPage);
             } catch (err) {
                 this.queryError = err.message;
+                base_vue.f_info(err.message);
             } finally {
                 this.executing = false;
             }
