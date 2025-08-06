@@ -67,21 +67,21 @@ class AuthAPI:
             db.rollback()
             
             if "u_email" in str(e.orig):
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Die E-Mail-Adresse ist bereits registriert")
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The email address is already registered")
             
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Beim Speichern der Benutzerdaten ist ein Fehler aufgetreten " + str(e))
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="An error occurred while saving user data. " + str(e))
         
         except SQLAlchemyError as e:
             db.rollback()
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut" + str(e)
+                detail="An error occurred on the server. Please try again later. " + str(e)
             )
 
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Unerwarteter Fehler: {str(e)}"
+                detail=f"Unexpected error: {str(e)}"
             )
 
         return self.f_login(request, db, form_oauth_data)
@@ -90,7 +90,7 @@ class AuthAPI:
         try:
             user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
             if not user or not pwd_context.verify(form_oauth_data.password, user.u_password):
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="falsche E-Mail oder falsches Passwort")
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
             
             u_email = form_oauth_data.username
             u_ip = request.client.host
@@ -102,7 +102,7 @@ class AuthAPI:
 
             access_token = routes.api.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role, "status": u_status}, timedelta(hours=24))
 
-            response = JSONResponse(content={"message": "Anmeldung erfolgreich", "access_token": access_token, "token_type": "bearer"}) #access_token, token_type, buat swagger
+            response = JSONResponse(content={"message": "Login successful", "access_token": access_token, "token_type": "bearer"}) #access_token, token_type, buat swagger
             response.set_cookie(
                 key="access_token",
                 value=access_token,
@@ -120,7 +120,7 @@ class AuthAPI:
     
     def f_logout(self):
         try:
-            response = JSONResponse(content={"message": "Logout erfolgreich"})
+            response = JSONResponse(content={"message": "Logout successful"})
             response.delete_cookie(
                 key="access_token",
                 path="/"
