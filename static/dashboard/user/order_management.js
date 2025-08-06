@@ -111,8 +111,7 @@ const order_management = new Vue({
             return format_price(total_price.toFixed(2));
         },
         f_template() {
-            dashboard_main.content.title = this.title;
-            dashboard_main.content.template = `
+            const template = `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div class="lg:col-span-1 bg-white p-4 rounded-lg shadow-md">
                         <h3 class="text-lg font-semibold mb-4">Orders</h3>
@@ -220,7 +219,13 @@ const order_management = new Vue({
                     </div>
                 </div>
             `;
-            dashboard_main.content.data = this;
+            if (dashboard_main.content.template != template){
+                dashboard_main.content.template = template;
+                dashboard_main.content.title = this.title;
+                dashboard_main.content.data = this;
+            }else{
+                dashboard_main.f_reset();
+            }
         },
         async f_delete_order_article(oa_id) {
             const res = await api_delete_order_article(oa_id);

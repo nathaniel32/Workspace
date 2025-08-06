@@ -13,7 +13,14 @@ const dashboard_root_workbench = new Vue({
         queryExamples: [
             { label: 'List Tables', query: "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';" },
             { label: 'Database Size', query: "SELECT pg_size_pretty(pg_database_size(current_database())) AS \"Database Size\";" },
-            { label: 'Active Connections', query: "SELECT COUNT(*) FROM pg_stat_activity WHERE state = 'active';" }
+            { label: 'Active Connections', query: "SELECT COUNT(*) FROM pg_stat_activity WHERE state = 'active';" },
+            { label: 'Enums', query: `SELECT n.nspname AS schema,
+       t.typname AS enum_name,
+       e.enumlabel AS value
+FROM pg_type t
+   JOIN pg_enum e ON t.oid = e.enumtypid
+   JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
+ORDER BY enum_name, e.enumsortorder;` }
         ]
     },
     computed: {
@@ -30,8 +37,7 @@ const dashboard_root_workbench = new Vue({
         },
 
         async f_template() {
-            dashboard_main.content.title = this.title;
-            dashboard_main.content.template = `
+            const template = `
                 <div class="p-4 space-y-4">
                     <div class="flex justify-between items-center">
                         <button @click="toggleSchema" class="text-sm bg-blue-200 px-3 py-1 rounded hover:bg-blue-300">
@@ -102,8 +108,15 @@ const dashboard_root_workbench = new Vue({
                     </div>
                 </div>
             `;
-            dashboard_main.content.data = this;
-            this.loadSchema();
+
+            if (dashboard_main.content.template != template){
+                dashboard_main.content.template = template;
+                dashboard_main.content.title = this.title;
+                dashboard_main.content.data = this;
+                this.loadSchema();
+            }else{
+                dashboard_main.f_reset();
+            }
         },
 
         toggleSchema() {

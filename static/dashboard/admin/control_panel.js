@@ -56,8 +56,7 @@ const dashboard_admin_control_panel = new Vue({
 
         //DISPLAY CP
         async f_template(){
-            dashboard_main.content.title = this.title;
-            dashboard_main.content.template = `
+            const template = `
                 <div class="space-y-6">
                     <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
                         <table class="w-full text-sm text-left text-gray-500">
@@ -134,10 +133,17 @@ const dashboard_admin_control_panel = new Vue({
                     </div>
                 </div>
             `;
-            dashboard_main.content.data = this;
-            this.f_get_all_price_list();
-            this.f_get_all_powers();
-            this.f_get_all_specs();
+
+            if (dashboard_main.content.template != template){
+                dashboard_main.content.template = template;
+                dashboard_main.content.title = this.title;
+                dashboard_main.content.data = this;
+                this.f_get_all_price_list();
+                this.f_get_all_powers();
+                this.f_get_all_specs();
+            }else{
+                dashboard_main.f_reset();
+            }
         },
 
         //GET ALL PRICE

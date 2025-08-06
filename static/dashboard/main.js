@@ -38,6 +38,13 @@ const dashboard_main = new Vue({
     methods:{
         f_init(){
             base_vue.f_info("Welcome!", 5000);
+        },
+        f_reset(){
+            this.content = {
+                title: "",
+                template: "",
+                data: ""
+            }
         }
     },
     mounted() {
