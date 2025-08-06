@@ -76,8 +76,8 @@ class OrderAPI:
                 database.models.TOrderArticle.o_id == o_id
             ).all()
 
-            if not articles:
-                raise HTTPException(status_code=404, detail="Order articles not found.")
+            #if not articles:
+            #    raise HTTPException(status_code=404, detail="Order articles not found.")
 
             """ return [
                 {
