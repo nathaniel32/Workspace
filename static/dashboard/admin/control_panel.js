@@ -1,5 +1,5 @@
 import { get_price_list_item, format_price, beautify_format_price, deformat_price } from '../utils.js';
-import { api_delete_power, api_update_power, api_get_all_price_list, api_get_all_powers, api_get_all_specs, api_input_power, api_input_spec, api_update_price } from '../api.js';
+import { api_delete_spec, api_delete_power, api_update_power, api_get_all_price_list, api_get_all_powers, api_get_all_specs, api_input_power, api_input_spec, api_update_price } from '../api.js';
 
 const dashboard_admin_control_panel = new Vue({
     data: {
@@ -12,8 +12,8 @@ const dashboard_admin_control_panel = new Vue({
         spec_list: [],
         update_price: {
             show_popup: false,
-            selected_power_id: null,
-            selected_spec_id: null,
+            p_id: null,
+            s_id: null,
             selected_power: null,
             selected_spec: null,
             new_description: null,
@@ -21,9 +21,15 @@ const dashboard_admin_control_panel = new Vue({
         },
         edit_power: {
             show_popup: false,
-            selected_power_id: null,
-            power: null,
-            unit: null
+            p_id: null,
+            new_power: null,
+            new_unit: null
+        },
+        edit_spec: {
+            show_popup: false,
+            s_id: null,
+            new_spec: null,
+            new_corrective: null
         }
     },
     computed: {
@@ -70,11 +76,11 @@ const dashboard_admin_control_panel = new Vue({
                                 <tr>
                                     <th rowspan="2" class="py-3 px-6">Power</th>
                                     <th rowspan="2" class="py-3 px-6">Number of unit</th>
-                                    <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id" class="py-3 px-6">{{ spec.s_spec || '(empty)' }}</th>
+                                    <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id" class="py-3 px-6" @click="f_show_spec_popup(spec)">{{ spec.s_spec || '(empty)' }}</th>
                                     <th :colspan="corrective_spec_count" class="py-3 px-6 text-center">Corrective Price</th>
                                 </tr>
                                 <tr>
-                                    <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id" class="py-3 px-6">{{ spec.s_spec || '(empty)' }}</th>
+                                    <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id" class="py-3 px-6" @click="f_show_spec_popup(spec)">{{ spec.s_spec || '(empty)' }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -146,17 +152,41 @@ const dashboard_admin_control_panel = new Vue({
                                 <div class="mt-2 px-7 py-3 space-y-4 text-left">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Minimal Power</label>
-                                        <input v-model="edit_power.new_power" type="text" @input="format_price_input" placeholder="New Price" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
+                                        <input v-model="edit_power.new_power" type="number" @input="format_price_input" placeholder="New Price" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Unit</label>
-                                        <input v-model="edit_power.new_unit" type="text" placeholder="Description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+                                        <input v-model="edit_power.new_unit" type="number" placeholder="Description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">
                                     <button @click="f_delete_power" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
                                     <button @click="f_update_power" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                     <button @click="edit_power.show_popup = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Popup Spec -->
+                    <div v-if="edit_spec.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+                        <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <div class="mt-3 text-center">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Spec</h3>
+                                <div class="mt-2 px-7 py-3 space-y-4 text-left">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Name</label>
+                                        <input v-model="edit_spec.new_spec" type="text" placeholder="Spec Name" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input v-model="edit_spec.new_corrective" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"/>
+                                        <label class="ml-2 text-sm text-gray-900">Corrective</label>
+                                    </div>
+                                </div>
+                                <div class="items-center px-4 py-3">
+                                    <button @click="f_delete_spec" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
+                                    <button @click="f_update_spec" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
+                                    <button @click="edit_spec.show_popup = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -232,8 +262,8 @@ const dashboard_admin_control_panel = new Vue({
 
         f_show_price_popup(power_id, spec_id, power_range, spec) {
             const res = get_price_list_item(this.price_list, power_id, spec_id);
-            this.update_price.selected_power_id = power_id;
-            this.update_price.selected_spec_id = spec_id;
+            this.update_price.p_id = power_id;
+            this.update_price.s_id = spec_id;
             this.update_price.new_description = res.pl_description;
             this.update_price.selected_power = power_range;
             this.update_price.selected_spec = spec;
@@ -245,6 +275,12 @@ const dashboard_admin_control_panel = new Vue({
             this.edit_power.new_power = power.p_power;
             this.edit_power.new_unit = power.p_unit;
             this.edit_power.show_popup = true;
+        },
+        f_show_spec_popup(spec){
+            this.edit_spec.s_id = spec.s_id;
+            this.edit_spec.new_spec = spec.s_spec;
+            this.edit_spec.new_corrective = spec.s_corrective;
+            this.edit_spec.show_popup = true;
         },
         async f_update_power(){
             try {
@@ -266,12 +302,32 @@ const dashboard_admin_control_panel = new Vue({
                 base_vue.f_info(err.message, undefined, true);
             }
         },
+        async f_update_spec(){
+            try {
+                const res = await api_update_spec(this.edit_power.s_id, this.edit_power.new_power, this.edit_power.new_unit);
+                this.edit_power.show_popup = false;
+                base_vue.f_info(res.message);
+                this.f_get_all_powers();
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
+        },
+        async f_delete_spec(){
+            try {
+                const res = await api_delete_spec(this.edit_spec.s_id);
+                this.edit_spec.show_popup = false;
+                base_vue.f_info(res.message);
+                this.f_get_all_specs();
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
+        },
         async f_update_price(){
             //let price_string = this.update_price.new_price.replace(/\D/g, ''); // hanya angka
             let price_string = deformat_price(this.update_price.new_price);
             let price = Number(price_string);
             try {
-                const res = await api_update_price(this.update_price.selected_power_id, this.update_price.selected_spec_id, this.update_price.new_description, Number(price));
+                const res = await api_update_price(this.update_price.p_id, this.update_price.s_id, this.update_price.new_description, Number(price));
                 this.f_get_all_price_list();
                 this.update_price.show_popup = false;
                 base_vue.f_info(res.message);
@@ -279,7 +335,6 @@ const dashboard_admin_control_panel = new Vue({
                 base_vue.f_info(err.message, undefined, true);
             }
         },
-
         format_price_input(e){
             this.update_price.new_price = beautify_format_price(e.target.value);
         }
