@@ -1,9 +1,10 @@
-import { api_delete_order_article, api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_specs } from '../api.js'; //api_input_order
+import { api_update_order, api_get_enum_order_status, api_delete_order_article, api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_specs } from '../api.js'; //api_input_order
 import { format_price } from '../utils.js';
 
 const order_management = new Vue({
     data: {
         title: 'Order Management',
+        enum_status_list: [],
         spec_list: [],
         order_list: [],
         order_article_list: [],
@@ -13,7 +14,11 @@ const order_management = new Vue({
         input_order_article_description: null,
         input_order_article_id_specs: [],
         active_status_group: null,
-        month_names: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+        month_names: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
+        change_order_tmp: {
+            status: null,
+            description: null
+        }
     },
     computed: {
         corrective_spec_count() {
@@ -65,10 +70,18 @@ const order_management = new Vue({
             try {
                 const res = await api_get_all_specs();
                 this.spec_list = res.data;
-                this.f_get_order_list();
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
+
+            try {
+                const res = await api_get_enum_order_status();
+                this.enum_status_list = res.data;
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
+
+            this.f_get_order_list();
         },
         async f_get_order_list() {
             try {
@@ -80,11 +93,12 @@ const order_management = new Vue({
         },
         async f_get_order_articles_with_specs(order_object=null) {
             if(order_object){
-                if (this.selected_order_object == order_object){
+                if (JSON.stringify(this.selected_order_object) == JSON.stringify(order_object)){
                     this.selected_order_object = null;
                     this.order_article_list = [];
                     return;
                 }
+                console.log(order_object, this.selected_order_object)
             }else{
                 order_object = this.selected_order_object;
             }
@@ -98,6 +112,8 @@ const order_management = new Vue({
                     this.order_article_list = [];
                 }
                 this.selected_order_object = order_object;
+                this.change_order_tmp.status = this.selected_order_object.o_status;
+                this.change_order_tmp.description = this.selected_order_object.o_description;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
@@ -187,23 +203,37 @@ const order_management = new Vue({
                             </div>
                         </div>
                         <div class="bg-white p-4 rounded-lg shadow-md">
-                            <h3 class="text-lg font-semibold mb-2">Add Article to Order</h3>
+                            <h3 class="text-lg font-semibold mb-2">Information Order</h3>
                             <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mt-5 mb-5">
                                 <div class="font-medium">Deskripsi:</div>
-                                <div>{{ selected_order_object.o_description }}</div>
+                                <input type="text" v-model="change_order_tmp.description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
 
                                 <div class="font-medium">Order ID:</div>
                                 <div>{{ selected_order_object.o_id }}</div>
 
                                 <div class="font-medium">Status:</div>
-                                <div>{{ selected_order_object.o_status }}</div>
+                                <div>
+                                    <select v-model="change_order_tmp.status" class="block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option v-for="status in enum_status_list" :key="status.enumlabel" :value="status.enumlabel">
+                                            {{ status.enumlabel }}
+                                        </option>
+                                    </select>
+                                </div>
 
                                 <div class="font-medium">Waktu Dibuat:</div>
                                 <div>{{ f_time_converter(selected_order_object.o_time) }}</div>
 
                                 <div class="font-medium">User ID:</div>
                                 <div>{{ selected_order_object.u_id }}</div>
+
+                                <div></div>
+                                <div>
+                                    <button v-if="(selected_order_object.o_description != change_order_tmp.description) || (selected_order_object.o_status != change_order_tmp.status)" @click="f_change_order" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Change</button>
+                                </div>
                             </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold mb-2">Add Article to Order</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Equipment No</label>
@@ -265,6 +295,17 @@ const order_management = new Vue({
                 const res = await api_input_order_article(this.selected_order_object.o_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_specs);
                 this.f_get_order_articles_with_specs();
                 base_vue.f_info(res.message);
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
+        },
+        async f_change_order(){
+            try{
+                const res = await api_update_order(this.selected_order_object.o_id, this.change_order_tmp.description, this.change_order_tmp.status);
+                base_vue.f_info(res.message);
+                await this.f_get_order_list();
+                this.selected_order_object.o_status = this.change_order_tmp.status;
+                this.selected_order_object.o_description = this.change_order_tmp.description;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }

@@ -303,13 +303,65 @@ export async function api_workbench_query(query) {
     }
 }
 
-export async function api_workbench_schema() {
+export async function api_get_workbench_schema() {
     try {
         const response = await fetch('/api/workbench/schema', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
             }
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.message || errorResult.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_get_enum_order_status() {
+    try {
+        const response = await fetch('/api/order/status', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.message || errorResult.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_update_order(o_id, o_description, o_status) {
+    try {
+        const response = await fetch('/api/order/order', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                o_id,
+                o_description,
+                o_status,
+            })
         });
 
         if (!response.ok) {

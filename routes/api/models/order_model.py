@@ -58,3 +58,8 @@ class OrderArticleOut(BaseModel):
 
 class OrderArticleDelete(BaseModel):
     oa_id: str
+
+class OrderChange(BaseModel):
+    o_id: str
+    o_description: str
+    o_status: str

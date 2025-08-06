@@ -49,10 +49,28 @@
         Login / Sign Up
     </button>
 {% else %}
-    <div class="flex items-center space-x-2 text-gray-700">
+    <!-- <div class="flex items-center space-x-2 text-gray-700">
         <i class="fas fa-user-circle text-xl"></i>
         <span class="text-sm">{{ payload.role }}</span>
         <span class="text-sm font-medium">{{ payload.email }}</span>
+        <span class="text-sm font-medium">{{ payload.sub }}</span>
+    </div> -->
+    <div class="relative flex items-center space-x-2 text-gray-700 group">
+        <i class="fas fa-user-circle text-xl cursor-pointer"></i>
+        <span class="text-sm font-medium">{{ payload.sub }}</span>
+        <!-- Dropdown info -->
+        <div class="absolute top-full right-0 mt-0 w-48 bg-white border border-gray-300 rounded-md shadow-lg opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-300 z-10">
+            <div class="p-4 text-gray-900 space-y-2 text-sm">
+                <div class="grid grid-cols-3">
+                    <span class="font-medium">Role</span>
+                    <span class="col-span-2">{{ payload.role }}</span>
+                </div>
+                <div class="grid grid-cols-3">
+                    <span class="font-medium">Email</span>
+                    <span class="col-span-2">{{ payload.email }}</span>
+                </div>
+            </div>
+        </div>
     </div>
     <button @click="f_logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200 flex items-center space-x-2">
         <i class="fas fa-sign-out-alt"></i>

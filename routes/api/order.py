@@ -3,7 +3,7 @@ import database.connection
 import database.models
 from typing import List
 from fastapi import HTTPException, status, APIRouter
-from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderSpecSchema, PriceListOut, OrderArticleDelete
+from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderSpecSchema, PriceListOut, OrderArticleDelete, OrderChange
 import routes.api.utils
 import logging
 import traceback
@@ -16,9 +16,10 @@ logger = logging.getLogger(__name__)
 class OrderAPI:
     def __init__(self):
         self.router = APIRouter(prefix="/api/order", tags=["Order"])
-        self.router.add_api_route("/order/status", self.get_enum_order_status, methods=["GET"])
+        self.router.add_api_route("/status", self.get_enum_order_status, methods=["GET"])
         self.router.add_api_route("/order", self.get_all_order, methods=["GET"])
         self.router.add_api_route("/order", self.insert_order, methods=["POST"])
+        self.router.add_api_route("/order", self.change_order, methods=["PUT"])
         self.router.add_api_route("/order-article", self.insert_order_article, methods=["POST"])
         self.router.add_api_route("/order-article/{o_id}", self.get_order_articles_with_specs, methods=["GET"])
         self.router.add_api_route("/order-article", self.delete_order_article, methods=["DELETE"])
@@ -227,3 +228,22 @@ class OrderAPI:
         except Exception:
             logger.error("Unhandled exception: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
+        
+    def change_order(self, input: OrderChange, db: database.connection.db_dependency):
+        try:
+            query = db.query(database.models.TOrder).filter_by(
+                o_id=input.o_id
+            ).first()
+
+            if not query:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order tidak ditemukan")
+
+            query.o_description = input.o_description
+            query.o_status = input.o_status
+            db.commit()
+            return {"message": "Order berhasil diperbarui"}
+        except HTTPException:
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
