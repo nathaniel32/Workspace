@@ -288,6 +288,7 @@ const order_management = new Vue({
                 const res = await api_input_order(this.input_order_description);
                 base_vue.f_info(res.message);
                 this.f_get_order_list();
+                this.input_order_description = null;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
@@ -297,6 +298,8 @@ const order_management = new Vue({
                 const res = await api_input_order_article(this.selected_order_object.o_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_specs);
                 this.f_get_order_articles_with_specs();
                 base_vue.f_info(res.message);
+                this.input_order_article_power = null;
+                this.input_order_article_description = null;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }

@@ -4,7 +4,7 @@ import { api_update_spec, api_delete_spec, api_delete_power, api_update_power, a
 const dashboard_admin_control_panel = new Vue({
     data: {
         title: 'Control Panel',
-        input_power: 0,
+        input_power: null,
         input_spec: '',
         input_spec_corrective: true,
         price_list: [],
@@ -243,6 +243,7 @@ const dashboard_admin_control_panel = new Vue({
                 this.f_get_all_powers();
                 this.f_get_all_price_list();
                 base_vue.f_info(res.message);
+                this.input_power = null;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
@@ -255,6 +256,7 @@ const dashboard_admin_control_panel = new Vue({
                 this.f_get_all_specs();
                 this.f_get_all_price_list();
                 base_vue.f_info(res.message);
+                this.input_spec = null;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
