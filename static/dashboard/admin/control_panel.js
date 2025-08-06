@@ -148,48 +148,55 @@ const dashboard_admin_control_panel = new Vue({
 
         //GET ALL PRICE
         async f_get_all_price_list(){
-            const res = await api_get_all_price_list();
-            this.price_list = res.data;
-            if (!res.success) {
-                base_vue.f_info(res.message);
+            try {
+                const res = await api_get_all_price_list();
+                this.price_list = res.data;
+            } catch (err) {
+                base_vue.f_info(err.message);
             }
         },
 
         //GET ALL POWERS
         async f_get_all_powers(){
-            const res = await api_get_all_powers();
-            this.power_list = res.data;
-            if (!res.success) {
-                base_vue.f_info(res.message);
+            try {
+                const res = await api_get_all_powers();
+                this.power_list = res.data;
+            } catch (err) {
+                base_vue.f_info(err.message);
             }
         },
 
         //GET ALL SPECS
         async f_get_all_specs(){
-            const res = await api_get_all_specs();
-            this.spec_list = res.data;
-            if (!res.success) {
-                base_vue.f_info(res.message);
+            try {
+                const res = await api_get_all_specs();
+                this.spec_list = res.data;
+            } catch (err) {
+                base_vue.f_info(err.message);
             }
         },
 
         //INPUT POWER
         async f_input_power(){
-            const res = await api_input_power(this.input_power);
-            base_vue.f_info(res.message);
-            if (res.success) {
+            try {
+                const res = await api_input_power(this.input_power);
                 this.f_get_all_powers();
                 this.f_get_all_price_list();
+                base_vue.f_info(res.message);
+            } catch (err) {
+                base_vue.f_info(err.message);
             }
         },
 
         //INPUT SPEC
         async f_input_spec(){
-            const res = await api_input_spec(this.input_spec, this.input_spec_corrective);
-            base_vue.f_info(res.message);
-            if (res.success) {
+            try {
+                const res = await api_input_spec(this.input_spec, this.input_spec_corrective);
                 this.f_get_all_specs();
                 this.f_get_all_price_list();
+                base_vue.f_info(res.message);
+            } catch (err) {
+                base_vue.f_info(err.message);
             }
         },
 
@@ -207,10 +214,14 @@ const dashboard_admin_control_panel = new Vue({
             //let price_string = this.update_price.new_price.replace(/\D/g, ''); // hanya angka
             let price_string = deformat_price(this.update_price.new_price);
             let price = Number(price_string);
-            const res = await api_update_price(this.update_price.selected_power_id, this.update_price.selected_spec_id, this.update_price.new_description, Number(price));
-            this.f_get_all_price_list();
-            this.update_price.show_popup = false;
-            base_vue.f_info(res.message);
+            try {
+                const res = await api_update_price(this.update_price.selected_power_id, this.update_price.selected_spec_id, this.update_price.new_description, Number(price));
+                this.f_get_all_price_list();
+                this.update_price.show_popup = false;
+                base_vue.f_info(res.message);
+            } catch (err) {
+                base_vue.f_info(err.message);
+            }
         },
 
         format_price_input(e) {

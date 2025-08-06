@@ -1,4 +1,3 @@
-//return success, message, data
 export async function api_get_all_price_list() {
     try {
         const response = await fetch('/api/item/price', {
@@ -14,10 +13,10 @@ export async function api_get_all_price_list() {
             throw new Error(errorMsg);
         }
         
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -36,10 +35,10 @@ export async function api_get_all_powers() {
             throw new Error(errorMsg);
         }
         
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -58,10 +57,10 @@ export async function api_get_all_specs() {
             throw new Error(errorMsg);
         }
         
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -80,10 +79,10 @@ export async function api_get_all_orders() {
             throw new Error(errorMsg);
         }
         
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -107,10 +106,10 @@ export async function api_input_order(description) {
         }
 
         const result = await response.json();
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -129,10 +128,10 @@ export async function get_order_articles_with_specs(o_id) {
             throw new Error(errorMsg);
         }
         
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -159,10 +158,10 @@ export async function api_input_order_article(order_id, order_article_power, ord
         }
 
         const result = await response.json();
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -184,10 +183,10 @@ export async function api_delete_order_article(oa_id) {
             throw new Error(errorMsg);
         }
         
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -211,10 +210,10 @@ export async function api_input_power(power) {
         }
 
         const result = await response.json();
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -239,10 +238,10 @@ export async function api_input_spec(spec, corrective) {
         }
 
         const result = await response.json();
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -270,10 +269,10 @@ export async function api_update_price(p_id, s_id, new_description, new_price) {
         }
 
         const result = await response.json();
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
-        return { success: false, message: error.message || "Unknown error", data: null };
+        throw error;
     }
 }
 
@@ -297,10 +296,9 @@ export async function api_workbench_query(query) {
         }
 
         const result = await response.json();
-        return { success: true, message: result.message || "ok", data: result };
+        return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);
         throw error;
-        //return { success: false, message: error.message || "Unknown error", data: null };
     }
 }

@@ -48,6 +48,7 @@ const base_vue = new Vue({
                 window.location.reload();
             } catch (error) {
                 alert("Error: " + error.message);
+                throw error;
             }
         },
         async f_signup(){
@@ -75,6 +76,7 @@ const base_vue = new Vue({
                 window.location.reload();
             } catch (error) {
                 alert("Error: " + error.message);
+                throw error;
             }
         },
         async f_logout(){
@@ -93,6 +95,7 @@ const base_vue = new Vue({
                 window.location.replace('/');
             } catch (error) {
                 alert("Error: " + error.message);
+                throw error;
             }
         }
     },

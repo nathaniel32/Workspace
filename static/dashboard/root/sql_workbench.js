@@ -127,6 +127,7 @@ ORDER BY enum_name, e.enumsortorder;` }
 
         async loadSchema() {
             this.loadingSchema = true;
+            
             try {
                 const response = await fetch('/api/workbench/schema');
                 const data = await response.json();

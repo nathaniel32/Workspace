@@ -62,18 +62,20 @@ const order_management = new Vue({
         },
         async f_init() {
             dashboard_main.navigations.push({ name: this.title, callback: this.f_template });
-            const res_spec = await api_get_all_specs();
-            this.spec_list = res_spec.data;
-            this.f_get_order_list();
-            if (!res_spec.success) {
-                base_vue.f_info(res_spec.message);
+            try {
+                const res = await api_get_all_specs();
+                this.spec_list = res.data;
+                this.f_get_order_list();
+            } catch (err) {
+                base_vue.f_info(err.message);
             }
         },
         async f_get_order_list() {
-            const res = await api_get_all_orders();
-            this.order_list = res.data;
-            if (!res.success) {
-                base_vue.f_info(res.message);
+            try {
+                const res = await api_get_all_orders();
+                this.order_list = res.data;
+            } catch (err) {
+                base_vue.f_info(err.message);
             }
         },
         async f_get_order_articles_with_specs(order_object=null) {
@@ -86,12 +88,17 @@ const order_management = new Vue({
                     this.selected_order_object = order_object;
                 }
             }
-            const res_order = await get_order_articles_with_specs(this.selected_order_object.o_id);
-            if (res_order.data) {
-                this.order_article_list = res_order.data;
-            }else{
-                base_vue.f_info("No article found");
-                this.order_article_list = [];
+
+            try {
+                const res = await get_order_articles_with_specs(this.selected_order_object.o_id);
+                if (res.data) {
+                    this.order_article_list = res.data;
+                }else{
+                    base_vue.f_info("No article found");
+                    this.order_article_list = [];
+                }
+            } catch (err) {
+                base_vue.f_info(err.message);
             }
         },
         f_sum_order_article(specs) {
@@ -231,19 +238,31 @@ const order_management = new Vue({
             }
         },
         async f_delete_order_article(oa_id) {
-            const res = await api_delete_order_article(oa_id);
-            base_vue.f_info(res.message);
-            this.f_get_order_articles_with_specs();
+            try {
+                const res = await api_delete_order_article(oa_id);
+                base_vue.f_info(res.message);
+                this.f_get_order_articles_with_specs();
+            } catch (err) {
+                base_vue.f_info(err.message);
+            }
         },
         async f_input_order() {
-            const res = await api_input_order(this.input_order_description);
-            base_vue.f_info(res.message);
-            this.f_get_order_list();
+            try{
+                const res = await api_input_order(this.input_order_description);
+                base_vue.f_info(res.message);
+                this.f_get_order_list();
+            } catch (err) {
+                base_vue.f_info(err.message);
+            }
         },
         async f_input_order_article() {
-            const res = await api_input_order_article(this.selected_order_object.o_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_specs);
-            base_vue.f_info(res.message);
-            this.f_get_order_articles_with_specs();
+            try{
+                const res = await api_input_order_article(this.selected_order_object.o_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_specs);
+                this.f_get_order_articles_with_specs();
+                base_vue.f_info(res.message);
+            } catch (err) {
+                base_vue.f_info(err.message);
+            }
         }
     }
 });
