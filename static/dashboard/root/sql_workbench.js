@@ -1,4 +1,4 @@
-import { api_workbench_query } from '../api.js';
+import { api_workbench_query, api_workbench_schema } from '../api.js';
 
 const dashboard_root_workbench = new Vue({
     data: {
@@ -129,9 +129,8 @@ ORDER BY enum_name, e.enumsortorder;` }
             this.loadingSchema = true;
             
             try {
-                const response = await fetch('/api/workbench/schema');
-                const data = await response.json();
-                this.schema = data.data;
+                const res = await api_workbench_schema()
+                this.schema = res.data.data;
             } catch (err) {
                 this.schema = 'Failed to load schema: ' + err.message;
             } finally {

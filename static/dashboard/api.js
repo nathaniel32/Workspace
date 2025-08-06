@@ -302,3 +302,26 @@ export async function api_workbench_query(query) {
         throw error;
     }
 }
+
+export async function api_workbench_schema() {
+    try {
+        const response = await fetch('/api/workbench/schema', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.message || errorResult.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}

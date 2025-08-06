@@ -9,17 +9,29 @@ import logging
 import traceback
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 
 class OrderAPI:
     def __init__(self):
         self.router = APIRouter(prefix="/api/order", tags=["Order"])
+        self.router.add_api_route("/order/status", self.get_enum_order_status, methods=["GET"])
         self.router.add_api_route("/order", self.get_all_order, methods=["GET"])
         self.router.add_api_route("/order", self.insert_order, methods=["POST"])
         self.router.add_api_route("/order-article", self.insert_order_article, methods=["POST"])
         self.router.add_api_route("/order-article/{o_id}", self.get_order_articles_with_specs, methods=["GET"])
         self.router.add_api_route("/order-article", self.delete_order_article, methods=["DELETE"])
+
+    def get_enum_order_status(self, db: database.connection.db_dependency):
+        try:
+            query = "SELECT e.enumlabel FROM pg_type t JOIN pg_enum e ON t.oid = e.enumtypid WHERE t.typname = 'orderstatus';"
+            result = db.execute(text(query))
+            rows = result.fetchall()
+            columns = result.keys()
+            return [dict(zip(columns, row)) for row in rows]
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
     def get_all_order(self, db: database.connection.db_dependency) -> List[OrderOut]:
         try:

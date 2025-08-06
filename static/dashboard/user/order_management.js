@@ -84,19 +84,20 @@ const order_management = new Vue({
                     this.selected_order_object = null;
                     this.order_article_list = [];
                     return;
-                }else{
-                    this.selected_order_object = order_object;
                 }
+            }else{
+                order_object = this.selected_order_object;
             }
 
             try {
-                const res = await get_order_articles_with_specs(this.selected_order_object.o_id);
+                const res = await get_order_articles_with_specs(order_object.o_id);
                 if (res.data) {
                     this.order_article_list = res.data;
                 }else{
                     base_vue.f_info("No article found");
                     this.order_article_list = [];
                 }
+                this.selected_order_object = order_object;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
@@ -180,8 +181,8 @@ const order_management = new Vue({
                                     </tbody>
                                 </table>
                                 <div v-else class="p-12 text-center">
-                                    <i class="fas fa-search text-3xl opacity-50"></i>
-                                    <h3 class="text-lg font-semibold mb-2">No Results</h3>
+                                    <i class="fas fa-search text-4xl text-gray-400"></i>
+                                    <p class="text-gray-500 text-sm">No Results</p>
                                 </div>
                             </div>
                         </div>
@@ -226,6 +227,10 @@ const order_management = new Vue({
                             </div>
                             <button @click="f_input_order_article" class="mt-4 w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-paper-plane mr-2"></i>Submit Article</button>
                         </div>
+                    </div>
+                    <div v-else class="p-12 text-center lg:col-span-3 space-y-6">
+                        <i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">Select a navigation order from the sidebar to get started</p>
                     </div>
                 </div>
             `;
