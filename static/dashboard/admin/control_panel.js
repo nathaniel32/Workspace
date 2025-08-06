@@ -152,7 +152,7 @@ const dashboard_admin_control_panel = new Vue({
                 const res = await api_get_all_price_list();
                 this.price_list = res.data;
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
 
@@ -162,7 +162,7 @@ const dashboard_admin_control_panel = new Vue({
                 const res = await api_get_all_powers();
                 this.power_list = res.data;
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
 
@@ -172,7 +172,7 @@ const dashboard_admin_control_panel = new Vue({
                 const res = await api_get_all_specs();
                 this.spec_list = res.data;
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
 
@@ -184,7 +184,7 @@ const dashboard_admin_control_panel = new Vue({
                 this.f_get_all_price_list();
                 base_vue.f_info(res.message);
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
 
@@ -196,7 +196,7 @@ const dashboard_admin_control_panel = new Vue({
                 this.f_get_all_price_list();
                 base_vue.f_info(res.message);
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
 
@@ -220,7 +220,7 @@ const dashboard_admin_control_panel = new Vue({
                 this.update_price.show_popup = false;
                 base_vue.f_info(res.message);
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
 

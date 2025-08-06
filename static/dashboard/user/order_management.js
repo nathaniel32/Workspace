@@ -67,7 +67,7 @@ const order_management = new Vue({
                 this.spec_list = res.data;
                 this.f_get_order_list();
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
         async f_get_order_list() {
@@ -75,7 +75,7 @@ const order_management = new Vue({
                 const res = await api_get_all_orders();
                 this.order_list = res.data;
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
         async f_get_order_articles_with_specs(order_object=null) {
@@ -98,7 +98,7 @@ const order_management = new Vue({
                     this.order_article_list = [];
                 }
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
         f_sum_order_article(specs) {
@@ -243,7 +243,7 @@ const order_management = new Vue({
                 base_vue.f_info(res.message);
                 this.f_get_order_articles_with_specs();
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
         async f_input_order() {
@@ -252,7 +252,7 @@ const order_management = new Vue({
                 base_vue.f_info(res.message);
                 this.f_get_order_list();
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
         async f_input_order_article() {
@@ -261,7 +261,7 @@ const order_management = new Vue({
                 this.f_get_order_articles_with_specs();
                 base_vue.f_info(res.message);
             } catch (err) {
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             }
         }
     }

@@ -3,7 +3,7 @@ const base_vue = new Vue({
     data: {
         showAuthModal: false,
         authTab: 'login',
-        v_info: "",
+        v_info_list: [],
         v_login: {email: "test@exp.com", password: "Tadnxciw123_"},
         v_signup: {username: "Test User", email: "test@exp.com", password: "Tadnxciw123_"},
     },
@@ -15,10 +15,29 @@ const base_vue = new Vue({
         f_closeAuth() {
             this.showAuthModal = false;
         },
-        f_info(message, duration=5000){
-            this.v_info = message;
-            setTimeout(()=>{
-                this.v_info = "";
+        f_info(message, duration=5000, error=false) {
+            const wrapper = document.createElement('div');
+            const bgClass = error ? 'bg-red-50 border-red-400' : 'bg-blue-50 border-blue-400';
+            const textClass = error ? 'text-red-700' : 'text-blue-700';
+            const iconClass = error ? 'fa-exclamation-circle text-red-400' : 'fa-info-circle text-blue-400';
+            wrapper.innerHTML = `
+                <div class="${bgClass} border-l-4 p-4 rounded-r-lg shadow-lg animate-fade-in">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas ${iconClass}"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm ${textClass}">${message}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const element = wrapper.firstElementChild;
+            this.$refs.info_container.appendChild(element);
+
+            setTimeout(() => {
+                element.remove();
             }, duration);
         },
         f_init(){

@@ -151,7 +151,7 @@ ORDER BY enum_name, e.enumsortorder;` }
                 this.displayedResults = this.queryResult.slice(0, this.rowsPerPage);
             } catch (err) {
                 this.queryError = err.message;
-                base_vue.f_info(err.message);
+                base_vue.f_info(err.message, undefined, true);
             } finally {
                 this.executing = false;
             }
