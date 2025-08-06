@@ -1,5 +1,5 @@
 import { get_price_list_item, format_price, beautify_format_price, deformat_price } from '../utils.js';
-import { api_get_all_price_list, api_get_all_powers, api_get_all_specs, api_input_power, api_input_spec, api_update_price } from '../api.js';
+import { api_update_power, api_get_all_price_list, api_get_all_powers, api_get_all_specs, api_input_power, api_input_spec, api_update_price } from '../api.js';
 
 const dashboard_admin_control_panel = new Vue({
     data: {
@@ -18,6 +18,12 @@ const dashboard_admin_control_panel = new Vue({
             selected_spec: null,
             new_description: null,
             new_price: ''
+        },
+        update_power: {
+            show_popup: false,
+            selected_power_id: null,
+            power: null,
+            unit: null
         }
     },
     computed: {
@@ -73,8 +79,8 @@ const dashboard_admin_control_panel = new Vue({
                             </thead>
                             <tbody>
                                 <tr v-for="(power, index) in power_list" :key="power.p_id" class="bg-white hover:bg-gray-50">
-                                    <td class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap">{{ f_get_power_range(power, power_list[index + 1]) }}</td>
-                                    <td class="py-4 px-6">{{ power.p_unit }}</td>
+                                    <td class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap cursor-pointer" @click="f_show_power_popup(power)">{{ f_get_power_range(power, power_list[index + 1]) }}</td>
+                                    <td class="py-4 px-6 cursor-pointer" @click="f_show_power_popup(power)">{{ power.p_unit }}</td>
                                     <td v-for="spec in combined_specs" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id, f_get_power_range(power, power_list[index + 1]), spec.s_spec)" class="py-4 px-6 cursor-pointer text-blue-600 hover:underline">
                                         <div>
                                             <strong>{{ f_table_get_price(power.p_id, spec.s_id) }}</strong><br>
@@ -107,7 +113,7 @@ const dashboard_admin_control_panel = new Vue({
                         </div>
                     </div>
 
-                    <!-- Popup -->
+                    <!-- Popup Price -->
                     <div v-if="update_price.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
                         <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
                             <div class="mt-3 text-center">
@@ -127,6 +133,29 @@ const dashboard_admin_control_panel = new Vue({
                                 <div class="items-center px-4 py-3">
                                     <button @click="f_update_price" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                     <button @click="update_price.show_popup = false" class="ml-2 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Popup Power -->
+                    <div v-if="update_power.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+                        <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <div class="mt-3 text-center">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Power</h3>
+                                <div class="mt-2 px-7 py-3 space-y-4 text-left">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Minimal Power</label>
+                                        <input v-model="update_power.new_power" type="text" @input="format_price_input" placeholder="New Price" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Unit</label>
+                                        <input v-model="update_power.new_unit" type="text" placeholder="Description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+                                    </div>
+                                </div>
+                                <div class="items-center px-4 py-3">
+                                    <button @click="f_update_power" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
+                                    <button @click="update_power.show_popup = false" class="ml-2 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -209,6 +238,22 @@ const dashboard_admin_control_panel = new Vue({
             this.update_price.selected_spec = spec;
             this.update_price.new_price = format_price(res.pl_price);
             this.update_price.show_popup = true;
+        },
+        f_show_power_popup(power){
+            this.update_power.p_id = power.p_id;
+            this.update_power.new_power = power.p_power;
+            this.update_power.new_unit = power.p_unit;
+            this.update_power.show_popup = true;
+        },
+        async f_update_power() {
+            try {
+                const res = await api_update_power(this.update_power.p_id, this.update_power.new_power, this.update_power.new_unit);
+                this.update_power.show_popup = false;
+                base_vue.f_info(res.message);
+                this.f_get_all_powers();
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
         },
         async f_update_price() {
             //let price_string = this.update_price.new_price.replace(/\D/g, ''); // hanya angka

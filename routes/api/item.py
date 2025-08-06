@@ -5,7 +5,7 @@ from typing import List
 from fastapi import HTTPException, status, APIRouter
 from routes.api.models.item_model import PowerOut, PowerCreate, PowerUpdate, PowerDelete
 from routes.api.models.item_model import SpecOut, SpecCreate, SpecUpdate, SpecDelete
-from routes.api.models.item_model import PriceListOut, PriceChange
+from routes.api.models.item_model import PriceListOut, PriceChange, PowerChange
 import routes.api.utils
 
 class ItemAPI:
@@ -13,7 +13,7 @@ class ItemAPI:
         self.router = APIRouter(prefix="/api/item", tags=["Item"])
         self.router.add_api_route("/power", self.get_all_power, methods=["GET"])
         self.router.add_api_route("/power", self.insert_power, methods=["POST"])
-        self.router.add_api_route("/power", self.update_power, methods=["PUT"])
+        self.router.add_api_route("/power", self.change_power, methods=["PUT"])
         self.router.add_api_route("/power", self.delete_power, methods=["DELETE"])
 
         self.router.add_api_route("/spec", self.get_all_spec, methods=["GET"])
@@ -23,7 +23,7 @@ class ItemAPI:
 
         self.router.add_api_route("/price", self.get_all_price, methods=["GET"])
         self.router.add_api_route("/price", self.change_price, methods=["PUT"])
-
+        
     def get_all_power(self, db: database.connection.db_dependency) -> List[PowerOut]:
         try:
             powers = db.query(database.models.TPower).order_by(database.models.TPower.p_power.asc()).all()
@@ -49,21 +49,6 @@ class ItemAPI:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-    def update_power(self, input: PowerUpdate, db: database.connection.db_dependency):
-        try:
-            db_power = db.query(database.models.TPower).filter_by(p_id=input.p_id).first()
-            if not db_power:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Power tidak ditemukan")
-            db_power.p_power = input.p_power
-            db.commit()
-            return {"message": "Power berhasil diperbarui"}
-        except HTTPException:
-            raise
-        except Exception as e:
-            db.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-
-
     def delete_power(self, input: PowerDelete, db: database.connection.db_dependency):
         try:
             db_power = db.query(database.models.TPower).filter_by(p_id=input.p_id).first()
@@ -156,6 +141,23 @@ class ItemAPI:
             db_price.pl_price = input.pl_price
             db.commit()
             return {"message": "Harga berhasil diperbarui"}
+        except HTTPException:
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        
+    def change_power(self, input: PowerChange, db: database.connection.db_dependency):
+        try:
+            query = db.query(database.models.TPower).filter_by(p_id=input.p_id).first()
+
+            if not query:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Power tidak ditemukan")
+
+            query.p_power = input.p_power
+            query.p_unit = input.p_unit
+            db.commit()
+            return {"message": "Power berhasil diperbarui"}
         except HTTPException:
             raise
         except Exception as e:

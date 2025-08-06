@@ -377,3 +377,32 @@ export async function api_update_order(o_id, o_description, o_status) {
         throw error;
     }
 }
+
+export async function api_update_power(p_id, p_power, p_unit) {
+    try {
+        const response = await fetch('/api/item/power', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                p_id,
+                p_power,
+                p_unit,
+            })
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.message || errorResult.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}

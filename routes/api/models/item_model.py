@@ -58,3 +58,8 @@ class PriceChange(BaseModel):
     s_id: str
     pl_description: Optional[str] = None
     pl_price: Decimal
+
+class PowerChange(BaseModel):
+    p_id: str
+    p_power: int
+    p_unit: int
