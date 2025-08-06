@@ -273,6 +273,8 @@ const order_management = new Vue({
             }
         },
         async f_delete_order_article(oa_id) {
+            const confirmed = confirm("Are you sure you want to delete this data?");
+            if (!confirmed) return;
             try {
                 const res = await api_delete_order_article(oa_id);
                 base_vue.f_info(res.message);
@@ -300,6 +302,8 @@ const order_management = new Vue({
             }
         },
         async f_change_order(){
+            const confirmed = confirm("Are you sure you want to update this data?");
+            if (!confirmed) return;
             try{
                 const res = await api_update_order(this.selected_order_object.o_id, this.change_order_tmp.description, this.change_order_tmp.status);
                 base_vue.f_info(res.message);

@@ -139,6 +139,9 @@ ORDER BY enum_name, e.enumsortorder;` }
         },
 
         async executeQuery() {
+            const confirmed = confirm("Are you sure you want to execute this command?");
+            if (!confirmed) return;
+            
             this.executing = true;
             this.queryError = null;
             this.queryResult = null;

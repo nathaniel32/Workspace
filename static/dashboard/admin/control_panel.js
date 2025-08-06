@@ -1,5 +1,5 @@
 import { get_price_list_item, format_price, beautify_format_price, deformat_price } from '../utils.js';
-import { api_delete_spec, api_delete_power, api_update_power, api_get_all_price_list, api_get_all_powers, api_get_all_specs, api_input_power, api_input_spec, api_update_price } from '../api.js';
+import { api_update_spec, api_delete_spec, api_delete_power, api_update_power, api_get_all_price_list, api_get_all_powers, api_get_all_specs, api_input_power, api_input_spec, api_update_price } from '../api.js';
 
 const dashboard_admin_control_panel = new Vue({
     data: {
@@ -160,8 +160,8 @@ const dashboard_admin_control_panel = new Vue({
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">
-                                    <button @click="f_delete_power" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
                                     <button @click="f_update_power" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
+                                    <button @click="f_delete_power" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
                                     <button @click="edit_power.show_popup = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
                                 </div>
                             </div>
@@ -184,8 +184,8 @@ const dashboard_admin_control_panel = new Vue({
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">
-                                    <button @click="f_delete_spec" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
                                     <button @click="f_update_spec" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
+                                    <button @click="f_delete_spec" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
                                     <button @click="edit_spec.show_popup = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
                                 </div>
                             </div>
@@ -283,6 +283,8 @@ const dashboard_admin_control_panel = new Vue({
             this.edit_spec.show_popup = true;
         },
         async f_update_power(){
+            const confirmed = confirm("Are you sure you want to update this data?");
+            if (!confirmed) return;
             try {
                 const res = await api_update_power(this.edit_power.p_id, this.edit_power.new_power, this.edit_power.new_unit);
                 this.edit_power.show_popup = false;
@@ -293,6 +295,8 @@ const dashboard_admin_control_panel = new Vue({
             }
         },
         async f_delete_power(){
+            const confirmed = confirm("Are you sure you want to delete this data?");
+            if (!confirmed) return;
             try {
                 const res = await api_delete_power(this.edit_power.p_id);
                 this.edit_power.show_popup = false;
@@ -303,16 +307,20 @@ const dashboard_admin_control_panel = new Vue({
             }
         },
         async f_update_spec(){
+            const confirmed = confirm("Are you sure you want to update this data?");
+            if (!confirmed) return;
             try {
-                const res = await api_update_spec(this.edit_power.s_id, this.edit_power.new_power, this.edit_power.new_unit);
-                this.edit_power.show_popup = false;
+                const res = await api_update_spec(this.edit_spec.s_id, this.edit_spec.new_spec, this.edit_spec.new_corrective);
+                this.edit_spec.show_popup = false;
                 base_vue.f_info(res.message);
-                this.f_get_all_powers();
+                this.f_get_all_specs();
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
         },
         async f_delete_spec(){
+            const confirmed = confirm("Are you sure you want to delete this data?");
+            if (!confirmed) return;
             try {
                 const res = await api_delete_spec(this.edit_spec.s_id);
                 this.edit_spec.show_popup = false;
@@ -323,6 +331,8 @@ const dashboard_admin_control_panel = new Vue({
             }
         },
         async f_update_price(){
+            const confirmed = confirm("Are you sure you want to update this data?");
+            if (!confirmed) return;
             //let price_string = this.update_price.new_price.replace(/\D/g, ''); // hanya angka
             let price_string = deformat_price(this.update_price.new_price);
             let price = Number(price_string);

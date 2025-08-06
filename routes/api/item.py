@@ -91,10 +91,11 @@ class ItemAPI:
         
     def update_spec(self, input: SpecUpdate, db: database.connection.db_dependency):
         try:
-            db_spec = db.query(database.models.TSpec).filter_by(s_id=input.s_id).first()
-            if not db_spec:
+            query = db.query(database.models.TSpec).filter_by(s_id=input.s_id).first()
+            if not query:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Spec tidak ditemukan")
-            db_spec.s_spec = input.s_spec
+            query.s_spec = input.s_spec
+            query.s_corrective = input.s_corrective
             db.commit()
             return {"message": "Spec berhasil diperbarui"}
         except HTTPException:
@@ -163,4 +164,3 @@ class ItemAPI:
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    

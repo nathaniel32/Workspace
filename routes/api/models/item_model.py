@@ -38,6 +38,7 @@ class SpecCreate(BaseModel):
 class SpecUpdate(BaseModel):
     s_id: str
     s_spec: str
+    s_corrective: bool
 
 class SpecDelete(BaseModel):
     s_id: str

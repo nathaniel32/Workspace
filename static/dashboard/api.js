@@ -456,3 +456,32 @@ export async function api_delete_spec(s_id) {
         throw error;
     }
 }
+
+export async function api_update_spec(s_id, s_spec, s_corrective) {
+    try {
+        const response = await fetch('/api/item/spec', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                s_id,
+                s_spec,
+                s_corrective,
+            })
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.message || errorResult.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
