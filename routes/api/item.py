@@ -7,6 +7,7 @@ from routes.api.models.item_model import PowerOut, PowerCreate, PowerUpdate, Pow
 from routes.api.models.item_model import SpecOut, SpecCreate, SpecUpdate, SpecDelete
 from routes.api.models.item_model import PriceListOut, PriceChange, PowerChange
 import routes.api.utils
+from sqlalchemy import asc
 
 class ItemAPI:
     def __init__(self):
@@ -66,7 +67,7 @@ class ItemAPI:
 
     def get_all_spec(self, db: database.connection.db_dependency) -> List[SpecOut]:
         try:
-            specs = db.query(database.models.TSpec).all()
+            specs = db.query(database.models.TSpec).order_by(asc(database.models.TSpec.s_corrective), asc(database.models.TSpec.s_spec)).all()
             return [SpecOut.model_validate(s) for s in specs]
         except HTTPException:
             raise

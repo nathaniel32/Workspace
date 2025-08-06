@@ -316,6 +316,7 @@ const order_management = new Vue({
                 base_vue.f_info(res.message);
                 this.input_order_article_power = null;
                 this.input_order_article_description = null;
+                this.input_order_article_id_specs.splice(0);
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }

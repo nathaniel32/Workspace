@@ -76,11 +76,11 @@ const dashboard_admin_control_panel = new Vue({
                                 <tr>
                                     <th rowspan="2" class="py-3 px-6">Power</th>
                                     <th rowspan="2" class="py-3 px-6">Number of unit</th>
-                                    <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id" class="py-3 px-6" @click="f_show_spec_popup(spec)">{{ spec.s_spec || '(empty)' }}</th>
+                                    <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id" class="py-3 px-6 cursor-pointer" @click="f_show_spec_popup(spec)">{{ spec.s_spec || '(empty)' }}</th>
                                     <th :colspan="corrective_spec_count" class="py-3 px-6 text-center">Corrective Price</th>
                                 </tr>
                                 <tr>
-                                    <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id" class="py-3 px-6" @click="f_show_spec_popup(spec)">{{ spec.s_spec || '(empty)' }}</th>
+                                    <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id" class="py-3 px-6 cursor-pointer" @click="f_show_spec_popup(spec)">{{ spec.s_spec || '(empty)' }}</th>
                                 </tr>
                             </thead>
                             <tbody>
