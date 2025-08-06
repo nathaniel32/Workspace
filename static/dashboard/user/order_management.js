@@ -141,7 +141,7 @@ const order_management = new Vue({
                                 <table class="w-full text-sm text-left text-gray-500">
                                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                         <tr>
-                                            <th rowspan="2" class="py-3 px-6">No</th>
+                                            <th rowspan="2" class="py-3 px-6">Equipment No</th>
                                             <th rowspan="2" class="py-3 px-6">Motor KW</th>
                                             <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id" class="py-3 px-6">{{ spec.s_spec || '(empty)' }}</th>
                                             <th :colspan="corrective_spec_count" class="py-3 px-6 text-center">Corrective Price</th>
@@ -153,7 +153,7 @@ const order_management = new Vue({
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, index) in order_article_list" :key="item.oa_id" class="bg-white border-b hover:bg-gray-50">
+                                        <tr v-for="(item, index) in order_article_list" :key="item.oa_id" class="bg-white hover:bg-gray-50">
                                             <td class="py-4 px-6">{{ item.oa_description }}</td>
                                             <td class="py-4 px-6">{{ item.oa_power }}</td>
                                             <td v-for="spec in combined_specs" :key="spec.s_id" class="py-4 px-6">
@@ -196,7 +196,7 @@ const order_management = new Vue({
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                                    <label class="block text-sm font-medium text-gray-700">Equipment No</label>
                                     <input type="text" v-model="input_order_article_description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                                 </div>
                                 <div>

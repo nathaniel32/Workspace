@@ -73,7 +73,7 @@ const dashboard_admin_control_panel = new Vue({
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(power, index) in power_list" :key="power.p_id" class="bg-white border-b hover:bg-gray-50">
+                                <tr v-for="(power, index) in power_list" :key="power.p_id" class="bg-white hover:bg-gray-50">
                                     <td class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap">{{ f_get_power_range(power, power_list[index + 1]) }}</td>
                                     <td class="py-4 px-6">{{ power.p_unit }}</td>
                                     <td v-for="spec in combined_specs" :key="spec.s_id" @click="f_show_price_popup(power.p_id, spec.s_id, f_get_power_range(power, power_list[index + 1]), spec.s_spec)" class="py-4 px-6 cursor-pointer text-blue-600 hover:underline">
