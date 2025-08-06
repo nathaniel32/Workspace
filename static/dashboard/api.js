@@ -406,3 +406,28 @@ export async function api_update_power(p_id, p_power, p_unit) {
         throw error;
     }
 }
+
+export async function api_delete_power(p_id) {
+    try {
+        const response = await fetch(`/api/item/power`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ p_id })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}

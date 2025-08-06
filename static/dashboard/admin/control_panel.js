@@ -1,5 +1,5 @@
 import { get_price_list_item, format_price, beautify_format_price, deformat_price } from '../utils.js';
-import { api_update_power, api_get_all_price_list, api_get_all_powers, api_get_all_specs, api_input_power, api_input_spec, api_update_price } from '../api.js';
+import { api_delete_power, api_update_power, api_get_all_price_list, api_get_all_powers, api_get_all_specs, api_input_power, api_input_spec, api_update_price } from '../api.js';
 
 const dashboard_admin_control_panel = new Vue({
     data: {
@@ -19,7 +19,7 @@ const dashboard_admin_control_panel = new Vue({
             new_description: null,
             new_price: ''
         },
-        update_power: {
+        edit_power: {
             show_popup: false,
             selected_power_id: null,
             power: null,
@@ -139,23 +139,24 @@ const dashboard_admin_control_panel = new Vue({
                     </div>
 
                     <!-- Popup Power -->
-                    <div v-if="update_power.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+                    <div v-if="edit_power.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
                         <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
                             <div class="mt-3 text-center">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Power</h3>
                                 <div class="mt-2 px-7 py-3 space-y-4 text-left">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Minimal Power</label>
-                                        <input v-model="update_power.new_power" type="text" @input="format_price_input" placeholder="New Price" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
+                                        <input v-model="edit_power.new_power" type="text" @input="format_price_input" placeholder="New Price" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Unit</label>
-                                        <input v-model="update_power.new_unit" type="text" placeholder="Description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+                                        <input v-model="edit_power.new_unit" type="text" placeholder="Description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">
+                                    <button @click="f_delete_power" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
                                     <button @click="f_update_power" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
-                                    <button @click="update_power.show_popup = false" class="ml-2 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+                                    <button @click="edit_power.show_popup = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -240,22 +241,32 @@ const dashboard_admin_control_panel = new Vue({
             this.update_price.show_popup = true;
         },
         f_show_power_popup(power){
-            this.update_power.p_id = power.p_id;
-            this.update_power.new_power = power.p_power;
-            this.update_power.new_unit = power.p_unit;
-            this.update_power.show_popup = true;
+            this.edit_power.p_id = power.p_id;
+            this.edit_power.new_power = power.p_power;
+            this.edit_power.new_unit = power.p_unit;
+            this.edit_power.show_popup = true;
         },
-        async f_update_power() {
+        async f_update_power(){
             try {
-                const res = await api_update_power(this.update_power.p_id, this.update_power.new_power, this.update_power.new_unit);
-                this.update_power.show_popup = false;
+                const res = await api_update_power(this.edit_power.p_id, this.edit_power.new_power, this.edit_power.new_unit);
+                this.edit_power.show_popup = false;
                 base_vue.f_info(res.message);
                 this.f_get_all_powers();
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
         },
-        async f_update_price() {
+        async f_delete_power(){
+            try {
+                const res = await api_delete_power(this.edit_power.p_id);
+                this.edit_power.show_popup = false;
+                base_vue.f_info(res.message);
+                this.f_get_all_powers();
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
+        },
+        async f_update_price(){
             //let price_string = this.update_price.new_price.replace(/\D/g, ''); // hanya angka
             let price_string = deformat_price(this.update_price.new_price);
             let price = Number(price_string);
@@ -269,7 +280,7 @@ const dashboard_admin_control_panel = new Vue({
             }
         },
 
-        format_price_input(e) {
+        format_price_input(e){
             this.update_price.new_price = beautify_format_price(e.target.value);
         }
     }
