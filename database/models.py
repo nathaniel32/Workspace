@@ -64,6 +64,7 @@ class TSpec(model_base):
     s_id = Column(VARCHAR(32), primary_key=True)
     s_spec = Column(Text, nullable=False, unique=True)
     s_corrective = Column(Boolean, default=False)
+    s_order_by = Column(Integer)
 
     # child
     pricelistes = relationship("TPriceList", back_populates="spec", cascade="all, delete-orphan")
@@ -107,6 +108,7 @@ class TOrderArticle(model_base):
     o_id = Column(VARCHAR(32), ForeignKey('t_order.o_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
     oa_power = Column(Integer, nullable=False)
     oa_description = Column(Text, nullable=False)
+    oa_time = Column(Integer, nullable=False, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
     # parent
     power = relationship("TPower", back_populates="order_articles")

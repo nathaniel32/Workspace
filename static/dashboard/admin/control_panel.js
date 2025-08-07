@@ -83,7 +83,7 @@ const dashboard_admin_control_panel = new Vue({
                                     <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id" class="py-3 px-6 cursor-pointer" @click="f_show_spec_popup(spec)">{{ spec.s_spec || '(empty)' }}</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody v-if="power_list.length > 0">
                                 <tr v-for="(power, index) in power_list" :key="power.p_id" class="bg-white hover:bg-gray-50">
                                     <td class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap cursor-pointer" @click="f_show_power_popup(power)">{{ f_get_power_range(power, power_list[index + 1]) }}</td>
                                     <td class="py-4 px-6 cursor-pointer" @click="f_show_power_popup(power)">{{ power.p_unit }}</td>
@@ -92,6 +92,14 @@ const dashboard_admin_control_panel = new Vue({
                                             <strong>{{ f_table_get_price(power.p_id, spec.s_id) }}</strong><br>
                                             <small class="text-gray-500">{{ f_table_get_price_description(power.p_id, spec.s_id) }}</small>
                                         </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody v-else>
+                                <tr>
+                                    <td :colspan="3 + combined_specs.length" class="py-12 text-center text-gray-500">
+                                        <i class="fas fa-search text-4xl text-gray-400 mb-2"></i>
+                                        <p class="text-sm">No results found</p>
                                     </td>
                                 </tr>
                             </tbody>
