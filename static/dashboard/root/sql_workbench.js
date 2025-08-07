@@ -151,6 +151,7 @@ ORDER BY enum_name, e.enumsortorder;` }
                 const res = await api_workbench_query(this.sqlQuery);
                 this.queryResult = res.data.data || [];
                 this.displayedResults = this.queryResult.slice(0, this.rowsPerPage);
+                base_vue.f_info(res.data.message);
             } catch (err) {
                 this.queryError = err.message;
                 base_vue.f_info(err.message, undefined, true);

@@ -28,6 +28,9 @@ class SQLWorkbenchAPI:
 
             if query_text.strip().lower().startswith(("insert", "update", "delete")):
                 db.commit()
+                message = "Query executed and committed successfully."
+            else:
+                message = "Query executed successfully."
 
             try:
                 rows = result.fetchall()
@@ -36,7 +39,10 @@ class SQLWorkbenchAPI:
             except Exception:
                 data = []
 
-            return {"data": data}
+            return {
+                "message": message,
+                "data": data
+            }
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
