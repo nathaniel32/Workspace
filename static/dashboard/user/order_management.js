@@ -250,13 +250,11 @@ const order_management = new Vue({
                                     <input type="number" v-model="input_order_article_power" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700">Specs</label>
-                                    <div class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
-                                        <div v-for="spec in spec_list" :key="spec.s_id">
-                                            <label class="flex items-center">
-                                                <input type="checkbox" :value="spec.s_id" v-model="input_order_article_id_specs" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                                <span class="ml-2 text-sm text-gray-600">{{ spec.s_spec || '(empty)' }}</span>
-                                            </label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-3">Specs</label>
+                                    <div class="flex flex-row overflow-x-auto space-x-4 pb-3">
+                                        <div v-for="spec in spec_list" :key="spec.s_id" class="flex flex-col justify-between items-center min-w-[120px] h-28">
+                                            <span class="text-sm text-gray-600 text-center break-words">{{ spec.s_spec || '(empty)' }}</span>
+                                            <input type="checkbox" :value="spec.s_id" v-model="input_order_article_id_specs" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                                         </div>
                                     </div>
                                 </div>
