@@ -65,23 +65,25 @@ const order_management = new Vue({
             const spec = specs.find(s => s.s_id === s_id);
             return spec?.price_list.pl_description || '-';
         },
-        async f_init() {
+        f_init() { //1x panggil
             dashboard_main.navigations.push({ name: this.title, callback: this.f_template });
-            try {
-                const res = await api_get_all_specs();
-                this.spec_list = res.data;
-            } catch (err) {
-                base_vue.f_info(err.message, undefined, true);
-            }
-
+            this.f_get_order_status_list();
+        },
+        async f_get_order_status_list() {
             try {
                 const res = await api_get_enum_order_status();
                 this.enum_status_list = res.data;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
-
-            this.f_get_order_list();
+        },
+        async f_get_spec_list() {
+            try {
+                const res = await api_get_all_specs();
+                this.spec_list = res.data;
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
         },
         async f_get_order_list() {
             try {
@@ -275,6 +277,9 @@ const order_management = new Vue({
             }else{
                 dashboard_main.f_reset();
             }
+
+            this.f_get_spec_list();
+            this.f_get_order_list();
         },
         async f_delete_order_article(oa_id) {
             const confirmed = confirm("Are you sure you want to delete this data?");
