@@ -1,4 +1,4 @@
-import { api_delete_order, api_update_order, api_get_enum_order_status, api_delete_order_article, api_get_all_items, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_items } from '../api.js'; //api_input_order
+import { api_upload_order_file, api_delete_order, api_update_order, api_get_enum_order_status, api_delete_order_article, api_get_all_items, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_items } from '../api.js'; //api_input_order
 import { format_price } from '../utils.js';
 
 const order_management = new Vue({
@@ -18,6 +18,10 @@ const order_management = new Vue({
         change_order_tmp: {
             status: null,
             description: null
+        },
+        upload_order_file: {
+            show_popup: false,
+            new_file: null
         }
     },
     computed: {
@@ -155,6 +159,7 @@ const order_management = new Vue({
                         <div class="mt-4">
                             <input type="text" v-model="input_order_description" placeholder="New order description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                             <button @click="f_input_order" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus mr-2"></i>Add New Order</button>
+                            <button @click="f_show_upload_order_popup" class="mt-2 w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus mr-2"></i>Upload PDF/XLSX</button>
                         </div>
                     </div>
                     <div v-if="selected_order_object" class="lg:col-span-3 space-y-6">
@@ -266,6 +271,25 @@ const order_management = new Vue({
                         <i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i>
                         <p class="text-gray-500">Select a navigation order from the sidebar to get started</p>
                     </div>
+
+                    <!-- Popup Upload -->
+                    <div v-if="upload_order_file.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+                        <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <div class="mt-3 text-center">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Upload Order</h3>
+                                <div class="mt-2 px-7 py-3 space-y-4 text-left">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">PDF/XLSX</label>
+                                        <input type="file" @change="handle_order_file_change" accept=".pdf,.xlsx" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
+                                    </div>
+                                    <button @click="f_upload_order_file" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Upload</button>
+                                </div>
+                                <div class="items-center px-4 py-3">
+                                    <button @click="upload_order_file.show_popup = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
             if (dashboard_main.content.template != template){
@@ -278,6 +302,22 @@ const order_management = new Vue({
 
             this.f_get_item_list();
             this.f_get_order_list();
+        },
+        handle_order_file_change(e) { 
+            this.upload_order_file.new_file = e.target.files[0] 
+        },
+        f_show_upload_order_popup(){
+            this.upload_order_file.show_popup = true;
+        },
+        async f_upload_order_file() {
+            if (!this.upload_order_file.new_file) { alert('Pilih file terlebih dahulu!'); return }
+
+            try {
+                const res = await api_upload_order_file(this.upload_order_file.new_file);
+                base_vue.f_info(res.message);
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
         },
         async f_delete_order_article(oa_id) {
             const confirmed = confirm("Are you sure you want to delete this data?");

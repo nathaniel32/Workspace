@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request
 import database.connection
 import database.models
 from typing import List
-from fastapi import HTTPException, status, APIRouter
+from fastapi import HTTPException, status, APIRouter, UploadFile, File
 from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderItemSchema, PriceListOut, OrderArticleDelete, OrderChange, OrderDelete
 import routes.api.utils
 import logging
@@ -10,7 +10,11 @@ import traceback
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 from sqlalchemy import text
+from io import BytesIO
+import os
 
+import pandas as pd
+import fitz
 logger = logging.getLogger(__name__)
 
 class OrderAPI:
@@ -21,6 +25,7 @@ class OrderAPI:
         self.router.add_api_route("/order", self.insert_order, methods=["POST"])
         self.router.add_api_route("/order", self.change_order, methods=["PUT"])
         self.router.add_api_route("/order", self.delete_order, methods=["DELETE"])
+        self.router.add_api_route("/order/file", self.insert_order_file, methods=["POST"])
         self.router.add_api_route("/order-article", self.insert_order_article, methods=["POST"])
         self.router.add_api_route("/order-article/{o_id}", self.get_order_articles_with_items, methods=["GET"])
         self.router.add_api_route("/order-article", self.delete_order_article, methods=["DELETE"])
@@ -262,3 +267,36 @@ class OrderAPI:
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        
+    async def insert_order_file(self, db: database.connection.db_dependency, order_file: UploadFile = File(...)):
+        try:
+            filename = order_file.filename
+            ext = os.path.splitext(filename)[1].lower()
+            allowed_exts = {".pdf", ".xlsx"}
+
+            if ext not in allowed_exts:
+                raise HTTPException(status_code=400, detail="File harus PDF atau XLSX")
+
+            content = await order_file.read()
+            bytes_io = BytesIO(content)
+
+            if ext == ".xlsx":
+                df = pd.read_excel(bytes_io)
+                print(df)
+            elif ext == ".pdf":
+                doc = fitz.open(stream=bytes_io.read(), filetype="pdf")
+                print(f"PDF page count: {doc.page_count}")
+
+            info = {"filename": filename, "size": len(content)}
+            return info
+        except SQLAlchemyError as db_err:
+            db.rollback()
+            logger.error("Database error: %s", traceback.format_exc())
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error.")
+
+        except HTTPException:
+            raise # buat 401
+
+        except Exception as e:
+            logger.error("Unhandled exception: %s", traceback.format_exc())
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")

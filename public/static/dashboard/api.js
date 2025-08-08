@@ -86,6 +86,33 @@ export async function api_get_all_orders() {
     }
 }
 
+export async function api_upload_order_file(order_file) {
+    const formData = new FormData();
+    formData.append('order_file', order_file);
+    
+    try {
+        const response = await fetch('/api/order/order/file', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.message || errorResult.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
 export async function api_input_order(description) {
     try {
         const response = await fetch('/api/order/order', {
