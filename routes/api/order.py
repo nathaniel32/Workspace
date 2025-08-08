@@ -3,7 +3,7 @@ import database.connection
 import database.models
 from typing import List
 from fastapi import HTTPException, status, APIRouter
-from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderSpecSchema, PriceListOut, OrderArticleDelete, OrderChange, OrderDelete
+from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderItemSchema, PriceListOut, OrderArticleDelete, OrderChange, OrderDelete
 import routes.api.utils
 import logging
 import traceback
@@ -22,7 +22,7 @@ class OrderAPI:
         self.router.add_api_route("/order", self.change_order, methods=["PUT"])
         self.router.add_api_route("/order", self.delete_order, methods=["DELETE"])
         self.router.add_api_route("/order-article", self.insert_order_article, methods=["POST"])
-        self.router.add_api_route("/order-article/{o_id}", self.get_order_articles_with_specs, methods=["GET"])
+        self.router.add_api_route("/order-article/{o_id}", self.get_order_articles_with_items, methods=["GET"])
         self.router.add_api_route("/order-article", self.delete_order_article, methods=["DELETE"])
 
     def get_enum_order_status(self, db: database.connection.db_dependency):
@@ -81,11 +81,11 @@ class OrderAPI:
             logger.error("Unhandled exception: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
         
-    def get_order_articles_with_specs(self, o_id: str, db: database.connection.db_dependency) -> List[OrderArticleOut]:
+    def get_order_articles_with_items(self, o_id: str, db: database.connection.db_dependency) -> List[OrderArticleOut]:
         try:
             articles = db.query(database.models.TOrderArticle).options(
-                joinedload(database.models.TOrderArticle.order_specs)  # load specs
-                    .joinedload(database.models.TOrderSpec.pricelist)
+                joinedload(database.models.TOrderArticle.order_items)  # load items
+                    .joinedload(database.models.TOrderItem.pricelist)
             ).filter(
                 database.models.TOrderArticle.o_id == o_id
             ).all()
@@ -100,7 +100,7 @@ class OrderAPI:
                     "p_id": article.p_id,
                     "oa_power": article.oa_power,
                     "oa_description": article.oa_description,
-                    "specs": article.order_specs  # OrderSpecSchema
+                    "items": article.order_items  # OrderItemSchema
                 }
                 for article in articles
             ] """
@@ -112,14 +112,14 @@ class OrderAPI:
                     p_id=article.p_id,
                     oa_power=article.oa_power,
                     oa_description=article.oa_description,
-                    specs=[
-                        OrderSpecSchema(
-                            s_id=spec.s_id,
-                            p_id=spec.p_id,
-                            os_price=spec.os_price,
-                            price_list=PriceListOut.model_validate(spec.pricelist) if spec.pricelist else None
+                    items=[
+                        OrderItemSchema(
+                            i_id=item.i_id,
+                            p_id=item.p_id,
+                            os_price=item.os_price,
+                            price_list=PriceListOut.model_validate(item.pricelist) if item.pricelist else None
                         )
-                        for spec in article.order_specs
+                        for item in article.order_items
                     ]
                 )
                 for article in articles
@@ -131,10 +131,10 @@ class OrderAPI:
         
     def delete_order_article(self, input: OrderArticleDelete, db: database.connection.db_dependency):
         try:
-            db_spec = db.query(database.models.TOrderArticle).filter_by(oa_id=input.oa_id).first()
-            if not db_spec:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Spec tidak ditemukan")
-            db.delete(db_spec)
+            db_item = db.query(database.models.TOrderArticle).filter_by(oa_id=input.oa_id).first()
+            if not db_item:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item tidak ditemukan")
+            db.delete(db_item)
             db.commit()
             return {"message": "Order Article berhasil dihapus"}
         except HTTPException:
@@ -160,7 +160,7 @@ class OrderAPI:
 
             print(input.o_id)
             print(input.power)
-            print(input.s_ids)
+            print(input.i_id_list)
             print(user_id)
 
             # 1. Check order milik user
@@ -195,23 +195,23 @@ class OrderAPI:
             db.add(new_order_article)
             db.flush()  # supaya new_order_article.oa_id ada di session
 
-            # 4. Ambil harga dan spec dari TPriceList berdasarkan selected_power_id dan input.s_ids
+            # 4. Ambil harga dan item dari TPriceList berdasarkan selected_power_id dan input.i_id_list
             price_list_entries = db.query(database.models.TPriceList).filter(
                 database.models.TPriceList.p_id == selected_power_id,
-                database.models.TPriceList.s_id.in_(input.s_ids)
+                database.models.TPriceList.i_id.in_(input.i_id_list)
             ).all()
 
-            # 5. Insert TOrderSpec berdasarkan price_list_entries
-            order_specs = [
-                database.models.TOrderSpec(
+            # 5. Insert TOrderItem berdasarkan price_list_entries
+            order_items = [
+                database.models.TOrderItem(
                     oa_id=new_order_article.oa_id,  # pake id yg baru dibuat
-                    s_id=pl.s_id,
+                    i_id=pl.i_id,
                     p_id=pl.p_id,
                     os_price=pl.pl_price
                 )
                 for pl in price_list_entries
             ]
-            db.add_all(order_specs)
+            db.add_all(order_items)
 
             # 6. Commit semua perubahan
             db.commit()

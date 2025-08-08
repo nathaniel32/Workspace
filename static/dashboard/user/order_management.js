@@ -1,18 +1,18 @@
-import { api_delete_order, api_update_order, api_get_enum_order_status, api_delete_order_article, api_get_all_specs, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_specs } from '../api.js'; //api_input_order
+import { api_delete_order, api_update_order, api_get_enum_order_status, api_delete_order_article, api_get_all_items, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_items } from '../api.js'; //api_input_order
 import { format_price } from '../utils.js';
 
 const order_management = new Vue({
     data: {
         title: 'Order Management',
         enum_status_list: [],
-        spec_list: [],
+        item_list: [],
         order_list: [],
         order_article_list: [],
         input_order_description: null,
         selected_order_object: null,
         input_order_article_power: null,
         input_order_article_description: null,
-        input_order_article_id_specs: [],
+        input_order_article_id_items: [],
         active_status_group: null,
         month_names: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
         change_order_tmp: {
@@ -21,13 +21,13 @@ const order_management = new Vue({
         }
     },
     computed: {
-        corrective_spec_count() {
-            return this.spec_list.filter(spec => spec.s_corrective === true).length;
+        corrective_item_count() {
+            return this.item_list.filter(item => item.i_corrective === true).length;
         },
-        combined_specs() {
+        combined_items() {
             return [
-                ...this.f_spec_list_corrective_filter(false),
-                ...this.f_spec_list_corrective_filter(true)
+                ...this.f_item_list_corrective_filter(false),
+                ...this.f_item_list_corrective_filter(true)
             ];
         },
         grouped_orders() {
@@ -43,7 +43,7 @@ const order_management = new Vue({
     },
     methods: {
         /* search_order_by_id(id) {
-            return this.order_list.find(item => item.o_id === id);
+            return this.order_list.find(element => element.o_id === id);
         }, */
         f_time_converter(unix) {
             const date = new Date(unix * 1000);
@@ -54,16 +54,16 @@ const order_management = new Vue({
             const year = date.getFullYear();
             return ` ${hours}:${minutes < 10 ? '0' + minutes : minutes} - ${day} ${this.month_names[month]} ${year}`
         },
-        f_spec_list_corrective_filter(is_corrective) {
-            return this.spec_list.filter(spec => spec.s_corrective === is_corrective);
+        f_item_list_corrective_filter(is_corrective) {
+            return this.item_list.filter(item => item.i_corrective === is_corrective);
         },
-        f_get_order_article_spec_price(specs, s_id) {
-            const spec = specs.find(s => s.s_id === s_id);
-            return spec ? format_price(spec.os_price) : '-';
+        f_get_order_article_item_price(items, i_id) {
+            const item = items.find(s => s.i_id === i_id);
+            return item ? format_price(item.os_price) : '-';
         },
-        f_get_order_article_spec_description(specs, s_id) {
-            const spec = specs.find(s => s.s_id === s_id);
-            return spec?.price_list.pl_description || '-';
+        f_get_order_article_item_description(items, i_id) {
+            const item = items.find(s => s.i_id === i_id);
+            return item?.price_list.pl_description || '-';
         },
         f_init() { //1x panggil
             dashboard_main.navigations.push({ name: this.title, callback: this.f_template });
@@ -77,10 +77,10 @@ const order_management = new Vue({
                 base_vue.f_info(err.message, undefined, true);
             }
         },
-        async f_get_spec_list() {
+        async f_get_item_list() {
             try {
-                const res = await api_get_all_specs();
-                this.spec_list = res.data;
+                const res = await api_get_all_items();
+                this.item_list = res.data;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
@@ -93,7 +93,7 @@ const order_management = new Vue({
                 base_vue.f_info(err.message, undefined, true);
             }
         },
-        async f_get_order_articles_with_specs(order_object=null) {
+        async f_get_order_articles_with_items(order_object=null) {
             if(order_object){
                 if (JSON.stringify(this.selected_order_object) == JSON.stringify(order_object)){
                     this.selected_order_object = null;
@@ -105,7 +105,7 @@ const order_management = new Vue({
             }
 
             try {
-                const res = await get_order_articles_with_specs(order_object.o_id);
+                const res = await get_order_articles_with_items(order_object.o_id);
                 if (res.data) {
                     this.order_article_list = res.data;
                 }else{
@@ -119,18 +119,18 @@ const order_management = new Vue({
                 base_vue.f_info(err.message, undefined, true);
             }
         },
-        f_sum_order_article(specs) {
-            const row_price = specs.reduce((sum, item) => sum + parseFloat(item.os_price), 0);
+        f_sum_order_article(items) {
+            const row_price = items.reduce((sum, element) => sum + parseFloat(element.os_price), 0);
             return format_price(row_price.toFixed(2));
         },
         f_sum_order(order_articles) {
-            const total_price = order_articles.reduce((sumOrder, item) => {
-                const specsSum = item.specs.reduce((sumSpecs, spec) => {
-                    const osPrice = parseFloat(spec.os_price) || 0;
-                    //const plPrice = parseFloat(spec.price_list.pl_price) || 0;
-                    return sumSpecs + osPrice;
+            const total_price = order_articles.reduce((sumOrder, element) => {
+                const itemSum = element.items.reduce((sumItems, item) => {
+                    const osPrice = parseFloat(item.os_price) || 0;
+                    //const plPrice = parseFloat(item.price_list.pl_price) || 0;
+                    return sumItems + osPrice;
                 }, 0);
-                return sumOrder + specsSum;
+                return sumOrder + itemSum;
             }, 0);
             return format_price(total_price.toFixed(2));
         },
@@ -146,7 +146,7 @@ const order_management = new Vue({
                                     <i class="fas" :class="{'fa-chevron-down': active_status_group === status, 'fa-chevron-right': active_status_group !== status}"></i>
                                 </button>
                                 <div v-if="active_status_group === status" class="pl-4 mt-2 space-y-2">
-                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_specs(order)" class="p-3 rounded-lg cursor-pointer hover:bg-gray-100 border border-gray-200">
+                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_items(order)" class="p-3 rounded-lg cursor-pointer hover:bg-gray-100 border border-gray-200">
                                         <p class="font-semibold text-gray-800">{{ order.o_description }}</p>
                                     </div>
                                 </div>
@@ -166,32 +166,32 @@ const order_management = new Vue({
                                         <tr>
                                             <th rowspan="2" class="py-3 px-6">Equipment No</th>
                                             <th rowspan="2" class="py-3 px-6">Motor KW</th>
-                                            <th rowspan="2" v-for="spec in f_spec_list_corrective_filter(false)" :key="spec.s_id" class="py-3 px-6">{{ spec.s_spec || '(empty)' }}</th>
-                                            <th :colspan="corrective_spec_count" class="py-3 px-6 text-center">Corrective Price</th>
+                                            <th rowspan="2" v-for="item in f_item_list_corrective_filter(false)" :key="item.i_id" class="py-3 px-6">{{ item.i_item || '(empty)' }}</th>
+                                            <th :colspan="corrective_item_count" class="py-3 px-6 text-center">Corrective Price</th>
                                             <th rowspan="2" class="py-3 px-6">Summe</th>
                                             <th rowspan="2" class="py-3 px-6">Actions</th>
                                         </tr>
                                         <tr>
-                                            <th v-for="spec in f_spec_list_corrective_filter(true)" :key="spec.s_id" class="py-3 px-6">{{ spec.s_spec || '(empty)' }}</th>
+                                            <th v-for="item in f_item_list_corrective_filter(true)" :key="item.i_id" class="py-3 px-6">{{ item.i_item || '(empty)' }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, index) in order_article_list" :key="item.oa_id" class="bg-white hover:bg-gray-50">
-                                            <td class="py-4 px-6">{{ item.oa_description }}</td>
-                                            <td class="py-4 px-6">{{ item.oa_power }}</td>
-                                            <td v-for="spec in combined_specs" :key="spec.s_id" class="py-4 px-6">
-                                                <strong>{{ f_get_order_article_spec_price(item.specs, spec.s_id) }}</strong><br>
-                                                <small class="text-gray-500">{{ f_get_order_article_spec_description(item.specs, spec.s_id) }}</small>
+                                        <tr v-for="(element, index) in order_article_list" :key="element.oa_id" class="bg-white hover:bg-gray-50">
+                                            <td class="py-4 px-6">{{ element.oa_description }}</td>
+                                            <td class="py-4 px-6">{{ element.oa_power }}</td>
+                                            <td v-for="item in combined_items" :key="item.i_id" class="py-4 px-6">
+                                                <strong>{{ f_get_order_article_item_price(element.items, item.i_id) }}</strong><br>
+                                                <small class="text-gray-500">{{ f_get_order_article_item_description(element.items, item.i_id) }}</small>
                                             </td>
                                             <td class="py-4 px-6">
-                                                <strong>{{ f_sum_order_article(item.specs) }}</strong>
+                                                <strong>{{ f_sum_order_article(element.items) }}</strong>
                                             </td>
                                             <td class="py-4 px-6">
-                                                <button @click="f_delete_order_article(item.oa_id)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs"><i class="fas fa-trash"></i></button>
+                                                <button @click="f_delete_order_article(element.oa_id)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs"><i class="fas fa-trash"></i></button>
                                             </td>
                                         </tr>
                                         <tr class="bg-gray-50 font-semibold">
-                                            <td :colspan="combined_specs.length + 2" class="py-4 px-6 text-right">Total</td>
+                                            <td :colspan="combined_items.length + 2" class="py-4 px-6 text-right">Total</td>
                                             <td class="py-4 px-6">{{ f_sum_order(order_article_list) }}</td>
                                             <td></td>
                                         </tr>
@@ -250,11 +250,11 @@ const order_management = new Vue({
                                     <input type="number" v-model="input_order_article_power" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-3">Specs</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-3">Items</label>
                                     <div class="flex flex-row overflow-x-auto space-x-4 pb-3">
-                                        <div v-for="spec in spec_list" :key="spec.s_id" class="flex flex-col justify-between items-center min-w-[120px] h-28">
-                                            <span class="text-sm text-gray-600 text-center break-words">{{ spec.s_spec || '(empty)' }}</span>
-                                            <input type="checkbox" :value="spec.s_id" v-model="input_order_article_id_specs" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                                        <div v-for="item in item_list" :key="item.i_id" class="flex flex-col justify-between items-center min-w-[120px] h-28">
+                                            <span class="text-sm text-gray-600 text-center break-words">{{ item.i_item || '(empty)' }}</span>
+                                            <input type="checkbox" :value="item.i_id" v-model="input_order_article_id_items" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                                         </div>
                                     </div>
                                 </div>
@@ -276,7 +276,7 @@ const order_management = new Vue({
                 dashboard_main.f_reset();
             }
 
-            this.f_get_spec_list();
+            this.f_get_item_list();
             this.f_get_order_list();
         },
         async f_delete_order_article(oa_id) {
@@ -285,7 +285,7 @@ const order_management = new Vue({
             try {
                 const res = await api_delete_order_article(oa_id);
                 base_vue.f_info(res.message);
-                this.f_get_order_articles_with_specs();
+                this.f_get_order_articles_with_items();
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
@@ -314,12 +314,12 @@ const order_management = new Vue({
         },
         async f_input_order_article() {
             try{
-                const res = await api_input_order_article(this.selected_order_object.o_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_specs);
-                this.f_get_order_articles_with_specs();
+                const res = await api_input_order_article(this.selected_order_object.o_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_items);
+                this.f_get_order_articles_with_items();
                 base_vue.f_info(res.message);
                 this.input_order_article_power = null;
                 this.input_order_article_description = null;
-                this.input_order_article_id_specs.splice(0);
+                this.input_order_article_id_items.splice(0);
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }

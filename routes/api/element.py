@@ -3,24 +3,24 @@ import database.connection
 import database.models
 from typing import List
 from fastapi import HTTPException, status, APIRouter
-from routes.api.models.item_model import PowerOut, PowerCreate, PowerUpdate, PowerDelete
-from routes.api.models.item_model import SpecOut, SpecCreate, SpecUpdate, SpecDelete
-from routes.api.models.item_model import PriceListOut, PriceChange, PowerChange
+from routes.api.models.element_model import PowerOut, PowerCreate, PowerUpdate, PowerDelete
+from routes.api.models.element_model import ItemOut, ItemCreate, ItemUpdate, ItemDelete
+from routes.api.models.element_model import PriceListOut, PriceChange, PowerChange
 import routes.api.utils
 from sqlalchemy import asc
 
-class ItemAPI:
+class ElementAPI:
     def __init__(self):
-        self.router = APIRouter(prefix="/api/item", tags=["Item"])
+        self.router = APIRouter(prefix="/api/element", tags=["Element"])
         self.router.add_api_route("/power", self.get_all_power, methods=["GET"])
         self.router.add_api_route("/power", self.insert_power, methods=["POST"])
         self.router.add_api_route("/power", self.change_power, methods=["PUT"])
         self.router.add_api_route("/power", self.delete_power, methods=["DELETE"])
 
-        self.router.add_api_route("/spec", self.get_all_spec, methods=["GET"])
-        self.router.add_api_route("/spec", self.insert_spec, methods=["POST"])
-        self.router.add_api_route("/spec", self.update_spec, methods=["PUT"])
-        self.router.add_api_route("/spec", self.delete_spec, methods=["DELETE"])
+        self.router.add_api_route("/item", self.get_all_item, methods=["GET"])
+        self.router.add_api_route("/item", self.insert_item, methods=["POST"])
+        self.router.add_api_route("/item", self.update_item, methods=["PUT"])
+        self.router.add_api_route("/item", self.delete_item, methods=["DELETE"])
 
         self.router.add_api_route("/price", self.get_all_price, methods=["GET"])
         self.router.add_api_route("/price", self.change_price, methods=["PUT"])
@@ -65,54 +65,54 @@ class ItemAPI:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
 
-    def get_all_spec(self, db: database.connection.db_dependency) -> List[SpecOut]:
+    def get_all_item(self, db: database.connection.db_dependency) -> List[ItemOut]:
         try:
-            specs = db.query(database.models.TSpec).order_by(asc(database.models.TSpec.s_corrective), asc(database.models.TSpec.s_spec)).all()
-            return [SpecOut.model_validate(s) for s in specs]
+            items = db.query(database.models.TItem).order_by(asc(database.models.TItem.i_corrective), asc(database.models.TItem.i_item)).all()
+            return [ItemOut.model_validate(s) for s in items]
         except HTTPException:
             raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-    def insert_spec(self, input: SpecCreate, db: database.connection.db_dependency):
+    def insert_item(self, input: ItemCreate, db: database.connection.db_dependency):
         try:
-            new_spec = database.models.TSpec(
-                s_id=routes.api.utils.generate_id(),
-                s_spec=input.s_spec,
-                s_corrective=input.s_corrective
+            new_item = database.models.TItem(
+                i_id=routes.api.utils.generate_id(),
+                i_item=input.i_item,
+                i_corrective=input.i_corrective
             )
-            db.add(new_spec)
+            db.add(new_item)
             db.commit()
-            db.refresh(new_spec)
-            return {"message": "Spec berhasil ditambahkan", "p_id": new_spec.s_id}
+            db.refresh(new_item)
+            return {"message": "Item berhasil ditambahkan", "p_id": new_item.i_id}
         except HTTPException:
             raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
-    def update_spec(self, input: SpecUpdate, db: database.connection.db_dependency):
+    def update_item(self, input: ItemUpdate, db: database.connection.db_dependency):
         try:
-            query = db.query(database.models.TSpec).filter_by(s_id=input.s_id).first()
+            query = db.query(database.models.TItem).filter_by(i_id=input.i_id).first()
             if not query:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Spec tidak ditemukan")
-            query.s_spec = input.s_spec
-            query.s_corrective = input.s_corrective
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item tidak ditemukan")
+            query.i_item = input.i_item
+            query.i_corrective = input.i_corrective
             db.commit()
-            return {"message": "Spec berhasil diperbarui"}
+            return {"message": "Item berhasil diperbarui"}
         except HTTPException:
             raise
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    def delete_spec(self, input: SpecDelete, db: database.connection.db_dependency):
+    def delete_item(self, input: ItemDelete, db: database.connection.db_dependency):
         try:
-            db_spec = db.query(database.models.TSpec).filter_by(s_id=input.s_id).first()
-            if not db_spec:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Spec tidak ditemukan")
-            db.delete(db_spec)
+            db_item = db.query(database.models.TItem).filter_by(i_id=input.i_id).first()
+            if not db_item:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item tidak ditemukan")
+            db.delete(db_item)
             db.commit()
-            return {"message": "Spec berhasil dihapus"}
+            return {"message": "Item berhasil dihapus"}
         except HTTPException:
             raise
         except Exception as e:
@@ -133,11 +133,11 @@ class ItemAPI:
         try:
             db_price = db.query(database.models.TPriceList).filter_by(
                 p_id=input.p_id,
-                s_id=input.s_id
+                i_id=input.i_id
             ).first()
 
             if not db_price:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Kombinasi power & spec tidak ditemukan")
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Kombinasi power & item tidak ditemukan")
 
             db_price.pl_description = input.pl_description
             db_price.pl_price = input.pl_price

@@ -33,11 +33,11 @@ const base_vue = new Vue({
                 </div>
             `;
 
-            const element = wrapper.firstElementChild;
-            this.$refs.info_container.appendChild(element);
+            const elem = wrapper.firstElementChild;
+            this.$refs.info_container.appendChild(elem);
 
             setTimeout(() => {
-                element.remove();
+                elem.remove();
             }, duration);
         },
         f_init(){

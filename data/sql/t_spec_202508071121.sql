@@ -1,4 +1,4 @@
-INSERT INTO public.t_spec (s_id,s_spec,s_corrective, s_order_by) VALUES
+INSERT INTO public.t_item (i_id,i_item,i_corrective, i_order_by) VALUES
 	 ('2627236828774a91b8c399ad46a020b6','Change  Bearing unit',true, 2),
 	 ('432e30b6aef84bc181f5cbc3b9c12520','Check / Change  Volute Casing',true, 3),
 	 ('8212701d653b41ccbacd806b814924fb','Check / Change  Front lining',true, 4),

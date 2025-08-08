@@ -22,31 +22,31 @@ class PowerDelete(BaseModel):
     p_id: str
 
 
-class SpecOut(BaseModel):
-    s_id: str
-    s_spec: str
-    s_corrective: bool
+class ItemOut(BaseModel):
+    i_id: str
+    i_item: str
+    i_corrective: bool
 
     model_config = {
         "from_attributes": True,
     }
 
-class SpecCreate(BaseModel):
-    s_spec: str
-    s_corrective: bool
+class ItemCreate(BaseModel):
+    i_item: str
+    i_corrective: bool
 
-class SpecUpdate(BaseModel):
-    s_id: str
-    s_spec: str
-    s_corrective: bool
+class ItemUpdate(BaseModel):
+    i_id: str
+    i_item: str
+    i_corrective: bool
 
-class SpecDelete(BaseModel):
-    s_id: str
+class ItemDelete(BaseModel):
+    i_id: str
 
 
 class PriceListOut(BaseModel):
     p_id: str
-    s_id: str
+    i_id: str
     pl_description: Optional[str] = None
     pl_price: Decimal
 
@@ -56,7 +56,7 @@ class PriceListOut(BaseModel):
 
 class PriceChange(BaseModel):
     p_id: str
-    s_id: str
+    i_id: str
     pl_description: Optional[str] = None
     pl_price: Decimal
 

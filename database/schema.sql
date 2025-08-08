@@ -22,23 +22,23 @@ CREATE TABLE t_power (
     p_unit INT NOT NULL DEFAULT 0
 );
 
--- Spec
-CREATE TABLE t_spec (
-    s_id VARCHAR(32) PRIMARY KEY,
-    s_spec TEXT NOT NULL UNIQUE,
-    s_corrective BOOLEAN DEFAULT FALSE,
-    s_order_by INT
+-- Item
+CREATE TABLE t_item (
+    i_id VARCHAR(32) PRIMARY KEY,
+    i_item TEXT NOT NULL UNIQUE,
+    i_corrective BOOLEAN DEFAULT FALSE,
+    i_order_by INT
 );
 
 -- Price List
 CREATE TABLE t_price_list (
     p_id VARCHAR(32),
-    s_id VARCHAR(32),
+    i_id VARCHAR(32),
     pl_price DECIMAL(10,2) NOT NULL CHECK (pl_price >= 0),
     pl_description TEXT,
-    PRIMARY KEY (p_id, s_id),
+    PRIMARY KEY (p_id, i_id),
     FOREIGN KEY (p_id) REFERENCES t_power(p_id) ON DELETE CASCADE ON UPDATE RESTRICT,
-    FOREIGN KEY (s_id) REFERENCES t_spec(s_id) ON DELETE CASCADE ON UPDATE RESTRICT
+    FOREIGN KEY (i_id) REFERENCES t_item(i_id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
 
 -- Order
@@ -65,16 +65,16 @@ CREATE TABLE t_order_article (
     FOREIGN KEY (p_id) REFERENCES t_power(p_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
--- Order Spec
-CREATE TABLE t_order_spec (
+-- Order Item
+CREATE TABLE t_order_item (
     -- os_id VARCHAR(32) PRIMARY KEY,
     oa_id VARCHAR(32) NOT NULL,
     p_id VARCHAR(32) NOT NULL,
-    s_id VARCHAR(32) NOT NULL,
+    i_id VARCHAR(32) NOT NULL,
     os_price DECIMAL(10,2) NOT NULL CHECK (os_price >= 0), -- deal/current price
-    PRIMARY KEY (oa_id, s_id),
+    PRIMARY KEY (oa_id, i_id),
     FOREIGN KEY (oa_id, p_id) REFERENCES t_order_article(oa_id, p_id) ON DELETE CASCADE ON UPDATE RESTRICT,
-    FOREIGN KEY (p_id, s_id) REFERENCES t_price_list(p_id, s_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+    FOREIGN KEY (p_id, i_id) REFERENCES t_price_list(p_id, i_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 ---------------------------------------------------------------------------------------------------------------------------------
@@ -82,10 +82,10 @@ CREATE TABLE t_order_spec (
 CREATE OR REPLACE FUNCTION trg_add_price_list_on_power()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO t_price_list (p_id, s_id, pl_price)
-    SELECT NEW.p_id, s.s_id, 0.00
-    FROM t_spec s
-    ON CONFLICT (p_id, s_id) DO NOTHING; -- jika sudah ada, hindari duplikasi
+    INSERT INTO t_price_list (p_id, i_id, pl_price)
+    SELECT NEW.p_id, s.i_id, 0.00
+    FROM t_item s
+    ON CONFLICT (p_id, i_id) DO NOTHING; -- jika sudah ada, hindari duplikasi
 
     RETURN NEW;
 END;
@@ -99,19 +99,19 @@ FOR EACH ROW
 EXECUTE FUNCTION trg_add_price_list_on_power();
 
 
-CREATE OR REPLACE FUNCTION trg_add_price_list_on_spec()
+CREATE OR REPLACE FUNCTION trg_add_price_list_on_item()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO t_price_list (p_id, s_id, pl_price)
-    SELECT p.p_id, NEW.s_id, 0.00
+    INSERT INTO t_price_list (p_id, i_id, pl_price)
+    SELECT p.p_id, NEW.i_id, 0.00
     FROM t_power p
-    ON CONFLICT (p_id, s_id) DO NOTHING;
+    ON CONFLICT (p_id, i_id) DO NOTHING;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_after_spec_insert
-AFTER INSERT ON t_spec
+CREATE TRIGGER trg_after_item_insert
+AFTER INSERT ON t_item
 FOR EACH ROW
-EXECUTE FUNCTION trg_add_price_list_on_spec();
+EXECUTE FUNCTION trg_add_price_list_on_item();

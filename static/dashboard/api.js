@@ -1,6 +1,6 @@
 export async function api_get_all_price_list() {
     try {
-        const response = await fetch('/api/item/price', {
+        const response = await fetch('/api/element/price', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -22,7 +22,7 @@ export async function api_get_all_price_list() {
 
 export async function api_get_all_powers() {
     try {
-        const response = await fetch('/api/item/power', {
+        const response = await fetch('/api/element/power', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -42,9 +42,9 @@ export async function api_get_all_powers() {
     }
 }
 
-export async function api_get_all_specs() {
+export async function api_get_all_items() {
     try {
-        const response = await fetch('/api/item/spec', {
+        const response = await fetch('/api/element/item', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -113,7 +113,7 @@ export async function api_input_order(description) {
     }
 }
 
-export async function get_order_articles_with_specs(o_id) {
+export async function get_order_articles_with_items(o_id) {
     try {
         const response = await fetch(`/api/order/order-article/${o_id}`, {
             method: 'GET',
@@ -135,7 +135,7 @@ export async function get_order_articles_with_specs(o_id) {
     }
 }
 
-export async function api_input_order_article(order_id, order_article_power, order_article_description, order_article_id_specs) {
+export async function api_input_order_article(order_id, order_article_power, order_article_description, order_article_id_items) {
     try {
         const response = await fetch('/api/order/order-article', {
             method: 'POST',
@@ -147,7 +147,7 @@ export async function api_input_order_article(order_id, order_article_power, ord
                 o_id: order_id,
                 power: order_article_power,
                 oa_description: order_article_description,
-                s_ids: order_article_id_specs
+                i_id_list: order_article_id_items
             })
         });
 
@@ -192,7 +192,7 @@ export async function api_delete_order_article(oa_id) {
 
 export async function api_input_power(power) {
     try {
-        const response = await fetch('/api/item/power', {
+        const response = await fetch('/api/element/power', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -217,17 +217,17 @@ export async function api_input_power(power) {
     }
 }
 
-export async function api_input_spec(spec, corrective) {
+export async function api_input_item(item, corrective) {
     try {
-        const response = await fetch('/api/item/spec', {
+        const response = await fetch('/api/element/item', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                s_spec: spec,
-                s_corrective: corrective
+                i_item: item,
+                i_corrective: corrective
             })
         });
 
@@ -245,10 +245,10 @@ export async function api_input_spec(spec, corrective) {
     }
 }
 
-export async function api_update_price(p_id, s_id, new_description, new_price) {
+export async function api_update_price(p_id, i_id, new_description, new_price) {
     console.log(new_price, new_description)
     try {
-        const response = await fetch('/api/item/price', {
+        const response = await fetch('/api/element/price', {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
@@ -256,7 +256,7 @@ export async function api_update_price(p_id, s_id, new_description, new_price) {
             },
             body: JSON.stringify({
                 p_id: p_id,
-                s_id: s_id,
+                i_id: i_id,
                 pl_description: new_description,
                 pl_price: new_price
             })
@@ -380,7 +380,7 @@ export async function api_update_order(o_id, o_description, o_status) {
 
 export async function api_update_power(p_id, p_power, p_unit) {
     try {
-        const response = await fetch('/api/item/power', {
+        const response = await fetch('/api/element/power', {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
@@ -409,7 +409,7 @@ export async function api_update_power(p_id, p_power, p_unit) {
 
 export async function api_delete_power(p_id) {
     try {
-        const response = await fetch(`/api/item/power`, {
+        const response = await fetch(`/api/element/power`, {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
@@ -432,15 +432,15 @@ export async function api_delete_power(p_id) {
     }
 }
 
-export async function api_delete_spec(s_id) {
+export async function api_delete_item(i_id) {
     try {
-        const response = await fetch(`/api/item/spec`, {
+        const response = await fetch(`/api/element/item`, {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ s_id })
+            body: JSON.stringify({ i_id })
         });
 
         const result = await response.json();
@@ -457,18 +457,18 @@ export async function api_delete_spec(s_id) {
     }
 }
 
-export async function api_update_spec(s_id, s_spec, s_corrective) {
+export async function api_update_item(i_id, i_item, i_corrective) {
     try {
-        const response = await fetch('/api/item/spec', {
+        const response = await fetch('/api/element/item', {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                s_id,
-                s_spec,
-                s_corrective,
+                i_id,
+                i_item,
+                i_corrective,
             })
         });
 

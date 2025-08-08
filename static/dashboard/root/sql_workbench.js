@@ -6,7 +6,7 @@ const dashboard_root_workbench = new Vue({
         sqlQuery: '',
         queryResult: null,
         displayedResults: [],
-        queryError: null,
+        queryMessage: null,
         executing: false,
         rowsPerPage: 50,
         schema: null,
@@ -82,8 +82,9 @@ ORDER BY enum_name, e.enumsortorder;` }
                         </button>
                     </div>
 
-                    <div v-if="queryError" class="text-red-600 mt-4">
-                        Error: {{ queryError }}
+                    <div v-if="queryMessage" class="mt-4 px-4 py-2 rounded-lg border border-blue-300 bg-blue-50 text-blue-800 shadow-sm flex items-center space-x-2">
+                        <i class="fas fa-circle-info text-blue-500"></i>
+                        <span class="truncate">{{ queryMessage }}</span>
                     </div>
 
                     <div v-if="displayedResults.length" class="overflow-auto border mt-4">
@@ -143,7 +144,7 @@ ORDER BY enum_name, e.enumsortorder;` }
             if (!confirmed) return;
             
             this.executing = true;
-            this.queryError = null;
+            this.queryMessage = null;
             this.queryResult = null;
             this.displayedResults = [];
 
@@ -152,8 +153,9 @@ ORDER BY enum_name, e.enumsortorder;` }
                 this.queryResult = res.data.data || [];
                 this.displayedResults = this.queryResult.slice(0, this.rowsPerPage);
                 base_vue.f_info(res.data.message);
+                this.queryMessage = res.data.message;
             } catch (err) {
-                this.queryError = err.message;
+                this.queryMessage = err.message;
                 base_vue.f_info(err.message, undefined, true);
             } finally {
                 this.executing = false;
@@ -169,7 +171,7 @@ ORDER BY enum_name, e.enumsortorder;` }
             this.sqlQuery = '';
             this.queryResult = null;
             this.displayedResults = [];
-            this.queryError = null;
+            this.queryMessage = null;
         },
 
         formatValue(val) {

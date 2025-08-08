@@ -58,7 +58,7 @@ insert_statements = [
 ]
 
 update_statements = [
-    f"UPDATE public.t_price_list SET pl_price = {price:.2f}, pl_description = '{desc}' WHERE p_id = '{pid}' AND s_id = '{sid}';"
+    f"UPDATE public.t_price_list SET pl_price = {price:.2f}, pl_description = '{desc}' WHERE p_id = '{pid}' AND i_id = '{sid}';"
     for pid, sid, price, desc in insert_statements
 ]
 

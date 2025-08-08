@@ -1,6 +1,6 @@
-export function get_price_list_item(priceList, power_id, spec_id, key=null) {
+export function get_price_list_item(priceList, power_id, item_id, key=null) {
     if (!Array.isArray(priceList)) return '-';
-    const found = priceList.find(item => item.p_id === power_id && item.s_id === spec_id);
+    const found = priceList.find(element => element.p_id === power_id && element.i_id === item_id);
     if (!found) return '-';
     if (key) {
         return found[key];

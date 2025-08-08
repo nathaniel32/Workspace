@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.api.auth import AuthAPI
-from routes.api.item import ItemAPI
+from routes.api.element import ElementAPI
 from routes.api.order import OrderAPI
 from routes.api.sql_workbench import SQLWorkbenchAPI
 from routes.frontend import Frontend
@@ -16,7 +16,7 @@ class App:
         self.app.mount("/static", StaticFiles(directory="static"), name="static")
         self.app.include_router(Frontend().router)
         self.app.include_router(AuthAPI().router)
-        self.app.include_router(ItemAPI().router)
+        self.app.include_router(ElementAPI().router)
         self.app.include_router(OrderAPI().router)
         self.app.include_router(SQLWorkbenchAPI().router)
 

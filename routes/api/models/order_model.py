@@ -11,7 +11,7 @@ class OrderArticleCreate(BaseModel):
     o_id: str # order
     power: str # power
     oa_description: str
-    s_ids: List[str] # specs
+    i_id_list: List[str] # items
 
 class OrderOut(BaseModel):
     o_id: str
@@ -26,7 +26,7 @@ class OrderOut(BaseModel):
 
 class PriceListOut(BaseModel):
     p_id: str
-    s_id: str
+    i_id: str
     pl_price: Decimal
     pl_description: Optional[str] = None
 
@@ -34,8 +34,8 @@ class PriceListOut(BaseModel):
         "from_attributes": True,
     }
 
-class OrderSpecSchema(BaseModel):
-    s_id: str
+class OrderItemSchema(BaseModel):
+    i_id: str
     p_id: str
     os_price: Decimal
     price_list: Optional[PriceListOut]
@@ -50,7 +50,7 @@ class OrderArticleOut(BaseModel):
     p_id: str
     oa_power: int
     oa_description: str | None = None
-    specs: List[OrderSpecSchema]
+    items: List[OrderItemSchema]
 
     model_config = {
         "from_attributes": True,
