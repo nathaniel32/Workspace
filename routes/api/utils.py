@@ -6,7 +6,7 @@ import random
 import string
 import re
 from jose import ExpiredSignatureError, JWTError, jwt
-from database.models import UserRole
+import json
 
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=config.ACCESS_TOKEN_EXP)):
     to_encode = data.copy()
@@ -95,3 +95,20 @@ def auth_site(request):
     }
 
     return payload, context
+
+def upload_order_json(form_data):
+    results = []
+    for row_info in form_data:
+        result = {}
+        for key, value in row_info.items():
+            parsed_key = json.loads(key)
+            field_type = parsed_key.get("type")
+            field_id = parsed_key.get("id")
+            
+            if field_type == "text":
+                result[field_id] = value
+            elif field_type == "checkbox":
+                result.setdefault("checkbox", []).append(field_id)
+
+        results.append(result)
+    return results

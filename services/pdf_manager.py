@@ -1,6 +1,6 @@
 import fitz  # PyMuPDF
 from typing import List, Dict, Any
-import os
+from collections import defaultdict
 import json
 
 class PDFManager:
@@ -332,8 +332,15 @@ class PDFManager:
             doc.close()
         
         form_data = [(key, value) for key, value in form_data_raw.items() if value.lower() != 'off']
+
+        # group/row
+        grouped = defaultdict(dict)
+        for json_str, value in form_data:
+            row = json.loads(json_str)['row']
+            grouped[row][json_str] = value
+        form_data_grouped = [grouped[row] for row in sorted(grouped)]
         
-        return order_name, form_data
+        return order_name, form_data_grouped
 
     def print_filled_data(self) -> None:
         try:

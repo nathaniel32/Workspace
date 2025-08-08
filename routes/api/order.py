@@ -5,37 +5,16 @@ from typing import List
 from fastapi import HTTPException, status, APIRouter, UploadFile, File
 from routes.api.models.order_model import OrderOut, OrderCreate, OrderArticleCreate, OrderArticleOut, OrderItemSchema, PriceListOut, OrderArticleDelete, OrderChange, OrderDelete
 import routes.api.utils
+import routes.api.handler
 import logging
 import traceback
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 from sqlalchemy import text
-from io import BytesIO
-import os
 import services.exel_manager
 import services.pdf_manager
-from collections import defaultdict
 
-import pandas as pd
-import fitz
 logger = logging.getLogger(__name__)
-
-import json
-def print_value(form_data):
-    for row_info in form_data:
-        result = {}
-        for key, value in row_info.items():
-            parsed_key = json.loads(key)
-            field_type = parsed_key.get("type")
-            field_id = parsed_key.get("id")
-            
-            if field_type == "text":
-                result[field_id] = value
-            elif field_type == "checkbox":
-                result.setdefault("checkbox", []).append(field_id)
-
-        print(json.dumps(result, indent=4))
-        print("\n\n")
 
 class OrderAPI:
     def __init__(self):
@@ -293,45 +272,17 @@ class OrderAPI:
         
     async def insert_order_file(self, db: database.connection.db_dependency, order_file: UploadFile = File(...)):
         try:
-            filename = order_file.filename
-            ext = os.path.splitext(filename)[1].lower()
-            allowed_exts = {".pdf", ".xlsx"}
+            result = await routes.api.handler.upload_order_iden(order_file, self.excel_manager, self.pdf_manager)
+            return result
 
-            if ext not in allowed_exts:
-                raise HTTPException(status_code=400, detail="File harus PDF atau XLSX")
-
-            content = await order_file.read()
-            file_bytes = BytesIO(content)
-
-            
-            if ext == ".xlsx":
-                try:
-                    order_name, form_data = self.excel_manager.read_form(file_bytes)
-                    print("Order Name:", order_name)
-                    print_value(form_data)
-                except Exception as e:
-                    print(f"Error: {str(e)}")
-            elif ext == ".pdf":
-                order_name, form_data = self.pdf_manager.read_form(file_bytes)
-                print("Order Name", order_name)
-                grouped = defaultdict(dict)
-                for json_str, value in form_data:
-                    row = json.loads(json_str)['row']
-                    grouped[row][json_str] = value
-                form_data_grouped = [grouped[row] for row in sorted(grouped)]
-                print_value(form_data_grouped)
-
-            
-            info = {"filename": filename, "size": len(content)}
-            return info
         except SQLAlchemyError as db_err:
             db.rollback()
             logger.error("Database error: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error.")
 
         except HTTPException:
-            raise # buat 401
+            raise  # biarkan HTTPException diteruskan apa adanya
 
-        except Exception as e:
+        except Exception:
             logger.error("Unhandled exception: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
