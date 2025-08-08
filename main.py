@@ -13,7 +13,7 @@ class App:
     def __init__(self):
         self.app = FastAPI()
         self.setup_middleware()
-        self.app.mount("/static", StaticFiles(directory="static"), name="static")
+        self.app.mount("/static", StaticFiles(directory="public/static"), name="static")
         self.app.include_router(Frontend().router)
         self.app.include_router(AuthAPI().router)
         self.app.include_router(ElementAPI().router)

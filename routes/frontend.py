@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse
 class Frontend:
     def __init__(self):
         self.router = APIRouter(tags=["App"])
-        self.templates = Jinja2Templates(directory="templates")
+        self.templates = Jinja2Templates(directory="public/templates")
         self.router.add_api_route("/", self.root, methods=["GET"])
         self.router.add_api_route("/dashboard", self.dashboard, methods=["GET"])
         
