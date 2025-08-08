@@ -46,7 +46,7 @@ CREATE TABLE t_order (
     o_id VARCHAR(32),
     -- o_orderid TEXT UNIQUE NOT NULL,   !OPTIONAL JIKA ID SUDAH DI TENTUKAN!
     u_id VARCHAR(32) NOT NULL,  -- id pegawai yang menginput
-    o_description TEXT NOT NULL,
+    o_name TEXT NOT NULL,
     o_time INT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now())::int),
     o_status order_status_enum NOT NULL DEFAULT 'PENDING',
     FOREIGN KEY (u_id) REFERENCES t_user(u_id) ON DELETE CASCADE ON UPDATE RESTRICT
@@ -58,7 +58,7 @@ CREATE TABLE t_order_article (
     p_id VARCHAR(32),
     o_id VARCHAR(32),
     oa_power INT NOT NULL UNIQUE,
-    oa_description TEXT NOT NULL, -- Equiptment No
+    oa_name TEXT NOT NULL, -- Equiptment No
     oa_time TIMESTAMP NOT NULL DEFAULT now(),
     PRIMARY KEY (oa_id, p_id),
     FOREIGN KEY (o_id) REFERENCES t_order(o_id) ON DELETE RESTRICT ON UPDATE RESTRICT,

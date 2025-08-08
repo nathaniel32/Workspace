@@ -91,7 +91,7 @@ class TOrder(model_base):
 
     o_id = Column(VARCHAR(32), primary_key=True)
     u_id = Column(VARCHAR(32), ForeignKey('t_user.u_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
-    o_description = Column(Text, nullable=False)
+    o_name = Column(Text, nullable=False)
     o_time = Column(Integer, nullable=False, server_default=text("EXTRACT(EPOCH FROM now())::int"))
     o_status = Column(SqlEnum(OrderStatus), nullable=False, default=OrderStatus.PENDING)
 
@@ -107,7 +107,7 @@ class TOrderArticle(model_base):
     p_id = Column(VARCHAR(32), ForeignKey('t_power.p_id', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True)
     o_id = Column(VARCHAR(32), ForeignKey('t_order.o_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
     oa_power = Column(Integer, nullable=False)
-    oa_description = Column(Text, nullable=False)
+    oa_name = Column(Text, nullable=False)
     oa_time = Column(TIMESTAMP, nullable=False, server_default=func.now())
 
     # parent

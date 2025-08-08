@@ -69,7 +69,7 @@ class OrderAPI:
             new_order = database.models.TOrder(
                 o_id=routes.api.utils.generate_id(),
                 u_id=user_id,
-                o_description=input.o_description
+                o_name=input.o_name
             )
 
             db.add(new_order)
@@ -110,7 +110,7 @@ class OrderAPI:
                     "o_id": article.o_id,
                     "p_id": article.p_id,
                     "oa_power": article.oa_power,
-                    "oa_description": article.oa_description,
+                    "oa_name": article.oa_name,
                     "items": article.order_items  # OrderItemSchema
                 }
                 for article in articles
@@ -122,7 +122,7 @@ class OrderAPI:
                     o_id=article.o_id,
                     p_id=article.p_id,
                     oa_power=article.oa_power,
-                    oa_description=article.oa_description,
+                    oa_name=article.oa_name,
                     items=[
                         OrderItemSchema(
                             i_id=item.i_id,
@@ -201,7 +201,7 @@ class OrderAPI:
                 p_id=selected_power_id,
                 o_id=input.o_id,
                 oa_power=input.power,
-                oa_description=input.oa_description
+                oa_name=input.oa_name
             )
             db.add(new_order_article)
             db.flush()  # supaya new_order_article.oa_id ada di session
@@ -250,7 +250,7 @@ class OrderAPI:
             if not query:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order tidak ditemukan")
 
-            query.o_description = input.o_description
+            query.o_name = input.o_name
             query.o_status = input.o_status
             db.commit()
             return {"message": "Order berhasil diperbarui"}
@@ -279,7 +279,7 @@ class OrderAPI:
             file_result_json = await routes.api.handler.upload_order_iden(order_file, self.excel_manager, self.pdf_manager)
 
             # input order
-            input_order_result = self.insert_order(request, OrderCreate(o_description=file_result_json['order_name']), db)
+            input_order_result = self.insert_order(request, OrderCreate(o_name=file_result_json['order_name']), db)
             
             o_id = input_order_result['o_id']
 
@@ -293,7 +293,7 @@ class OrderAPI:
                     item_id_list = file_data['checkbox']
 
                     print("\n\n->", article_power)
-                    self.insert_order_article(request, OrderArticleCreate(o_id=o_id, power=article_power, oa_description=article_name, i_id_list=item_id_list), db)
+                    self.insert_order_article(request, OrderArticleCreate(o_id=o_id, power=article_power, oa_name=article_name, i_id_list=item_id_list), db)
                     #time.sleep(1)
             
             return o_id

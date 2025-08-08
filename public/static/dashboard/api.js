@@ -122,7 +122,7 @@ export async function api_input_order(description) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                o_description: description
+                o_name: description
             })
         });
 
@@ -173,7 +173,7 @@ export async function api_input_order_article(order_id, order_article_power, ord
             body: JSON.stringify({
                 o_id: order_id,
                 power: order_article_power,
-                oa_description: order_article_description,
+                oa_name: order_article_description,
                 i_id_list: order_article_id_items
             })
         });
@@ -376,7 +376,7 @@ export async function api_get_enum_order_status() {
     }
 }
 
-export async function api_update_order(o_id, o_description, o_status) {
+export async function api_update_order(o_id, o_name, o_status) {
     try {
         const response = await fetch('/api/order/order', {
             method: 'PUT',
@@ -386,7 +386,7 @@ export async function api_update_order(o_id, o_description, o_status) {
             },
             body: JSON.stringify({
                 o_id,
-                o_description,
+                o_name,
                 o_status,
             })
         });

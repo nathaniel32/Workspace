@@ -5,18 +5,18 @@ from typing import Optional
 from database.models import OrderStatus
 
 class OrderCreate(BaseModel):
-    o_description: str
+    o_name: str
 
 class OrderArticleCreate(BaseModel):
     o_id: str # order
     power: str # power
-    oa_description: str
+    oa_name: str
     i_id_list: List[str] # items
 
 class OrderOut(BaseModel):
     o_id: str
     u_id: str
-    o_description: str
+    o_name: str
     o_time: int
     o_status: OrderStatus
 
@@ -49,7 +49,7 @@ class OrderArticleOut(BaseModel):
     o_id: str
     p_id: str
     oa_power: int
-    oa_description: str | None = None
+    oa_name: str | None = None
     items: List[OrderItemSchema]
 
     model_config = {
@@ -64,5 +64,5 @@ class OrderDelete(BaseModel):
 
 class OrderChange(BaseModel):
     o_id: str
-    o_description: str
+    o_name: str
     o_status: str

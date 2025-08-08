@@ -118,7 +118,7 @@ const order_management = new Vue({
                 }
                 this.selected_order_object = order_object;
                 this.change_order_tmp.status = this.selected_order_object.o_status;
-                this.change_order_tmp.description = this.selected_order_object.o_description;
+                this.change_order_tmp.description = this.selected_order_object.o_name;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
@@ -151,7 +151,7 @@ const order_management = new Vue({
                                 </button>
                                 <div v-if="active_status_group === status" class="pl-4 mt-2 space-y-2">
                                     <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_items(order)" class="p-3 rounded-lg cursor-pointer hover:bg-gray-100 border border-gray-200">
-                                        <p class="font-semibold text-gray-800">{{ order.o_description }}</p>
+                                        <p class="font-semibold text-gray-800">{{ order.o_name }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -182,7 +182,7 @@ const order_management = new Vue({
                                     </thead>
                                     <tbody>
                                         <tr v-for="(element, index) in order_article_list" :key="element.oa_id" class="bg-white hover:bg-gray-50">
-                                            <td class="py-4 px-6">{{ element.oa_description }}</td>
+                                            <td class="py-4 px-6">{{ element.oa_name }}</td>
                                             <td class="py-4 px-6">{{ element.oa_power }}</td>
                                             <td v-for="item in combined_items" :key="item.i_id" class="py-4 px-6">
                                                 <strong>{{ f_get_order_article_item_price(element.items, item.i_id) }}</strong><br>
@@ -234,7 +234,7 @@ const order_management = new Vue({
 
                                 <div></div>
                                 <div>
-                                    <button v-if="(selected_order_object.o_description != change_order_tmp.description) || (selected_order_object.o_status != change_order_tmp.status)" @click="f_change_order" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Change</button>
+                                    <button v-if="(selected_order_object.o_name != change_order_tmp.description) || (selected_order_object.o_status != change_order_tmp.status)" @click="f_change_order" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Change</button>
                                 </div>
 
                                 <div></div>
@@ -372,7 +372,7 @@ const order_management = new Vue({
                 base_vue.f_info(res.message);
                 await this.f_get_order_list();
                 this.selected_order_object.o_status = this.change_order_tmp.status;
-                this.selected_order_object.o_description = this.change_order_tmp.description;
+                this.selected_order_object.o_name = this.change_order_tmp.description;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
