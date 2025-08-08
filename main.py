@@ -1,10 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.api.auth import AuthAPI
-from routes.api.element import ElementAPI
-from routes.api.order import OrderAPI
-from routes.api.sql_workbench import SQLWorkbenchAPI
+from routes.api.services.auth import AuthAPI
+from routes.api.services.element import ElementAPI
+from routes.api.services.order import OrderAPI
+from routes.api.services.sql_workbench import SQLWorkbenchAPI
 from routes.frontend import Frontend
 from utils import config
 from fastapi.staticfiles import StaticFiles
