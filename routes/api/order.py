@@ -12,13 +12,36 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy import text
 from io import BytesIO
 import os
+import services.exel_manager
+import services.pdf_manager
+from collections import defaultdict
 
 import pandas as pd
 import fitz
 logger = logging.getLogger(__name__)
 
+import json
+def print_value(form_data):
+    for row_info in form_data:
+        result = {}
+        for key, value in row_info.items():
+            parsed_key = json.loads(key)
+            field_type = parsed_key.get("type")
+            field_id = parsed_key.get("id")
+            
+            if field_type == "text":
+                result[field_id] = value
+            elif field_type == "checkbox":
+                result.setdefault("checkbox", []).append(field_id)
+
+        print(json.dumps(result, indent=4))
+        print("\n\n")
+
 class OrderAPI:
     def __init__(self):
+        self.excel_manager = services.exel_manager.ExcelManager("maintenance_form.xlsx")
+        self.pdf_manager = services.pdf_manager.PDFManager("maintenance_form.pdf")
+
         self.router = APIRouter(prefix="/api/order", tags=["Order"])
         self.router.add_api_route("/status", self.get_enum_order_status, methods=["GET"])
         self.router.add_api_route("/order", self.get_all_order, methods=["GET"])
@@ -278,15 +301,27 @@ class OrderAPI:
                 raise HTTPException(status_code=400, detail="File harus PDF atau XLSX")
 
             content = await order_file.read()
-            bytes_io = BytesIO(content)
+            file_bytes = BytesIO(content)
 
+            
             if ext == ".xlsx":
-                df = pd.read_excel(bytes_io)
-                print(df)
+                try:
+                    order_name, form_data = self.excel_manager.read_form(file_bytes)
+                    print("Order Name:", order_name)
+                    print_value(form_data)
+                except Exception as e:
+                    print(f"Error: {str(e)}")
             elif ext == ".pdf":
-                doc = fitz.open(stream=bytes_io.read(), filetype="pdf")
-                print(f"PDF page count: {doc.page_count}")
+                order_name, form_data = self.pdf_manager.read_form(file_bytes)
+                print("Order Name", order_name)
+                grouped = defaultdict(dict)
+                for json_str, value in form_data:
+                    row = json.loads(json_str)['row']
+                    grouped[row][json_str] = value
+                form_data_grouped = [grouped[row] for row in sorted(grouped)]
+                print_value(form_data_grouped)
 
+            
             info = {"filename": filename, "size": len(content)}
             return info
         except SQLAlchemyError as db_err:
