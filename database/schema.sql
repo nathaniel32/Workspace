@@ -59,7 +59,7 @@ CREATE TABLE t_order_article (
     o_id VARCHAR(32),
     oa_power INT NOT NULL UNIQUE,
     oa_description TEXT NOT NULL, -- Equiptment No
-    oa_time INT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now())::int),
+    oa_time TIMESTAMP NOT NULL DEFAULT now(),
     PRIMARY KEY (oa_id, p_id),
     FOREIGN KEY (o_id) REFERENCES t_order(o_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
     FOREIGN KEY (p_id) REFERENCES t_power(p_id) ON DELETE RESTRICT ON UPDATE RESTRICT

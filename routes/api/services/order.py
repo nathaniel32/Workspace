@@ -13,6 +13,8 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy import text
 import services.exel_manager
 import services.pdf_manager
+import asyncio
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +97,8 @@ class OrderAPI:
                     .joinedload(database.models.TOrderItem.pricelist)
             ).filter(
                 database.models.TOrderArticle.o_id == o_id
+            ).order_by(
+                database.models.TOrderArticle.oa_time
             ).all()
 
             #if not articles:
@@ -270,10 +274,29 @@ class OrderAPI:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
-    async def insert_order_file(self, db: database.connection.db_dependency, order_file: UploadFile = File(...)):
+    async def insert_order_file(self, request: Request, db: database.connection.db_dependency, order_file: UploadFile = File(...)):
         try:
-            result = await routes.api.handler.upload_order_iden(order_file, self.excel_manager, self.pdf_manager)
-            return result
+            file_result_json = await routes.api.handler.upload_order_iden(order_file, self.excel_manager, self.pdf_manager)
+
+            # input order
+            input_order_result = self.insert_order(request, OrderCreate(o_description=file_result_json['order_name']), db)
+            
+            o_id = input_order_result['o_id']
+
+            # input order_article
+            for file_data in file_result_json['data']:
+                article_power = file_data.get('POWER')
+                if article_power is not None:
+                    print(article_power)
+                    article_power = str(int(float(article_power)))
+                    article_name = file_data['ORDER_DESCRIPTION']
+                    item_id_list = file_data['checkbox']
+
+                    print("\n\n->", article_power)
+                    self.insert_order_article(request, OrderArticleCreate(o_id=o_id, power=article_power, oa_description=article_name, i_id_list=item_id_list), db)
+                    #time.sleep(1)
+            
+            return o_id
 
         except SQLAlchemyError as db_err:
             db.rollback()

@@ -1,6 +1,6 @@
 from sqlalchemy import (
     Column, Integer, Text, ForeignKey, Enum as SqlEnum,
-    CheckConstraint, DECIMAL, ForeignKeyConstraint, text, Boolean
+    CheckConstraint, DECIMAL, ForeignKeyConstraint, text, Boolean, TIMESTAMP, func
 )
 from sqlalchemy.dialects.postgresql import VARCHAR
 from enum import Enum
@@ -108,7 +108,7 @@ class TOrderArticle(model_base):
     o_id = Column(VARCHAR(32), ForeignKey('t_order.o_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
     oa_power = Column(Integer, nullable=False)
     oa_description = Column(Text, nullable=False)
-    oa_time = Column(Integer, nullable=False, server_default=text("EXTRACT(EPOCH FROM now())::int"))
+    oa_time = Column(TIMESTAMP, nullable=False, server_default=func.now())
 
     # parent
     power = relationship("TPower", back_populates="order_articles")
