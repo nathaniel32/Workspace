@@ -10,6 +10,21 @@ import json
 
 class MediaAPI:
     def __init__(self, excel_order_manager, pdf_order_manager, element_api):
+        self.text_columns = [
+            {
+                "id": "NO",
+                "name": "No"
+            },
+            {
+                "id": "ORDER_DESCRIPTION",
+                "name": "Equipment No"
+            },
+            {
+                "id": "POWER",
+                "name": "Motor KW",
+                "number_validation": True
+            }
+        ]
         self.media_path = Path("data/media")
         self.excel_order_manager = excel_order_manager
         self.pdf_order_manager = pdf_order_manager
@@ -92,33 +107,17 @@ class MediaAPI:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
     async def create_order_file(self, db: database.connection.db_dependency):
-        text_columns = [
-            {
-                "id": "NO",
-                "name": "No"
-            },
-            {
-                "id": "ORDER_DESCRIPTION",
-                "name": "Equipment No"
-            },
-            {
-                "id": "POWER",
-                "name": "Motor KW",
-                "number_validation": True
-            }
-        ]
-
         checkbox_columns = [c.model_dump() for c in self.element_api.get_all_item(db=db)]
     
         all_columns = []
-        for col in text_columns:
+        
+        for col in self.text_columns:
             all_columns.append({
                 "type": "text",
                 "id": col["id"],
                 "name": col["name"],
                 "number_validation": col.get("number_validation", None)
             })
-
         for col in checkbox_columns:
             all_columns.append({
                 "type": "checkbox",
