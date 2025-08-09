@@ -251,23 +251,23 @@ const order_manager = new Vue({
                             </div>
                         </div>
                         <div class="bg-white p-4 rounded-lg shadow-md">
-                            <h3 class="text-lg font-semibold mb-2">Add Article to Order</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Equipment No</label>
-                                    <input type="text" v-model="input_order_article_name" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            <h3 class="text-lg font-semibold mb-4">Add Article</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <label class="w-32 text-sm font-medium text-gray-700">Equipment No</label>
+                                    <input type="text" v-model="input_order_article_name" class="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                </div>
+                                <div class="flex items-center">
+                                    <label class="w-32 text-sm font-medium text-gray-700">Power</label>
+                                    <input type="number" v-model="input_order_article_power" class="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Power</label>
-                                    <input type="number" v-model="input_order_article_power" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
-                                </div>
-                                <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-3">Items</label>
                                     <div class="flex flex-col space-y-2 overflow-y-auto pb-3 max-h-80">
-                                        <div v-for="item in item_list" :key="item.i_id" class="grid grid-cols-[1fr_auto] items-center gap-x-4">
+                                        <label v-for="item in item_list" :key="item.i_id" class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" :value="item.i_id" v-model="input_order_article_id_items" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                             <span class="text-sm text-gray-600 break-words">{{ item.i_item || '(empty)' }}</span>
-                                            <input type="checkbox" :value="item.i_id" v-model="input_order_article_id_items" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                                        </div>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
