@@ -9,11 +9,11 @@ const base_vue = new Vue({
     },
     methods:{
         escapeHTML(str) {
-            return str.replace(/&/g, "&amp;")
-                        .replace(/</g, "&lt;")
-                        .replace(/>/g, "&gt;")
-                        .replace(/"/g, "&quot;")
-                        .replace(/'/g, "&#39;");
+            return String(str).replace(/&/g, "&amp;")
+                            .replace(/</g, "&lt;")
+                            .replace(/>/g, "&gt;")
+                            .replace(/"/g, "&quot;")
+                            .replace(/'/g, "&#39;");
         },
         f_openAuth(tab = 'login') {
             this.authTab = tab;
