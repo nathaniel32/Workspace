@@ -3,7 +3,7 @@ import database.connection
 import database.models
 from typing import List
 from fastapi import HTTPException, status, APIRouter
-from routes.api.models.element_model import PowerOut, PowerCreate, PowerUpdate, PowerDelete
+from routes.api.models.element_model import PowerOut, PowerCreate, PowerDelete
 from routes.api.models.element_model import ItemOut, ItemCreate, ItemUpdate, ItemDelete
 from routes.api.models.element_model import PriceListOut, PriceChange, PowerChange
 import routes.api.utils

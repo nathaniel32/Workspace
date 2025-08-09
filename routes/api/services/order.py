@@ -11,18 +11,14 @@ import traceback
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 from sqlalchemy import text
-import services.exel_manager
-import services.pdf_manager
-import asyncio
-import time
 
 logger = logging.getLogger(__name__)
 
 class OrderAPI:
-    def __init__(self):
-        self.excel_manager = services.exel_manager.ExcelManager("maintenance_form.xlsx")
-        self.pdf_manager = services.pdf_manager.PDFManager("maintenance_form.pdf")
-
+    def __init__(self, media_path, excel_order_manager, pdf_order_manager):
+        self.excel_order_manager = excel_order_manager
+        self.pdf_order_manager = pdf_order_manager
+        self.media_path=media_path
         self.router = APIRouter(prefix="/api/order", tags=["Order"])
         self.router.add_api_route("/status", self.get_enum_order_status, methods=["GET"])
         self.router.add_api_route("/order", self.get_all_order, methods=["GET"])
@@ -288,7 +284,7 @@ class OrderAPI:
         
     async def insert_order_file(self, request: Request, db: database.connection.db_dependency, order_file: UploadFile = File(...)):
         try:
-            file_result_json = await routes.api.handler.upload_order_iden(order_file, self.excel_manager, self.pdf_manager)
+            file_result_json = await routes.api.handler.upload_order_iden(order_file, self.excel_order_manager, self.pdf_order_manager)
 
             # input order
             input_order_result = self.insert_order(request, OrderCreate(o_name=file_result_json['order_name']), db)

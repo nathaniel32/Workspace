@@ -3,7 +3,7 @@ from fastapi import HTTPException, UploadFile
 import os
 import routes.api.utils
 
-async def upload_order_iden(order_file: UploadFile, excel_manager, pdf_manager):
+async def upload_order_iden(order_file: UploadFile, excel_order_manager, pdf_order_manager):
     filename = order_file.filename
     ext = os.path.splitext(filename)[1].lower()
     allowed_exts = {".pdf", ".xlsx"}
@@ -16,9 +16,9 @@ async def upload_order_iden(order_file: UploadFile, excel_manager, pdf_manager):
 
     try:
         if ext == ".xlsx":
-            order_name, form_data = excel_manager.read_form(file_bytes)
+            order_name, form_data = excel_order_manager.read_form(file_bytes)
         elif ext == ".pdf":
-            order_name, form_data = pdf_manager.read_form(file_bytes)
+            order_name, form_data = pdf_order_manager.read_form(file_bytes)
         else:
             raise HTTPException(status_code=400, detail="File type tidak didukung")
 
