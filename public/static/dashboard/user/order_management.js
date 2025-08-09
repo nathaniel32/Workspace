@@ -157,7 +157,7 @@ const order_management = new Vue({
                                     <i class="fas" :class="{'fa-chevron-down': active_status_group === status, 'fa-chevron-right': active_status_group !== status}"></i>
                                 </button>
                                 <div v-if="active_status_group === status" class="pl-4 mt-2 space-y-2">
-                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_items(order.o_id)" class="p-3 rounded-lg cursor-pointer hover:bg-gray-100 border border-gray-200">
+                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_items(order.o_id)" :class="['p-3 rounded-lg cursor-pointer border border-gray-200', selected_order_object?.o_id === order.o_id ? 'bg-gray-200' : 'hover:bg-gray-100']">
                                         <p class="font-semibold text-gray-800">{{ order.o_name }}</p>
                                     </div>
                                 </div>
@@ -322,7 +322,9 @@ const order_management = new Vue({
             try {
                 const res = await api_upload_order_file(this.upload_order_file.new_file);
                 base_vue.f_info(res.message);
-                base_vue.f_info(res.data.data);
+                this.f_get_order_list();
+                this.f_get_order_articles_with_items(res.data.data);
+                this.upload_order_file.show_popup = false;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
