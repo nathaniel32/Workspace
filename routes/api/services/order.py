@@ -15,10 +15,9 @@ from sqlalchemy import text
 logger = logging.getLogger(__name__)
 
 class OrderAPI:
-    def __init__(self, media_path, excel_order_manager, pdf_order_manager):
+    def __init__(self, excel_order_manager, pdf_order_manager):
         self.excel_order_manager = excel_order_manager
         self.pdf_order_manager = pdf_order_manager
-        self.media_path=media_path
         self.router = APIRouter(prefix="/api/order", tags=["Order"])
         self.router.add_api_route("/status", self.get_enum_order_status, methods=["GET"])
         self.router.add_api_route("/order", self.get_all_order, methods=["GET"])

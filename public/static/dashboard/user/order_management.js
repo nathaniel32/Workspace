@@ -282,6 +282,7 @@ const order_management = new Vue({
                     <!-- Popup Upload -->
                     <div v-if="upload_order_file.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
                         <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <button @click="upload_order_file.show_popup = false" class="absolute top-5 right-5 text-gray-500 hover:text-gray-800"><i class="fas fa-times"></i></button>
                             <div class="mt-3 text-center">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Upload Order</h3>
                                 <div class="mt-2 px-7 py-3 space-y-4 text-left">
@@ -289,10 +290,7 @@ const order_management = new Vue({
                                         <label class="block text-sm font-medium text-gray-700">PDF/XLSX</label>
                                         <input type="file" @change="handle_order_file_change" accept=".pdf,.xlsx" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
                                     </div>
-                                    <button @click="f_upload_order_file" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Upload</button>
-                                </div>
-                                <div class="items-center px-4 py-3">
-                                    <button @click="upload_order_file.show_popup = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+                                    <button @click="f_upload_order_file" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Upload</button>
                                 </div>
                             </div>
                         </div>

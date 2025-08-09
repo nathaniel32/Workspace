@@ -5,15 +5,21 @@ from fastapi.responses import FileResponse
 from typing import List
 from pathlib import Path
 import shutil
+import database.connection
+import json
 
 class MediaAPI:
-    def __init__(self, media_path):
-        self.media_path = media_path
+    def __init__(self, excel_order_manager, pdf_order_manager, element_api):
+        self.media_path = Path("data/media")
+        self.excel_order_manager = excel_order_manager
+        self.pdf_order_manager = pdf_order_manager
+        self.element_api = element_api
         self.router = APIRouter(prefix="/api/media", tags=["Media"])
         self.router.add_api_route("/", self.list_media_files, methods=["GET"], response_model=List[str])
         self.router.add_api_route("/{filename}", self.download_media_file, methods=["GET"])
         self.router.add_api_route("/", self.upload_file, methods=["POST"])
         self.router.add_api_route("/{filename}", self.delete_file, methods=["DELETE"])
+        self.router.add_api_route("/create_order_file", self.create_order_file, methods=["POST"])
 
     async def list_media_files(self) -> List[str]:
         try:
@@ -82,5 +88,63 @@ class MediaAPI:
         except FileNotFoundError:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
 
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        
+    async def create_order_file(self, db: database.connection.db_dependency):
+        text_columns = [
+            {
+                "id": "NO",
+                "name": "No"
+            },
+            {
+                "id": "ORDER_DESCRIPTION",
+                "name": "Equipment No"
+            },
+            {
+                "id": "POWER",
+                "name": "Motor KW",
+                "number_validation": True
+            }
+        ]
+
+        checkbox_columns = [c.model_dump() for c in self.element_api.get_all_item(db=db)]
+    
+        all_columns = []
+        for col in text_columns:
+            all_columns.append({
+                "type": "text",
+                "id": col["id"],
+                "name": col["name"],
+                "number_validation": col.get("number_validation", None)
+            })
+
+        for col in checkbox_columns:
+            all_columns.append({
+                "type": "checkbox",
+                "id": col["i_id"],
+                "name": col["i_item"]
+            })
+            
+        try:
+            self.media_path.mkdir(parents=True, exist_ok=True)
+
+            self.excel_order_manager.create_form(
+                filename=self.media_path / "form.xlsx",
+                all_columns=all_columns,
+                num_rows=10
+            )
+
+            self.pdf_order_manager.create_form(
+                filename=self.media_path / "form.pdf",
+                all_columns=all_columns,
+                num_rows=14,
+                title="Equipment Maintenance Checklist Form"
+            )
+
+            return {"message": "File created successfully"}
+
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

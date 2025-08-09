@@ -4,8 +4,8 @@ from collections import defaultdict
 import json
 
 class PDFManager:
-    def __init__(self, filename: str = "fillable_form.pdf"):
-        self.filename = filename
+    def __init__(self):
+        pass
 
     def _wrap_text_to_width(self, header: Dict[str, Any], max_width: float, fontsize: int = 8) -> List[str]:
         """Wrap text to fit within given width, breaking by words"""
@@ -112,6 +112,7 @@ class PDFManager:
             page.insert_text((text_x, text_y), label, fontsize=10, fontname="helvetica-bold")
 
     def create_form(self,
+                    filename: str,
                     all_columns: List[Dict[str, Any]],
                     num_rows: int = 10,
                     title: str = "Form",
@@ -302,9 +303,9 @@ class PDFManager:
         
         # SAVE
         try:
-            doc.save(self.filename, garbage=4, deflate=True, clean=True)
+            doc.save(filename, garbage=4, deflate=True, clean=True)
             doc.close()
-            print(f"PDF successfully created: {self.filename}")
+            print(f"PDF successfully created: {filename}")
         except Exception as e:
             print(f"Error saving PDF: {e}")
             doc.close()

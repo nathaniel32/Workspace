@@ -5,10 +5,9 @@ import json
 
 class ExcelManager:
     
-    def __init__(self, filename: str = "form.xlsx", sheet_name: str = "Form"):
+    def __init__(self, sheet_name: str = "Form"):
         self.header_row = 2
         self.order_name_cell = "B1"
-        self.filename = filename
         self.sheet_name = sheet_name
         self.default_formats = {
             'border': {'border': 1},
@@ -16,10 +15,10 @@ class ExcelManager:
             'order_name': {'border': 1, 'bg_color': '#FFE699', 'bold': True}
         }
     
-    def create_form(self, 
+    def create_form(self,
+                   filename: str,
                    all_columns: List[Dict[str, Any]],
                    num_rows: int = 10,
-                   start_row: int = 2,
                    order_name_position: str = "A1",
                    formats: Optional[Dict[str, Dict]] = None) -> None:
 
@@ -38,8 +37,8 @@ class ExcelManager:
         df = pd.DataFrame(data, columns=columns)
         
         # Tulis ke Excel
-        with pd.ExcelWriter(self.filename, engine="xlsxwriter") as writer:
-            df.to_excel(writer, sheet_name=self.sheet_name, startrow=start_row, index=False)
+        with pd.ExcelWriter(filename, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name=self.sheet_name, startrow=self.header_row, index=False)
             
             workbook = writer.book
             worksheet = writer.sheets[self.sheet_name]
@@ -56,12 +55,12 @@ class ExcelManager:
             
             # Header
             for col in range(len(columns)):
-                worksheet.write(start_row, col, columns[col], header_format)
-                worksheet.write_comment(start_row, col, json.dumps(all_columns[col]))
+                worksheet.write(self.header_row, col, columns[col], header_format)
+                worksheet.write_comment(self.header_row, col, json.dumps(all_columns[col]))
             
             num_index = 1
             # Border untuk baris data
-            for row in range(start_row + 1, start_row + 1 + len(df)):
+            for row in range(self.header_row + 1, self.header_row + 1 + len(df)):
                 for col in range(len(columns)):
                     if columns[col] == 'No':
                         value = num_index
@@ -119,19 +118,19 @@ class ExcelManager:
         
         return filled_rows
     
-    def update_cell(self, cell: str, value: Any, save: bool = True) -> None:
+    """ def update_cell(self, filename: str, cell: str, value: Any, save: bool = True) -> None:
         # Update nilai
         
         try:
-            wb = load_workbook(self.filename)
+            wb = load_workbook(filename)
             ws = wb[self.sheet_name]
             ws[cell] = value
             
             if save:
-                wb.save(self.filename)
+                wb.save(filename)
                 
         except Exception as e:
-            raise Exception(f"Error updating cell: {str(e)}")
+            raise Exception(f"Error updating cell: {str(e)}") """
     
     def _parse_cell_position(self, cell: str) -> tuple:
         # Parse posisi cell dari string ke koordinat row, col

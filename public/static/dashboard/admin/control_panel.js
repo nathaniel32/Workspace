@@ -130,6 +130,7 @@ const dashboard_admin_control_panel = new Vue({
                     <!-- Popup Price -->
                     <div v-if="update_price.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
                         <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <button @click="update_price.show_popup = false" class="absolute top-5 right-5 text-gray-500 hover:text-gray-800"><i class="fas fa-times"></i></button>
                             <div class="mt-3 text-center">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Harga</h3>
                                 <div class="mt-2 px-7 py-3 space-y-4 text-left">
@@ -143,10 +144,7 @@ const dashboard_admin_control_panel = new Vue({
                                         <label class="block text-sm font-medium text-gray-700">Description</label>
                                         <input v-model="update_price.new_description" type="text" placeholder="Description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
                                     </div>
-                                </div>
-                                <div class="items-center px-4 py-3">
-                                    <button @click="f_update_price" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
-                                    <button @click="update_price.show_popup = false" class="ml-2 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+                                    <button @click="f_update_price" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                 </div>
                             </div>
                         </div>
@@ -155,6 +153,7 @@ const dashboard_admin_control_panel = new Vue({
                     <!-- Popup Power -->
                     <div v-if="edit_power.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
                         <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <button @click="edit_power.show_popup = false" class="absolute top-5 right-5 text-gray-500 hover:text-gray-800"><i class="fas fa-times"></i></button>
                             <div class="mt-3 text-center">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Power</h3>
                                 <div class="mt-2 px-7 py-3 space-y-4 text-left">
@@ -170,7 +169,6 @@ const dashboard_admin_control_panel = new Vue({
                                 <div class="items-center px-4 py-3">
                                     <button @click="f_update_power" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                     <button @click="f_delete_power" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
-                                    <button @click="edit_power.show_popup = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -179,6 +177,7 @@ const dashboard_admin_control_panel = new Vue({
                     <!-- Popup Item -->
                     <div v-if="edit_item.show_popup" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
                         <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <button @click="edit_item.show_popup = false" class="absolute top-5 right-5 text-gray-500 hover:text-gray-800"><i class="fas fa-times"></i></button>
                             <div class="mt-3 text-center">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Item</h3>
                                 <div class="mt-2 px-7 py-3 space-y-4 text-left">
@@ -190,11 +189,7 @@ const dashboard_admin_control_panel = new Vue({
                                         <input v-model="edit_item.new_corrective" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"/>
                                         <label class="ml-2 text-sm text-gray-900">Corrective</label>
                                     </div>
-                                </div>
-                                <div class="items-center px-4 py-3">
-                                    <button @click="f_update_item" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
-                                    <button @click="f_delete_item" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
-                                    <button @click="edit_item.show_popup = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+                                    <button @click="f_update_item" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                 </div>
                             </div>
                         </div>
