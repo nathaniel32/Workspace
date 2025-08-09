@@ -560,3 +560,120 @@ export async function api_delete_order(o_id) {
         throw error;
     }
 }
+
+export async function api_download_file(filename) {
+    try {
+        const response = await fetch(`/api/media/${encodeURIComponent(filename)}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/octet-stream'
+            }
+        });
+
+        if (!response.ok) {
+            const result = await response.json();
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        const file_blob = await response.blob();
+        return { message: "ok", data: file_blob };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_delete_file(filename) {
+    try {
+        const response = await fetch(`/api/media/${encodeURIComponent(filename)}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_get_all_file_name() {
+    try {
+        const response = await fetch('/api/media', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_upload_file(selected_file) {
+    const formData = new FormData();
+    formData.append("file", selected_file);
+
+    try {
+        const response = await fetch('/api/media', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.detail || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_create_order_form() {
+    try {
+        const response = await fetch('/api/media/create_order_file', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.detail || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}

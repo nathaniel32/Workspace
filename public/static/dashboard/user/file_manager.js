@@ -1,3 +1,5 @@
+import { api_download_file, api_delete_file, api_get_all_file_name, api_upload_file, api_create_order_form } from '../api.js';
+
 const file_manager = new Vue({
     data: {
         title: 'File Manager',
@@ -9,89 +11,62 @@ const file_manager = new Vue({
             dashboard_main.navigations.push({ name: this.title, callback: this.f_template });
         },
         async f_get_files() {
-            try {
-                const res = await fetch('/api/media');
-                this.media_file_list = await res.json();
+            try{
+                const res = await api_get_all_file_name();
+                //base_vue.f_info(res.message);
+                this.media_file_list = res.data;
             } catch (err) {
-                console.error('Gagal memuat file:', err);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
-        download_file(filename) {
-            fetch(`/api/media/${encodeURIComponent(filename)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("File tidak ditemukan atau server error");
-                    }
-                    return response.blob();
-                })
-                .then(blob => {
-                    // Buat URL sementara untuk blob
-                    const url = window.URL.createObjectURL(blob);
-
-                    // Buat elemen <a> untuk trigger download
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = filename; // nama file saat disimpan
-                    document.body.appendChild(a);
-                    a.click();
-
-                    // Bersihkan
-                    a.remove();
-                    window.URL.revokeObjectURL(url);
-                })
-                .catch(err => {
-                    console.error("Gagal mendownload:", err);
-                });
+        async download_file(filename) {
+            try{
+                const res = await api_download_file(filename);
+                base_vue.f_info(res.message);
+                const url = window.URL.createObjectURL(res.data);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
         },
         async delete_file(filename) {
-            try {
-                const response = await fetch(`/api/media/${encodeURIComponent(filename)}`, { method: "DELETE" });
-                if (!response.ok) {
-                    throw new Error("File tidak ditemukan atau server error");
-                }
-                const result = await response.json();
-                alert(result.message);
-                this.f_get_files(); // refresh list
+            try{
+                const res = await api_delete_file(filename);
+                base_vue.f_info(res.message);
+                this.f_get_files();
             } catch (err) {
-                console.error(err);
-                alert("Gagal menghapus file");
+                base_vue.f_info(err.message, undefined, true);
             }
         },
         handle_file_change(event) {
             this.selected_file = event.target.files[0];
         },
         async upload_file() {
-            if (!this.selected_file) {
-                alert("Pilih file dulu!");
-                return;
-            }
-            const formData = new FormData();
-            formData.append("file", this.selected_file);
-
-            try {
-                const res = await fetch("/api/media", {
-                    method: "POST",
-                    body: formData
-                });
-                const result = await res.json();
-                alert(result.message);
+            try{
+                if (!this.selected_file) {
+                    throw({message: "Pilih file dulu!"});
+                }
+                const res = await api_upload_file(this.selected_file);
+                base_vue.f_info(res.message);
                 this.selected_file = null;
-                this.f_get_files(); // refresh list
+                this.f_get_files();
             } catch (err) {
-                console.error("Gagal upload:", err);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
         async create_order_form_file() {
-            try {
-                const res = await fetch("/api/media/create_order_file", {
-                    method: "POST"
-                });
-                const result = await res.json();
-                alert(result.message);
-                this.selected_file = null;
-                this.f_get_files(); // refresh list
+            try{
+                const res = await api_create_order_form();
+                base_vue.f_info(res.message);
+                this.f_get_files();
             } catch (err) {
-                console.error("Gagal:", err);
+                base_vue.f_info(err.message, undefined, true);
             }
         },
         f_template() {
