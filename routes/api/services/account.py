@@ -9,7 +9,7 @@ from datetime import timedelta
 from jose import ExpiredSignatureError, JWTError
 from passlib.context import CryptContext
 from utils import config
-from routes.api.models.auth_model import Validation
+from routes.api.models.account_model import Validation, AccountCreate
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/account/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -17,10 +17,31 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class AccountAPI:
     def __init__(self):
         self.router = APIRouter(prefix="/api/account", tags=["Account"])
+        self.router.add_api_route("/create", self.create, methods=["POST"], status_code=status.HTTP_201_CREATED)
         self.router.add_api_route("/signup", self.signup, methods=["POST"], status_code=status.HTTP_201_CREATED)
         self.router.add_api_route("/login", self.login, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/logout", self.logout, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/validate", self.validate, methods=["POST"], status_code=status.HTTP_200_OK) # oauth buat app lain
+
+    def create(self, input: AccountCreate, db: database.connection.db_dependency):
+        try:
+            code = routes.api.utils.generate_code(6)
+
+            new_account = database.models.TUser(
+                u_id = routes.api.utils.generate_id(),
+                u_role = input.u_role.value,
+                u_status = database.models.UserStatus.NOT_ACTIVATED,
+                u_code = code
+            )
+            db.add(new_account)
+            db.commit()
+            db.refresh(new_account)
+            return {"message": "Account berhasil dibuat", "data": code}
+        except HTTPException:
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     def signup(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
         form_oauth_data.username = form_oauth_data.username.strip()
