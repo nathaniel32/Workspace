@@ -6,7 +6,7 @@ from typing import List
 from pathlib import Path
 import shutil
 import database.connection
-import json
+from utils import config
 
 class MediaAPI:
     def __init__(self, excel_order_manager, pdf_order_manager, element_api):
@@ -125,9 +125,9 @@ class MediaAPI:
                 "name": col["i_item"]
             })
 
-        xlsx_name = "form.xlsx"
-        pdf_name = "form.pdf"
-
+        xlsx_name = config.ORDER_FILE_XLSX
+        pdf_name = config.ORDER_FILE_PDF
+        
         try:
             self.media_path.mkdir(parents=True, exist_ok=True)
 
@@ -141,7 +141,7 @@ class MediaAPI:
                 filename=self.media_path / pdf_name,
                 all_columns=all_columns,
                 num_rows=14,
-                title="Equipment Maintenance Checklist Form"
+                title=config.ORDER_FILE_TITLE
             )
 
             return {"message": f"Files '{xlsx_name}' and '{pdf_name}' have been created successfully."}

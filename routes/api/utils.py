@@ -8,7 +8,7 @@ import re
 from jose import ExpiredSignatureError, JWTError, jwt
 import json
 
-def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=config.ACCESS_TOKEN_EXP)):
+def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=int(config.ACCESS_TOKEN_EXP))):
     to_encode = data.copy()
     now = datetime.now(timezone.utc)
     expire = now + expires_delta

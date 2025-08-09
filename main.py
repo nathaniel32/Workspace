@@ -40,4 +40,4 @@ class App:
         return self.app
 
 if __name__ == "__main__":
-    uvicorn.run(App().get_app(), host=config.SERVICE_HOST, port=config.SERVICE_PORT)
+    uvicorn.run(App().get_app(), host=config.SERVICE_HOST, port=int(config.SERVICE_PORT))

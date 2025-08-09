@@ -109,7 +109,7 @@ class AccountAPI:
                 httponly=True,
                 secure=False,      # HTTPS = True
                 samesite="Lax",    # atau 'Strict' / 'None'
-                max_age=config.ACCESS_TOKEN_EXP * 3600,
+                max_age=int(config.ACCESS_TOKEN_EXP) * 3600,
                 path="/"
             )
             return response
