@@ -1,9 +1,9 @@
 import { api_get_order_by_id, api_upload_order_file, api_delete_order, api_update_order, api_get_enum_order_status, api_delete_order_article, api_get_all_items, api_get_all_orders, api_input_order, api_input_order_article, api_get_order_articles_with_items } from '../api.js'; //api_input_order
 import { format_price } from '../utils.js';
 
-const order_management = new Vue({
+const order_manager = new Vue({
     data: {
-        title: 'Order Management',
+        title: 'Order Manager',
         enum_status_list: [],
         item_list: [],
         order_list: [],
@@ -388,4 +388,4 @@ const order_management = new Vue({
     }
 });
 
-order_management.f_init();
+order_manager.f_init();

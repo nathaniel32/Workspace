@@ -1,13 +1,12 @@
-const media_management = new Vue({
+const file_manager = new Vue({
     data: {
-        title: 'Media Management',
+        title: 'File Manager',
         media_file_list: [],
         selected_file: null
     },
     methods: {
-        f_init() { //1x panggil
+        f_init() {
             dashboard_main.navigations.push({ name: this.title, callback: this.f_template });
-            this.f_get_files();
         },
         async f_get_files() {
             try {
@@ -17,7 +16,7 @@ const media_management = new Vue({
                 console.error('Gagal memuat file:', err);
             }
         },
-        downloadFile(filename) {
+        download_file(filename) {
             fetch(`/api/media/${encodeURIComponent(filename)}`)
                 .then(response => {
                     if (!response.ok) {
@@ -44,7 +43,7 @@ const media_management = new Vue({
                     console.error("Gagal mendownload:", err);
                 });
         },
-        async deleteFile(filename) {
+        async delete_file(filename) {
             try {
                 const response = await fetch(`/api/media/${encodeURIComponent(filename)}`, { method: "DELETE" });
                 if (!response.ok) {
@@ -58,10 +57,10 @@ const media_management = new Vue({
                 alert("Gagal menghapus file");
             }
         },
-        handleFileChange(event) {
+        handle_file_change(event) {
             this.selected_file = event.target.files[0];
         },
-        async uploadFile() {
+        async upload_file() {
             if (!this.selected_file) {
                 alert("Pilih file dulu!");
                 return;
@@ -82,16 +81,30 @@ const media_management = new Vue({
                 console.error("Gagal upload:", err);
             }
         },
+        async create_order_form_file() {
+            try {
+                const res = await fetch("/api/media/create_order_file", {
+                    method: "POST"
+                });
+                const result = await res.json();
+                alert(result.message);
+                this.selected_file = null;
+                this.f_get_files(); // refresh list
+            } catch (err) {
+                console.error("Gagal:", err);
+            }
+        },
         f_template() {
             const template = `
                 <div>
+                    <button @click="create_order_form_file()" class="bg-blue-500 text-white px-3 py-1 ml-2">Create Order Form</button>
                     <div class="mb-4">
-                        <input type="file" @change="handleFileChange" class="border p-2">
-                        <button @click="uploadFile" class="bg-blue-500 text-white px-3 py-1 ml-2">Upload</button>
+                        <input type="file" @change="handle_file_change" class="border p-2">
+                        <button @click="upload_file" class="bg-blue-500 text-white px-3 py-1 ml-2">Upload</button>
                     </div>
                     <div class="border p-2 cursor-pointer hover:bg-gray-100 flex justify-between items-center" v-for="file in media_file_list" :key="file">
-                        <span @click="downloadFile(file)" class="flex-1 hover:underline">{{ file }}</span>
-                        <button @click="deleteFile(file)" class="ml-4 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 focus:outline-none">Delete</button>
+                        <span @click="download_file(file)" class="flex-1 hover:underline">{{ file }}</span>
+                        <button @click="delete_file(file)" class="ml-4 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 focus:outline-none">Delete</button>
                     </div>
                 </div>
             `;
@@ -102,8 +115,9 @@ const media_management = new Vue({
             }else{
                 dashboard_main.f_reset();
             }
+            this.f_get_files();
         }
     }
 });
 
-media_management.f_init();
+file_manager.f_init();
