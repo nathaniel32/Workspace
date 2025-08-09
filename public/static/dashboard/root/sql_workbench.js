@@ -52,7 +52,7 @@ ORDER BY enum_name, e.enumsortorder;` }
 
                     <div v-if="showSchema" class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 border">
                         <pre v-if="schema">{{ schema }}</pre>
-                        <p v-else class="text-gray-500">No schema loaded.</p>
+                        <p v-else class="select-none text-gray-500">No schema loaded.</p>
                     </div>
 
                     <textarea 

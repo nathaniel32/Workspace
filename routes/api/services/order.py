@@ -96,21 +96,6 @@ class OrderAPI:
             ).order_by(
                 database.models.TOrderArticle.oa_time
             ).all()
-
-            #if not articles:
-            #    raise HTTPException(status_code=404, detail="Order articles not found.")
-
-            """ return [
-                {
-                    "oa_id": article.oa_id,
-                    "o_id": article.o_id,
-                    "p_id": article.p_id,
-                    "oa_power": article.oa_power,
-                    "oa_name": article.oa_name,
-                    "items": article.order_items  # OrderItemSchema
-                }
-                for article in articles
-            ] """
             
             return [
                 OrderArticleOut(

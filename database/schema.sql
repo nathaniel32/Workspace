@@ -45,7 +45,7 @@ CREATE TABLE t_price_list (
 CREATE TABLE t_order (
     o_id VARCHAR(32),
     u_id VARCHAR(32) NOT NULL,  -- id pegawai yang menginput
-    o_name TEXT NOT NULL,
+    o_name TEXT,
     o_time INT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now())::int),
     o_status order_status_enum NOT NULL DEFAULT 'PENDING',
     FOREIGN KEY (u_id) REFERENCES t_user(u_id) ON DELETE CASCADE ON UPDATE RESTRICT

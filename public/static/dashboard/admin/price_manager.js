@@ -95,7 +95,7 @@ const price_manager = new Vue({
                                     </td>
                                 </tr>
                             </tbody>
-                            <tbody v-else>
+                            <tbody v-else class="select-none">
                                 <tr>
                                     <td :colspan="3 + combined_items.length" class="py-12 text-center text-gray-500">
                                         <i class="fas fa-search text-4xl text-gray-400 mb-2"></i>

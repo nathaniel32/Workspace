@@ -5,7 +5,7 @@ from typing import Optional
 from database.models import OrderStatus
 
 class OrderCreate(BaseModel):
-    o_name: str
+    o_name: Optional[str] = None
 
 class OrderArticleCreate(BaseModel):
     o_id: str # order
@@ -16,7 +16,7 @@ class OrderArticleCreate(BaseModel):
 class OrderOut(BaseModel):
     o_id: str
     u_id: str
-    o_name: str
+    o_name: Optional[str] = None
     o_time: int
     o_status: OrderStatus
 
@@ -64,5 +64,5 @@ class OrderDelete(BaseModel):
 
 class OrderChange(BaseModel):
     o_id: str
-    o_name: str
+    o_name: Optional[str] = None
     o_status: str

@@ -677,3 +677,73 @@ export async function api_create_order_form() {
         throw error;
     }
 }
+
+export async function api_get_role_enum() {
+    try {
+        const response = await fetch('/api/account/role', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_create_account(u_role) {
+    console.log(u_role)
+    try {
+        const response = await fetch('/api/account/create', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ u_role })
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.detail || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_get_all_users() {
+    try {
+        const response = await fetch('/api/account/user', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}

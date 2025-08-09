@@ -9,9 +9,9 @@ from datetime import timedelta
 from jose import ExpiredSignatureError, JWTError
 from passlib.context import CryptContext
 from utils import config
-from routes.api.models.account_model import Validation, AccountCreate
-from sqlalchemy import and_
-from typing import Optional
+from routes.api.models.account_model import Validation, AccountCreate, UserOut
+from sqlalchemy import and_, text
+from typing import Optional, List
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/account/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -19,11 +19,22 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class AccountAPI:
     def __init__(self):
         self.router = APIRouter(prefix="/api/account", tags=["Account"])
+        self.router.add_api_route("/user", self.get_all_users, methods=["GET"])
+        self.router.add_api_route("/role", self.get_enum_user_role, methods=["GET"])
         self.router.add_api_route("/create", self.create, methods=["POST"], status_code=status.HTTP_201_CREATED)
         self.router.add_api_route("/signup", self.signup, methods=["POST"], status_code=status.HTTP_201_CREATED)
         self.router.add_api_route("/login", self.login, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/logout", self.logout, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/validate", self.validate, methods=["POST"], status_code=status.HTTP_200_OK) # oauth buat app lain
+
+    def get_all_users(self, db: database.connection.db_dependency) -> List[UserOut]:
+        try:
+            users = db.query(database.models.TUser).order_by(database.models.TUser.u_time.desc()).all()
+            return [UserOut.model_validate(p) for p in users]
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     def create(self, input: AccountCreate, db: database.connection.db_dependency):
         try:
@@ -176,3 +187,13 @@ class AccountAPI:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token: {str(e)}")
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"An error occurred: {str(e)}")
+        
+    def get_enum_user_role(self, db: database.connection.db_dependency):
+        try:
+            query = "SELECT e.enumlabel FROM pg_type t JOIN pg_enum e ON t.oid = e.enumtypid WHERE t.typname = 'userrole';"
+            result = db.execute(text(query))
+            rows = result.fetchall()
+            columns = result.keys()
+            return [dict(zip(columns, row)) for row in rows]
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

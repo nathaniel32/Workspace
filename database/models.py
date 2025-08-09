@@ -90,7 +90,7 @@ class TOrder(model_base):
 
     o_id = Column(VARCHAR(32), primary_key=True)
     u_id = Column(VARCHAR(32), ForeignKey('t_user.u_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
-    o_name = Column(Text, nullable=False)
+    o_name = Column(Text)
     o_time = Column(Integer, nullable=False, server_default=text("EXTRACT(EPOCH FROM now())::int"))
     o_status = Column(SqlEnum(OrderStatus), nullable=False, default=OrderStatus.PENDING)
 
