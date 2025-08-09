@@ -83,6 +83,7 @@ const base_vue = new Vue({
             body.append("username", this.v_signup.email);
             body.append("password", this.v_signup.password);
             body.append("name", this.v_signup.username);
+            body.append("code", this.v_signup.code);
 
             try {
                 const response = await fetch('/api/account/signup', {

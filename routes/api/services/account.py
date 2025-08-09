@@ -10,6 +10,8 @@ from jose import ExpiredSignatureError, JWTError
 from passlib.context import CryptContext
 from utils import config
 from routes.api.models.account_model import Validation, AccountCreate
+from sqlalchemy import and_
+from typing import Optional
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/account/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -43,7 +45,7 @@ class AccountAPI:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    def signup(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...), code: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
+    def signup(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...), code: Optional[str] = Body(None)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
         form_oauth_data.username = form_oauth_data.username.strip()
         name = name.strip()
         
@@ -59,27 +61,36 @@ class AccountAPI:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=strong_password_message)
 
         try:
-            prev_user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
-            
-            # hapus yg belum di aktivasi email
-            if prev_user and prev_user.u_status == database.models.UserStatus.ACTIVATED:
-                db.delete(prev_user)
-                db.flush()
-
             # Cek apakah ini user pertama
             user_count = db.query(database.models.TUser).count()
+            if user_count == 0:
+                new_user = database.models.TUser(
+                    u_id = routes.api.utils.generate_id(),
+                    u_name = name,
+                    u_email = form_oauth_data.username,
+                    u_password = pwd_context.hash(form_oauth_data.password),
+                    u_role = database.models.UserRole.ROOT,
+                    u_status = database.models.UserStatus.ACTIVATED
+                )
+                db.add(new_user)
+                db.commit()
+            else:
+                invited_user = db.query(database.models.TUser).filter(
+                    and_(
+                        database.models.TUser.u_code == code,
+                        database.models.TUser.u_email.is_(None)
+                    )
+                ).first()
+                
+                if not invited_user:
+                    raise HTTPException(status_code=404, detail="Code not found")
 
-            new_user = database.models.TUser(
-                u_id = routes.api.utils.generate_id(),
-                u_name = name,
-                u_email = form_oauth_data.username,
-                u_password = pwd_context.hash(form_oauth_data.password),
-                u_role = database.models.UserRole.ROOT if user_count == 0 else database.models.UserRole.USER,
-                u_status = database.models.UserStatus.ACTIVATED, # HARUS DI GANTI JIKA INGIN DENGAN AKTIVASI EMAIL
-                u_code = routes.api.utils.generate_code(6)
-            )
-            db.add(new_user)
-            db.commit()
+                invited_user.u_name = name
+                invited_user.u_email = form_oauth_data.username
+                invited_user.u_password = pwd_context.hash(form_oauth_data.password)
+                invited_user.u_code = None
+                
+                db.commit()
 
         except HTTPException:
             raise
