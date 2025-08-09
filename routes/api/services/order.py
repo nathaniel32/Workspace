@@ -29,6 +29,7 @@ class OrderAPI:
         self.router.add_api_route("/order", self.insert_order, methods=["POST"])
         self.router.add_api_route("/order", self.change_order, methods=["PUT"])
         self.router.add_api_route("/order", self.delete_order, methods=["DELETE"])
+        self.router.add_api_route("/order/{o_id}", self.get_order_by_id, methods=["GET"])
         self.router.add_api_route("/order/file", self.insert_order_file, methods=["POST"])
         self.router.add_api_route("/order-article", self.insert_order_article, methods=["POST"])
         self.router.add_api_route("/order-article/{o_id}", self.get_order_articles_with_items, methods=["GET"])
@@ -135,6 +136,17 @@ class OrderAPI:
                 )
                 for article in articles
             ]
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        
+    def get_order_by_id(self, o_id: str, db: database.connection.db_dependency) -> OrderOut:
+        try:
+            order = db.query(database.models.TOrder).filter(database.models.TOrder.o_id == o_id).first()
+            if not order:
+                raise HTTPException(status_code=404, detail="Order not found.")
+            return OrderOut.model_validate(order)
         except HTTPException:
             raise
         except Exception as e:
@@ -296,7 +308,7 @@ class OrderAPI:
                     self.insert_order_article(request, OrderArticleCreate(o_id=o_id, power=article_power, oa_name=article_name, i_id_list=item_id_list), db)
                     #time.sleep(1)
             
-            return o_id
+            return {"message": "File berhasil input", "data": o_id}
 
         except SQLAlchemyError as db_err:
             db.rollback()

@@ -1,4 +1,4 @@
-import { api_upload_order_file, api_delete_order, api_update_order, api_get_enum_order_status, api_delete_order_article, api_get_all_items, api_get_all_orders, api_input_order, api_input_order_article, get_order_articles_with_items } from '../api.js'; //api_input_order
+import { api_get_order_by_id, api_upload_order_file, api_delete_order, api_update_order, api_get_enum_order_status, api_delete_order_article, api_get_all_items, api_get_all_orders, api_input_order, api_input_order_article, api_get_order_articles_with_items } from '../api.js'; //api_input_order
 import { format_price } from '../utils.js';
 
 const order_management = new Vue({
@@ -8,16 +8,16 @@ const order_management = new Vue({
         item_list: [],
         order_list: [],
         order_article_list: [],
-        input_order_description: null,
+        input_order_name: null,
         selected_order_object: null,
         input_order_article_power: null,
-        input_order_article_description: null,
+        input_order_article_name: null,
         input_order_article_id_items: [],
         active_status_group: null,
         month_names: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
         change_order_tmp: {
             status: null,
-            description: null
+            name: null
         },
         upload_order_file: {
             show_popup: false,
@@ -65,9 +65,9 @@ const order_management = new Vue({
             const item = items.find(s => s.i_id === i_id);
             return item ? format_price(item.os_price) : '-';
         },
-        f_get_order_article_item_description(items, i_id) {
+        f_get_order_article_item_name(items, i_id) {
             const item = items.find(s => s.i_id === i_id);
-            return item?.price_list.pl_description || '-';
+            return item?.price_list.pl_name || '-';
         },
         f_init() { //1x panggil
             dashboard_main.navigations.push({ name: this.title, callback: this.f_template });
@@ -97,30 +97,37 @@ const order_management = new Vue({
                 base_vue.f_info(err.message, undefined, true);
             }
         },
-        async f_get_order_articles_with_items(order_object=null) {
-            if(order_object){
-                if (JSON.stringify(this.selected_order_object) == JSON.stringify(order_object)){
+        async f_get_order_articles_with_items(order_id=null) {
+            if(order_id){
+                if (this.selected_order_object && this.selected_order_object.o_id == order_id){
                     this.selected_order_object = null;
                     this.order_article_list = [];
                     return;
                 }
-            }else{
-                order_object = this.selected_order_object;
+            } else{
+                //input update
+                order_id = this.selected_order_object.o_id;
             }
 
             try {
-                const res = await get_order_articles_with_items(order_object.o_id);
-                if (res.data) {
-                    this.order_article_list = res.data;
-                }else{
+                const resOrder = await api_get_order_by_id(order_id);
+                this.selected_order_object = resOrder.data;
+
+                const resArticles = await api_get_order_articles_with_items(order_id);
+                
+                if (resArticles.data && resArticles.data.length > 0) {
+                    this.order_article_list = resArticles.data;
+                } else {
                     base_vue.f_info("No article found");
                     this.order_article_list = [];
                 }
-                this.selected_order_object = order_object;
+
                 this.change_order_tmp.status = this.selected_order_object.o_status;
-                this.change_order_tmp.description = this.selected_order_object.o_name;
+                this.change_order_tmp.name = this.selected_order_object.o_name;
+
             } catch (err) {
-                base_vue.f_info(err.message, undefined, true);
+                const message = err?.response?.data?.message || err.message || 'Unknown error';
+                base_vue.f_info(message, undefined, true);
             }
         },
         f_sum_order_article(items) {
@@ -150,14 +157,14 @@ const order_management = new Vue({
                                     <i class="fas" :class="{'fa-chevron-down': active_status_group === status, 'fa-chevron-right': active_status_group !== status}"></i>
                                 </button>
                                 <div v-if="active_status_group === status" class="pl-4 mt-2 space-y-2">
-                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_items(order)" class="p-3 rounded-lg cursor-pointer hover:bg-gray-100 border border-gray-200">
+                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_items(order.o_id)" class="p-3 rounded-lg cursor-pointer hover:bg-gray-100 border border-gray-200">
                                         <p class="font-semibold text-gray-800">{{ order.o_name }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <input type="text" v-model="input_order_description" placeholder="New order description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            <input type="text" v-model="input_order_name" placeholder="New order name" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                             <button @click="f_input_order" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus mr-2"></i>Add New Order</button>
                             <button @click="f_show_upload_order_popup" class="mt-2 w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus mr-2"></i>Upload PDF/XLSX</button>
                         </div>
@@ -186,7 +193,7 @@ const order_management = new Vue({
                                             <td class="py-4 px-6">{{ element.oa_power }}</td>
                                             <td v-for="item in combined_items" :key="item.i_id" class="py-4 px-6">
                                                 <strong>{{ f_get_order_article_item_price(element.items, item.i_id) }}</strong><br>
-                                                <small class="text-gray-500">{{ f_get_order_article_item_description(element.items, item.i_id) }}</small>
+                                                <small class="text-gray-500">{{ f_get_order_article_item_name(element.items, item.i_id) }}</small>
                                             </td>
                                             <td class="py-4 px-6">
                                                 <strong>{{ f_sum_order_article(element.items) }}</strong>
@@ -212,7 +219,7 @@ const order_management = new Vue({
                             <h3 class="text-lg font-semibold mb-2">Information Order</h3>
                             <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mt-5 mb-5">
                                 <div class="font-medium">Deskripsi:</div>
-                                <input type="text" v-model="change_order_tmp.description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                <input type="text" v-model="change_order_tmp.name" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
 
                                 <div class="font-medium">Order ID:</div>
                                 <div>{{ selected_order_object.o_id }}</div>
@@ -234,7 +241,7 @@ const order_management = new Vue({
 
                                 <div></div>
                                 <div>
-                                    <button v-if="(selected_order_object.o_name != change_order_tmp.description) || (selected_order_object.o_status != change_order_tmp.status)" @click="f_change_order" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Change</button>
+                                    <button v-if="(selected_order_object.o_name != change_order_tmp.name) || (selected_order_object.o_status != change_order_tmp.status)" @click="f_change_order" class="mt-2 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Change</button>
                                 </div>
 
                                 <div></div>
@@ -248,7 +255,7 @@ const order_management = new Vue({
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Equipment No</label>
-                                    <input type="text" v-model="input_order_article_description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                    <input type="text" v-model="input_order_article_name" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Power</label>
@@ -315,6 +322,7 @@ const order_management = new Vue({
             try {
                 const res = await api_upload_order_file(this.upload_order_file.new_file);
                 base_vue.f_info(res.message);
+                base_vue.f_info(res.data.data);
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
@@ -344,21 +352,21 @@ const order_management = new Vue({
         },
         async f_input_order() {
             try{
-                const res = await api_input_order(this.input_order_description);
+                const res = await api_input_order(this.input_order_name);
                 base_vue.f_info(res.message);
                 this.f_get_order_list();
-                this.input_order_description = null;
+                this.input_order_name = null;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
         },
         async f_input_order_article() {
             try{
-                const res = await api_input_order_article(this.selected_order_object.o_id, this.input_order_article_power, this.input_order_article_description, this.input_order_article_id_items);
+                const res = await api_input_order_article(this.selected_order_object.o_id, this.input_order_article_power, this.input_order_article_name, this.input_order_article_id_items);
                 this.f_get_order_articles_with_items();
                 base_vue.f_info(res.message);
                 this.input_order_article_power = null;
-                this.input_order_article_description = null;
+                this.input_order_article_name = null;
                 this.input_order_article_id_items.splice(0);
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
@@ -368,11 +376,11 @@ const order_management = new Vue({
             const confirmed = confirm("Are you sure you want to update this data?");
             if (!confirmed) return;
             try{
-                const res = await api_update_order(this.selected_order_object.o_id, this.change_order_tmp.description, this.change_order_tmp.status);
+                const res = await api_update_order(this.selected_order_object.o_id, this.change_order_tmp.name, this.change_order_tmp.status);
                 base_vue.f_info(res.message);
                 await this.f_get_order_list();
-                this.selected_order_object.o_status = this.change_order_tmp.status;
-                this.selected_order_object.o_name = this.change_order_tmp.description;
+                //this.selected_order_object.o_status = this.change_order_tmp.status;
+                //this.selected_order_object.o_name = this.change_order_tmp.name;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }

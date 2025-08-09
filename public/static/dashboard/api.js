@@ -140,7 +140,29 @@ export async function api_input_order(description) {
     }
 }
 
-export async function get_order_articles_with_items(o_id) {
+export async function api_get_order_by_id(o_id) {
+    try {
+        const response = await fetch(`/api/order/order/${o_id}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_get_order_articles_with_items(o_id) {
     try {
         const response = await fetch(`/api/order/order-article/${o_id}`, {
             method: 'GET',
