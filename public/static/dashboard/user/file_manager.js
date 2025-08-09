@@ -72,10 +72,12 @@ const file_manager = new Vue({
         f_template() {
             const template = `
                 <div>
-                    <button @click="create_order_form_file()" class="bg-blue-500 text-white px-3 py-1 ml-2">Create Order Form</button>
-                    <div class="mb-4">
+                    <div class="mb-1">
                         <input type="file" @change="handle_file_change" class="border p-2">
                         <button @click="upload_file" class="bg-blue-500 text-white px-3 py-1 ml-2">Upload</button>
+                    </div>
+                    <div class="mb-4">
+                        <button @click="create_order_form_file()" class="bg-gray-500 text-white px-3 py-1 ml-2">Create Order Form</button>
                     </div>
                     <div class="border p-2 cursor-pointer hover:bg-gray-100 flex justify-between items-center" v-for="file in media_file_list" :key="file">
                         <span @click="download_file(file)" class="flex-1 hover:underline">{{ file }}</span>

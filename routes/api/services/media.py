@@ -124,24 +124,27 @@ class MediaAPI:
                 "id": col["i_id"],
                 "name": col["i_item"]
             })
-            
+
+        xlsx_name = "form.xlsx"
+        pdf_name = "form.pdf"
+
         try:
             self.media_path.mkdir(parents=True, exist_ok=True)
 
             self.excel_order_manager.create_form(
-                filename=self.media_path / "form.xlsx",
+                filename=self.media_path / xlsx_name,
                 all_columns=all_columns,
                 num_rows=10
             )
 
             self.pdf_order_manager.create_form(
-                filename=self.media_path / "form.pdf",
+                filename=self.media_path / pdf_name,
                 all_columns=all_columns,
                 num_rows=14,
                 title="Equipment Maintenance Checklist Form"
             )
 
-            return {"message": "File created successfully"}
+            return {"message": f"Files '{xlsx_name}' and '{pdf_name}' have been created successfully."}
 
         except HTTPException:
             raise

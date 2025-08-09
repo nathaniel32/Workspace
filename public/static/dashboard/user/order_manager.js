@@ -263,9 +263,9 @@ const order_manager = new Vue({
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-3">Items</label>
-                                    <div class="flex flex-row overflow-x-auto space-x-4 pb-3">
-                                        <div v-for="item in item_list" :key="item.i_id" class="flex flex-col justify-between items-center min-w-[120px] h-28">
-                                            <span class="text-sm text-gray-600 text-center break-words">{{ item.i_item || '(empty)' }}</span>
+                                    <div class="flex flex-col space-y-2 overflow-y-auto pb-3 max-h-80">
+                                        <div v-for="item in item_list" :key="item.i_id" class="grid grid-cols-[1fr_auto] items-center gap-x-4">
+                                            <span class="text-sm text-gray-600 break-words">{{ item.i_item || '(empty)' }}</span>
                                             <input type="checkbox" :value="item.i_id" v-model="input_order_article_id_items" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                                         </div>
                                     </div>

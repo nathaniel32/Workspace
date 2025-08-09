@@ -8,6 +8,13 @@ const base_vue = new Vue({
         v_signup: {username: "Test User", email: "test@exp.com", password: "Tadnxciw123_"},
     },
     methods:{
+        escapeHTML(str) {
+            return str.replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#39;");
+        },
         f_openAuth(tab = 'login') {
             this.authTab = tab;
             this.showAuthModal = true;
@@ -27,7 +34,7 @@ const base_vue = new Vue({
                             <i class="fas ${iconClass}"></i>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm ${textClass}">${message}</p>
+                            <p class="text-sm ${textClass}">${this.escapeHTML(message)}</p>
                         </div>
                     </div>
                 </div>
