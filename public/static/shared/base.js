@@ -44,77 +44,82 @@ const base_vue = new Vue({
             console.log("Ready");
         },
         async f_login(){
+            const body = new URLSearchParams();
+            body.append("username", this.v_login.email);
+            body.append("password", this.v_login.password);
+            
             try {
-                const body = new URLSearchParams();
-                body.append("username", this.v_login.email);
-                body.append("password", this.v_login.password);
-
-                const response = await fetch("/api/auth/login", {
-                    method: "POST",
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
+                        //"Content-Type": "application/x-www-form-urlencoded",
+                        'Accept': 'application/json'
                     },
                     body: body
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail);
+                    const errorResult = await response.json();
+                    const errorMsg = errorResult.detail || `HTTP error! status: ${response.status}`;
+                    throw new Error(errorMsg);
                 }
 
-                const data = await response.json();
-                alert(data.message);
+                const result = await response.json();
+                //this.f_info(result.message);
                 window.location.reload();
             } catch (error) {
-                alert("Error: " + error.message);
-                throw error;
+                this.f_info(error, undefined, true);
             }
         },
         async f_signup(){
-            try {
-                const body = new URLSearchParams();
-                body.append("username", this.v_signup.email);
-                body.append("password", this.v_signup.password);
-                body.append("name", this.v_signup.username);
+            const body = new URLSearchParams();
+            body.append("username", this.v_signup.email);
+            body.append("password", this.v_signup.password);
+            body.append("name", this.v_signup.username);
 
-                const response = await fetch("/api/auth/signup", {
-                    method: "POST",
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
+                        //"Content-Type": "application/x-www-form-urlencoded",
+                        'Accept': 'application/json'
                     },
                     body: body
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail);
+                    const errorResult = await response.json();
+                    const errorMsg = errorResult.detail || `HTTP error! status: ${response.status}`;
+                    throw new Error(errorMsg);
                 }
 
-                const data = await response.json();
-                alert(data.message);
+                const result = await response.json();
+                //this.f_info(result.message);
                 window.location.reload();
             } catch (error) {
-                alert("Error: " + error.message);
-                throw error;
+                this.f_info(error, undefined, true);
             }
         },
         async f_logout(){
             try {
-                const response = await fetch("/api/auth/logout", {
-                    method: "POST"
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail);
+                    const errorResult = await response.json();
+                    const errorMsg = errorResult.detail || `HTTP error! status: ${response.status}`;
+                    throw new Error(errorMsg);
                 }
 
-                const data = await response.json();
-                alert(data.message);
-                window.location.replace('/');
+                const result = await response.json();
+                //this.f_info(result.message);
+                window.location.reload();
             } catch (error) {
-                alert("Error: " + error.message);
-                throw error;
+                this.f_info(error, undefined, true);
             }
         }
     },
