@@ -17,12 +17,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class AccountAPI:
     def __init__(self):
         self.router = APIRouter(prefix="/api/account", tags=["Account"])
-        self.router.add_api_route("/signup", self.f_signup, methods=["POST"], status_code=status.HTTP_201_CREATED)
-        self.router.add_api_route("/login", self.f_login, methods=["POST"], status_code=status.HTTP_200_OK)
-        self.router.add_api_route("/logout", self.f_logout, methods=["POST"], status_code=status.HTTP_200_OK)
-        self.router.add_api_route("/validate", self.f_validate, methods=["POST"], status_code=status.HTTP_200_OK) # oauth buat app lain
+        self.router.add_api_route("/signup", self.signup, methods=["POST"], status_code=status.HTTP_201_CREATED)
+        self.router.add_api_route("/login", self.login, methods=["POST"], status_code=status.HTTP_200_OK)
+        self.router.add_api_route("/logout", self.logout, methods=["POST"], status_code=status.HTTP_200_OK)
+        self.router.add_api_route("/validate", self.validate, methods=["POST"], status_code=status.HTTP_200_OK) # oauth buat app lain
 
-    def f_signup(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
+    def signup(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
         form_oauth_data.username = form_oauth_data.username.strip()
         name = name.strip()
         
@@ -84,9 +84,9 @@ class AccountAPI:
                 detail=f"Unexpected error: {str(e)}"
             )
 
-        return self.f_login(request, db, form_oauth_data)
+        return self.login(request, db, form_oauth_data)
 
-    def f_login(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends()):
+    def login(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends()):
         try:
             user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
             if not user or not pwd_context.verify(form_oauth_data.password, user.u_password):
@@ -118,7 +118,7 @@ class AccountAPI:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-    def f_logout(self):
+    def logout(self):
         try:
             response = JSONResponse(content={"message": "Logout successful"})
             response.delete_cookie(
@@ -131,7 +131,7 @@ class AccountAPI:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    def f_validate(self, input: Validation, token: str = Depends(oauth2_scheme)):
+    def validate(self, input: Validation, token: str = Depends(oauth2_scheme)):
         try:
             message, payload = routes.api.utils.validate_token(token=token, ip=input.ip, aud=input.aud)
             return {"message": message, "data": payload}
