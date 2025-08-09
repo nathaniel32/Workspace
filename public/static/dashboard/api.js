@@ -678,9 +678,31 @@ export async function api_create_order_form() {
     }
 }
 
-export async function api_get_role_enum() {
+export async function api_get_user_role_enum() {
     try {
         const response = await fetch('/api/account/role', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_get_user_status_enum() {
+    try {
+        const response = await fetch('/api/account/status', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -734,6 +756,62 @@ export async function api_get_all_users() {
                 'Accept': 'application/json'
             }
         });
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_update_account(u_id, u_name, u_email, u_role, u_status) {
+    try {
+        const response = await fetch('/api/account/user', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                u_id,
+                u_name,
+                u_email,
+                u_role,
+                u_status
+            })
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.detail || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}
+
+export async function api_delete_account(u_id) {
+    try {
+        const response = await fetch(`/api/account/user`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ u_id })
+        });
+
         const result = await response.json();
 
         if (!response.ok) {

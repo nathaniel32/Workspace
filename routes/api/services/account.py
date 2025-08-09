@@ -9,7 +9,7 @@ from datetime import timedelta
 from jose import ExpiredSignatureError, JWTError
 from passlib.context import CryptContext
 from utils import config
-from routes.api.models.account_model import Validation, AccountCreate, UserOut
+from routes.api.models.account_model import Validation, AccountCreate, UserOut, AccountUpdate, AccountDelete
 from sqlalchemy import and_, text
 from typing import Optional, List
 
@@ -19,13 +19,36 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class AccountAPI:
     def __init__(self):
         self.router = APIRouter(prefix="/api/account", tags=["Account"])
-        self.router.add_api_route("/user", self.get_all_users, methods=["GET"])
-        self.router.add_api_route("/role", self.get_enum_user_role, methods=["GET"])
+        self.router.add_api_route("/user", self.get_all_users, methods=["GET"], status_code=status.HTTP_200_OK)
+        self.router.add_api_route("/user", self.update_account, methods=["PUT"], status_code=status.HTTP_200_OK)
+        self.router.add_api_route("/user", self.delete_account, methods=["DELETE"], status_code=status.HTTP_200_OK)
+        self.router.add_api_route("/role", self.get_enum_user_role, methods=["GET"], status_code=status.HTTP_200_OK)
+        self.router.add_api_route("/status", self.get_enum_user_status, methods=["GET"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/create", self.create, methods=["POST"], status_code=status.HTTP_201_CREATED)
         self.router.add_api_route("/signup", self.signup, methods=["POST"], status_code=status.HTTP_201_CREATED)
         self.router.add_api_route("/login", self.login, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/logout", self.logout, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/validate", self.validate, methods=["POST"], status_code=status.HTTP_200_OK) # oauth buat app lain
+
+    def update_account(self, input: AccountUpdate, db: database.connection.db_dependency):
+        try:
+            query = db.query(database.models.TUser).filter_by(u_id=input.u_id).first()
+
+            if not query:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account tidak ditemukan")
+
+            query.u_name = input.u_name
+            query.u_email = input.u_email
+            query.u_role = input.u_role
+            query.u_status = input.u_status
+
+            db.commit()
+            return {"message": "Account berhasil diperbarui"}
+        except HTTPException:
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     def get_all_users(self, db: database.connection.db_dependency) -> List[UserOut]:
         try:
@@ -196,4 +219,28 @@ class AccountAPI:
             columns = result.keys()
             return [dict(zip(columns, row)) for row in rows]
         except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        
+    def get_enum_user_status(self, db: database.connection.db_dependency):
+        try:
+            query = "SELECT e.enumlabel FROM pg_type t JOIN pg_enum e ON t.oid = e.enumtypid WHERE t.typname = 'userstatus';"
+            result = db.execute(text(query))
+            rows = result.fetchall()
+            columns = result.keys()
+            return [dict(zip(columns, row)) for row in rows]
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        
+    def delete_account(self, input: AccountDelete, db: database.connection.db_dependency):
+        try:
+            query = db.query(database.models.TUser).filter_by(u_id=input.u_id).first()
+            if not query:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User tidak ditemukan")
+            db.delete(query)
+            db.commit()
+            return {"message": "User berhasil dihapus"}
+        except HTTPException:
+            raise
+        except Exception as e:
+            db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

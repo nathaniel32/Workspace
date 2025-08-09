@@ -1,9 +1,10 @@
-import { api_get_role_enum, api_create_account, api_get_all_users } from '../api.js';
+import { api_get_user_role_enum, api_create_account, api_get_all_users, api_update_account, api_get_user_status_enum, api_delete_account } from '../api.js';
 
 const account_manager = new Vue({
     data: {
         title: 'Account Manager',
         role_enum: [],
+        status_enum: [],
         new_account_form: {},
         account_list: [],
         table_account_headers: ['ID', 'Name', 'Email', 'Code', 'Role', 'Status', 'Created At'],
@@ -19,6 +20,7 @@ const account_manager = new Vue({
         f_init() {
             dashboard_main.navigations.push({ name: this.title, callback: this.f_template });
             this.f_get_role_enum();
+            this.f_get_status_enum();
         },
         formatTime(unixTimestamp) {
             if (!unixTimestamp) return '-';
@@ -36,9 +38,18 @@ const account_manager = new Vue({
         },
         async f_get_role_enum(){
             try {
-                const res = await api_get_role_enum();
+                const res = await api_get_user_role_enum();
                 //base_vue.f_info(res.message);
                 this.role_enum = res.data;
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
+        },
+        async f_get_status_enum(){
+            try {
+                const res = await api_get_user_status_enum();
+                //base_vue.f_info(res.message);
+                this.status_enum = res.data;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
@@ -56,18 +67,36 @@ const account_manager = new Vue({
             this.edit_account.show_popup = true;
             this.edit_account.u_id = account.u_id;
             this.edit_account.u_name = account.u_name;
+            this.edit_account.u_email = account.u_email;
             this.edit_account.u_role = account.u_role;
             this.edit_account.u_status = account.u_status;
             
-            this.edit_account.u_email = account.u_email;
             this.edit_account.u_code = account.u_code;
             this.edit_account.u_time = account.u_time;
         },
-        f_update_account(){
-
+        async f_update_account(){
+            const confirmed = confirm("Are you sure you want to update this account?");
+            if (!confirmed) return;
+            try {
+                const res = await api_update_account(this.edit_account.u_id, this.edit_account.u_name, this.edit_account.u_email, this.edit_account.u_role, this.edit_account.u_status);
+                base_vue.f_info(res.message);
+                this.f_get_all_users();
+                this.edit_account.show_popup = false;
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
         },
-        f_delete_delete(){
-
+        async f_delete_delete(){
+            const confirmed = confirm("Are you sure you want to delete this account?");
+            if (!confirmed) return;
+            try {
+                const res = await api_delete_account(this.edit_account.u_id);
+                base_vue.f_info(res.message);
+                this.f_get_all_users();
+                this.edit_account.show_popup = false;
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
+            }
         },
         async f_template() {
             const template = `
@@ -87,7 +116,7 @@ const account_manager = new Vue({
                     </div>
 
                     <div class="overflow-auto">
-                        <table class="min-w-full border-collapse border border-gray-300">
+                        <table v-if="account_list.length > 0" class="min-w-full border-collapse border border-gray-300">
                             <thead>
                                 <tr>
                                     <th v-for="header in table_account_headers" :key="header" class="border border-gray-300 px-4 py-2">
@@ -107,6 +136,10 @@ const account_manager = new Vue({
                                 </tr>
                             </tbody>
                         </table>
+                        <div v-else class="select-none p-12 text-center">
+                            <i class="fas fa-search text-4xl text-gray-400"></i>
+                            <p class="text-gray-500 text-sm">No Results</p>
+                        </div>
                     </div>
 
                     <!-- Popup Account -->
@@ -140,11 +173,19 @@ const account_manager = new Vue({
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Role</label>
-                                        <input v-model="edit_account.u_role" type="text" placeholder="Role" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
+                                        <select v-model="edit_account.u_role" class="block w-full px-3 py-2 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <option v-for="role in role_enum" :key="role.enumlabel" :value="role.enumlabel">
+                                                {{ role.enumlabel }}
+                                            </option>
+                                        </select>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Status</label>
-                                        <input v-model="edit_account.u_status" type="text" placeholder="Status" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
+                                        <select v-model="edit_account.u_status" class="block w-full px-3 py-2 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <option v-for="status in status_enum" :key="status.enumlabel" :value="status.enumlabel">
+                                                {{ status.enumlabel }}
+                                            </option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">
