@@ -1,6 +1,6 @@
 -- enum
 CREATE TYPE user_role_enum AS ENUM ('ROOT', 'ADMIN', 'USER');
-CREATE TYPE user_status_enum AS ENUM ('NOT_ACTIVATED', 'ACTIVATED', 'LOCKED', 'DELETED');
+CREATE TYPE user_status_enum AS ENUM ('ACTIVATED', 'LOCKED', 'DELETED');
 CREATE TYPE order_status_enum AS ENUM ('PENDING', 'PROCESSING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED', 'FAILED', 'ON_HOLD');
 
 -- User
@@ -11,7 +11,7 @@ CREATE TABLE t_user (
     u_password TEXT,
     u_code TEXT,
     u_role user_role_enum NOT NULL DEFAULT 'USER',  -- ROOT, ADMIN, USER
-    u_status user_status_enum NOT NULL DEFAULT 'NOT_ACTIVATED', -- NOT_ACTIVATED, ACTIVATED, LOCKED, DELETED
+    u_status user_status_enum NOT NULL DEFAULT 'ACTIVATED', -- ACTIVATED, LOCKED, DELETED
     u_time INT DEFAULT (EXTRACT(EPOCH FROM now())::int)
 );
 

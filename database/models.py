@@ -16,7 +16,6 @@ class UserRole(str, Enum):
     USER = 'USER'   # Karyawan  : bisa input orderan, update orderan
 
 class UserStatus(str, Enum):
-    NOT_ACTIVATED = 'NOT_ACTIVATED'
     ACTIVATED = 'ACTIVATED'
     LOCKED = 'LOCKED'
     DELETED = 'DELETED'
@@ -41,7 +40,7 @@ class TUser(model_base):
     u_password = Column(Text)
     u_code = Column(Text)
     u_role = Column(SqlEnum(UserRole), nullable=False, default=UserRole.USER)
-    u_status = Column(SqlEnum(UserStatus), nullable=False, default=UserStatus.NOT_ACTIVATED)
+    u_status = Column(SqlEnum(UserStatus), nullable=False, default=UserStatus.ACTIVATED)
     u_time = Column(Integer, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
     # child

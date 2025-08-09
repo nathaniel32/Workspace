@@ -30,7 +30,7 @@ class AccountAPI:
             new_account = database.models.TUser(
                 u_id = routes.api.utils.generate_id(),
                 u_role = input.u_role.value,
-                u_status = database.models.UserStatus.NOT_ACTIVATED,
+                u_status = database.models.UserStatus.ACTIVATED,
                 u_code = code
             )
             db.add(new_account)
@@ -43,7 +43,7 @@ class AccountAPI:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    def signup(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
+    def signup(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends(), name: str = Body(...), code: str = Body(...)): # gk bisa pake basemodel karena OAuth2PasswordRequestForm
         form_oauth_data.username = form_oauth_data.username.strip()
         name = name.strip()
         
@@ -62,7 +62,7 @@ class AccountAPI:
             prev_user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
             
             # hapus yg belum di aktivasi email
-            if prev_user and prev_user.u_status == database.models.UserStatus.NOT_ACTIVATED:
+            if prev_user and prev_user.u_status == database.models.UserStatus.ACTIVATED:
                 db.delete(prev_user)
                 db.flush()
 
