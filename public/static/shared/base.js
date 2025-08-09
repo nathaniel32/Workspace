@@ -56,7 +56,7 @@ const base_vue = new Vue({
             body.append("password", this.v_login.password);
             
             try {
-                const response = await fetch('/api/auth/login', {
+                const response = await fetch('/api/account/login', {
                     method: 'POST',
                     headers: {
                         //"Content-Type": "application/x-www-form-urlencoded",
@@ -85,7 +85,7 @@ const base_vue = new Vue({
             body.append("name", this.v_signup.username);
 
             try {
-                const response = await fetch('/api/auth/signup', {
+                const response = await fetch('/api/account/signup', {
                     method: 'POST',
                     headers: {
                         //"Content-Type": "application/x-www-form-urlencoded",
@@ -109,7 +109,7 @@ const base_vue = new Vue({
         },
         async f_logout(){
             try {
-                const response = await fetch('/api/auth/logout', {
+                const response = await fetch('/api/account/logout', {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json'

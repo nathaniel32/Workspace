@@ -11,12 +11,12 @@ from passlib.context import CryptContext
 from utils import config
 from routes.api.models.auth_model import Validation
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/account/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-class AuthAPI:
+class AccountAPI:
     def __init__(self):
-        self.router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+        self.router = APIRouter(prefix="/api/account", tags=["Account"])
         self.router.add_api_route("/signup", self.f_signup, methods=["POST"], status_code=status.HTTP_201_CREATED)
         self.router.add_api_route("/login", self.f_login, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/logout", self.f_logout, methods=["POST"], status_code=status.HTTP_200_OK)

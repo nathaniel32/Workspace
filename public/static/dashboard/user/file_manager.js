@@ -36,6 +36,9 @@ const file_manager = new Vue({
             }
         },
         async delete_file(filename) {
+            const confirmed = confirm("Are you sure you want to delete this file?");
+            if (!confirmed) return;
+
             try{
                 const res = await api_delete_file(filename);
                 base_vue.f_info(res.message);

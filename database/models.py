@@ -36,12 +36,12 @@ class TUser(model_base):
     __tablename__ = 't_user'
 
     u_id = Column(VARCHAR(32), primary_key=True)
-    u_name = Column(Text, nullable=False)
-    u_email = Column(Text, nullable=False, unique=True)
-    u_password = Column(Text, nullable=False)
+    u_name = Column(Text)
+    u_email = Column(Text, unique=True)
+    u_password = Column(Text)
     u_code = Column(Text)
     u_role = Column(SqlEnum(UserRole), nullable=False, default=UserRole.USER)
-    u_status = Column(SqlEnum(UserStatus), nullable=False)
+    u_status = Column(SqlEnum(UserStatus), nullable=False, default=UserStatus.NOT_ACTIVATED)
     u_time = Column(Integer, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
     # child

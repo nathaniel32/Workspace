@@ -1,9 +1,9 @@
 import { get_price_list_item, format_price, beautify_format_price, deformat_price } from '../utils.js';
 import { api_update_item, api_delete_item, api_delete_power, api_update_power, api_get_all_price_list, api_get_all_powers, api_get_all_items, api_input_power, api_input_item, api_update_price } from '../api.js';
 
-const dashboard_admin_control_panel = new Vue({
+const price_manager = new Vue({
     data: {
-        title: 'Control Panel',
+        title: 'Price Manager',
         input_power: null,
         input_item: '',
         input_item_corrective: true,
@@ -189,7 +189,10 @@ const dashboard_admin_control_panel = new Vue({
                                         <input v-model="edit_item.new_corrective" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"/>
                                         <label class="ml-2 text-sm text-gray-900">Corrective</label>
                                     </div>
-                                    <button @click="f_update_item" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
+                                </div>
+                                <div class="items-center px-4 py-3">
+                                    <button @click="f_update_item" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
+                                    <button @click="f_delete_item" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -356,4 +359,4 @@ const dashboard_admin_control_panel = new Vue({
     }
 });
 
-dashboard_admin_control_panel.f_init();
+price_manager.f_init();

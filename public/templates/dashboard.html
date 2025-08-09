@@ -65,9 +65,10 @@
     <script src="/static/dashboard/user/order_manager.js" type="module"></script>
     <script src="/static/dashboard/user/file_manager.js" type="module"></script>
     {% if payload.role in ['ADMIN', 'ROOT'] %}
-        <script src="/static/dashboard/admin/control_panel.js" type="module"></script>
+        <script src="/static/dashboard/admin/price_manager.js" type="module"></script>
     {% endif %}
     {% if payload.role == 'ROOT' %}
+        <script src="/static/dashboard/root/account_manager.js" type="module"></script>
         <script src="/static/dashboard/root/sql_workbench.js" type="module"></script>
     {% endif %}
 {% endblock %}

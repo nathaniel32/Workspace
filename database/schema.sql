@@ -1,4 +1,4 @@
--- enum role
+-- enum
 CREATE TYPE user_role_enum AS ENUM ('ROOT', 'ADMIN', 'USER');
 CREATE TYPE user_status_enum AS ENUM ('NOT_ACTIVATED', 'ACTIVATED', 'LOCKED', 'DELETED');
 CREATE TYPE order_status_enum AS ENUM ('PENDING', 'PROCESSING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED', 'FAILED', 'ON_HOLD');
@@ -6,12 +6,12 @@ CREATE TYPE order_status_enum AS ENUM ('PENDING', 'PROCESSING', 'CONFIRMED', 'SH
 -- User
 CREATE TABLE t_user (
     u_id VARCHAR(32) PRIMARY KEY,
-    u_name TEXT NOT NULL,
-    u_email TEXT NOT NULL UNIQUE,
-    u_password TEXT NOT NULL,
+    u_name TEXT,
+    u_email TEXT UNIQUE,
+    u_password TEXT,
     u_code TEXT,
-    u_role user_role_enum NOT NULL,  -- ROOT, ADMIN, USER
-    u_status user_status_enum NOT NULL, -- NOT_ACTIVATED, ACTIVATED, LOCKED, DELETED
+    u_role user_role_enum NOT NULL DEFAULT 'USER',  -- ROOT, ADMIN, USER
+    u_status user_status_enum NOT NULL DEFAULT 'NOT_ACTIVATED', -- NOT_ACTIVATED, ACTIVATED, LOCKED, DELETED
     u_time INT DEFAULT (EXTRACT(EPOCH FROM now())::int)
 );
 
@@ -44,7 +44,6 @@ CREATE TABLE t_price_list (
 -- Order
 CREATE TABLE t_order (
     o_id VARCHAR(32),
-    -- o_orderid TEXT UNIQUE NOT NULL,   !OPTIONAL JIKA ID SUDAH DI TENTUKAN!
     u_id VARCHAR(32) NOT NULL,  -- id pegawai yang menginput
     o_name TEXT NOT NULL,
     o_time INT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now())::int),
@@ -67,7 +66,6 @@ CREATE TABLE t_order_article (
 
 -- Order Item
 CREATE TABLE t_order_item (
-    -- os_id VARCHAR(32) PRIMARY KEY,
     oa_id VARCHAR(32) NOT NULL,
     p_id VARCHAR(32) NOT NULL,
     i_id VARCHAR(32) NOT NULL,
@@ -76,42 +74,3 @@ CREATE TABLE t_order_item (
     FOREIGN KEY (oa_id, p_id) REFERENCES t_order_article(oa_id, p_id) ON DELETE CASCADE ON UPDATE RESTRICT,
     FOREIGN KEY (p_id, i_id) REFERENCES t_price_list(p_id, i_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
-
----------------------------------------------------------------------------------------------------------------------------------
-
-CREATE OR REPLACE FUNCTION trg_add_price_list_on_power()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO t_price_list (p_id, i_id, pl_price)
-    SELECT NEW.p_id, s.i_id, 0.00
-    FROM t_item s
-    ON CONFLICT (p_id, i_id) DO NOTHING; -- jika sudah ada, hindari duplikasi
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
-
-CREATE TRIGGER trg_after_power_insert
-AFTER INSERT ON t_power
-FOR EACH ROW
-EXECUTE FUNCTION trg_add_price_list_on_power();
-
-
-CREATE OR REPLACE FUNCTION trg_add_price_list_on_item()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO t_price_list (p_id, i_id, pl_price)
-    SELECT p.p_id, NEW.i_id, 0.00
-    FROM t_power p
-    ON CONFLICT (p_id, i_id) DO NOTHING;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_after_item_insert
-AFTER INSERT ON t_item
-FOR EACH ROW
-EXECUTE FUNCTION trg_add_price_list_on_item();

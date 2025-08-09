@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.api.services.auth import AuthAPI
+from routes.api.services.account import AccountAPI
 from routes.api.services.element import ElementAPI
 from routes.api.services.order import OrderAPI
 from routes.api.services.sql_workbench import SQLWorkbenchAPI
@@ -21,7 +21,7 @@ class App:
         self.pdf_order_manager = services.pdf_manager.PDFManager()
         self.app.mount("/static", StaticFiles(directory="public/static"), name="static")
         self.app.include_router(Frontend().router)
-        self.app.include_router(AuthAPI().router)
+        self.app.include_router(AccountAPI().router)
         self.app.include_router(self.element_api.router)
         self.app.include_router(MediaAPI(excel_order_manager=self.excel_order_manager, pdf_order_manager=self.pdf_order_manager, element_api = self.element_api).router)
         self.app.include_router(OrderAPI(excel_order_manager=self.excel_order_manager, pdf_order_manager=self.pdf_order_manager).router)

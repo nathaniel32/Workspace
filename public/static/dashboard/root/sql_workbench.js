@@ -1,6 +1,6 @@
 import { api_workbench_query, api_get_workbench_schema } from '../api.js';
 
-const dashboard_root_workbench = new Vue({
+const sql_workbench = new Vue({
     data: {
         title: 'SQL Workbench',
         sqlQuery: '',
@@ -182,4 +182,4 @@ ORDER BY enum_name, e.enumsortorder;` }
     }
 });
 
-dashboard_root_workbench.f_init();
+sql_workbench.f_init();
