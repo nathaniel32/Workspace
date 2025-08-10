@@ -9,7 +9,7 @@ export async function api_get_all_price_list() {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -31,7 +31,7 @@ export async function api_get_all_powers() {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -53,7 +53,7 @@ export async function api_get_all_items() {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -75,7 +75,7 @@ export async function api_get_all_orders() {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -151,7 +151,7 @@ export async function api_get_order_by_id(o_id) {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -173,7 +173,7 @@ export async function api_get_order_articles_with_items(o_id) {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -228,7 +228,7 @@ export async function api_delete_order_article(oa_id) {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -470,7 +470,7 @@ export async function api_delete_power(p_id) {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -495,7 +495,7 @@ export async function api_delete_item(i_id) {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -550,7 +550,7 @@ export async function api_delete_order(o_id) {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -595,7 +595,7 @@ export async function api_delete_file(filename) {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -617,7 +617,7 @@ export async function api_get_all_file_name() {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -689,7 +689,7 @@ export async function api_get_user_role_enum() {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -711,7 +711,7 @@ export async function api_get_user_status_enum() {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -759,7 +759,7 @@ export async function api_get_all_users() {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
@@ -815,7 +815,7 @@ export async function api_delete_account(u_id) {
         const result = await response.json();
 
         if (!response.ok) {
-            const errorMsg = result.message || result.error || `HTTP error! status: ${response.status}`;
+            const errorMsg = result.detail || `HTTP error! status: ${response.status}`;
             throw new Error(errorMsg);
         }
         
