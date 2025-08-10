@@ -38,7 +38,7 @@ class AccountAPI:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account tidak ditemukan")
 
             query.u_name = input.u_name
-            query.u_email = input.u_email
+            query.u_email = input.u_email if input.u_email != "" else None
             query.u_role = input.u_role
             query.u_status = input.u_status
 
