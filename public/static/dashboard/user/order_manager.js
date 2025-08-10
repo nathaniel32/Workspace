@@ -274,7 +274,7 @@ const order_manager = new Vue({
                                     </div>
                                 </div>
                             </div>
-                            <button @click="f_input_order_article" class="mt-4 w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-paper-plane mr-2"></i>Submit Article</button>
+                            <button :disabled="!input_order_article_name || !input_order_article_power" @click="f_input_order_article" class="mt-4 w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-paper-plane mr-2"></i>Submit Article</button>
                         </div>
                     </div>
                     <div v-else class="select-none p-12 text-center lg:col-span-3 space-y-6">
@@ -359,6 +359,7 @@ const order_manager = new Vue({
                 base_vue.f_info(res.message);
                 this.f_get_order_list();
                 this.input_order_name = null;
+                this.f_get_order_articles_with_items(res.data.o_id);
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }

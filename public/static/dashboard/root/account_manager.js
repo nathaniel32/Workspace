@@ -59,6 +59,7 @@ const account_manager = new Vue({
                 const res = await api_create_account(this.new_account_form.role);
                 base_vue.f_info(res.message);
                 this.f_get_all_users();
+                this.new_account_form.role = null;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }
@@ -110,7 +111,7 @@ const account_manager = new Vue({
                             </option>
                         </select>
 
-                        <button @click="f_create_account" class="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                        <button :disabled="!new_account_form.role" @click="f_create_account" class="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
                             Create Account
                         </button>
                     </div>

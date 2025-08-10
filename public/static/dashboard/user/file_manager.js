@@ -52,9 +52,6 @@ const file_manager = new Vue({
         },
         async upload_file() {
             try{
-                if (!this.selected_file) {
-                    throw({message: "Pilih file dulu!"});
-                }
                 const res = await api_upload_file(this.selected_file);
                 base_vue.f_info(res.message);
                 this.selected_file = null;
@@ -80,7 +77,7 @@ const file_manager = new Vue({
                     </div>
                     <div class="mb-4">
                         <input type="file" @change="handle_file_change" class="border p-2">
-                        <button @click="upload_file" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Upload</button>
+                        <button :disabled="!selected_file" @click="upload_file" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Upload</button>
                     </div>
                     <div class="border p-2 cursor-pointer hover:bg-gray-100 flex justify-between items-center" v-for="file in media_file_list" :key="file">
                         <span @click="download_file(file)" class="flex-1 hover:underline">{{ file }}</span>

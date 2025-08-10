@@ -111,7 +111,7 @@ const price_manager = new Vue({
                             <h3 class="text-lg font-semibold mb-2">Add Power</h3>
                             <div class="flex items-center gap-2">
                                 <input v-model="input_power" type="number" placeholder="power" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
-                                <button @click="f_input_power" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus"></i></button>
+                                <button :disabled="!input_power" @click="f_input_power" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus"></i></button>
                             </div>
                         </div>
                         <div class="bg-white p-4 rounded-lg shadow-md">
@@ -122,7 +122,7 @@ const price_manager = new Vue({
                                     <input v-model="input_item_corrective" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"/>
                                     <label class="ml-2 text-sm text-gray-900">Corrective</label>
                                 </div>
-                                <button @click="f_input_item" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus"></i></button>
+                                <button :disabled="!input_item" @click="f_input_item" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus"></i></button>
                             </div>
                         </div>
                     </div>
@@ -167,7 +167,7 @@ const price_manager = new Vue({
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">
-                                    <button @click="f_update_power" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
+                                    <button :disabled="edit_power.new_power == null || edit_power.new_power === ''" @click="f_update_power" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                     <button @click="f_delete_power" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
                                 </div>
                             </div>
@@ -191,7 +191,7 @@ const price_manager = new Vue({
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">
-                                    <button @click="f_update_item" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
+                                    <button :disabled="!edit_item.new_item" @click="f_update_item" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                     <button @click="f_delete_item" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
                                 </div>
                             </div>
@@ -294,6 +294,9 @@ const price_manager = new Vue({
             const confirmed = confirm("Are you sure you want to update this data?");
             if (!confirmed) return;
             try {
+                if (this.edit_power.new_unit == null || this.edit_power.new_unit === '') {
+                    this.edit_power.new_unit = 0;
+                }
                 const res = await api_update_power(this.edit_power.p_id, this.edit_power.new_power, this.edit_power.new_unit);
                 this.edit_power.show_popup = false;
                 base_vue.f_info(res.message);

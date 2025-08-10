@@ -1,4 +1,4 @@
-import { api_workbench_query, api_get_workbench_schema } from '../api.js';
+import { api_workbench_query, api_get_workbench_schema, api_create_tables } from '../api.js';
 
 const sql_workbench = new Vue({
     data: {
@@ -22,7 +22,8 @@ const sql_workbench = new Vue({
 FROM pg_type t
    JOIN pg_enum e ON t.oid = e.enumtypid
    JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
-ORDER BY enum_name, e.enumsortorder;` }
+ORDER BY enum_name, e.enumsortorder;` },
+            { label: 'Delete All Tables', query: "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" },
         ]
     },
     computed: {
@@ -66,8 +67,11 @@ ORDER BY enum_name, e.enumsortorder;` }
                         <button @click="executeQuery" :disabled="executing || !sqlQuery.trim()" class="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600">
                             {{ executing ? 'Executing...' : 'Execute' }}
                         </button>
-                        <button @click="clearQuery" class="bg-gray-400 text-white px-4 py-1 rounded hover:bg-gray-500">
+                        <button @click="clearQuery" class="bg-red-400 text-white px-4 py-1 rounded hover:bg-red-500">
                             Clear
+                        </button>
+                        <button @click="createTables" class="bg-gray-400 text-white px-4 py-1 rounded hover:bg-gray-500">
+                            Create Tables
                         </button>
                     </div>
 
@@ -137,6 +141,15 @@ ORDER BY enum_name, e.enumsortorder;` }
                 base_vue.f_info(err.message, undefined, true);
             } finally {
                 this.loadingSchema = false;
+            }
+        },
+
+        async createTables() {
+            try {
+                const res = await api_create_tables()
+                base_vue.f_info(res.message);
+            } catch (err) {
+                base_vue.f_info(err.message, undefined, true);
             }
         },
 

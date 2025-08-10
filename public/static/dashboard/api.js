@@ -825,3 +825,26 @@ export async function api_delete_account(u_id) {
         throw error;
     }
 }
+
+export async function api_create_tables() {
+    try {
+        const response = await fetch('/api/workbench/create_tables', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            const errorMsg = errorResult.detail || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
+        }
+
+        const result = await response.json();
+        return { message: result.message || "ok", data: result };
+    } catch (error) {
+        console.error("Error:", error);
+        throw error;
+    }
+}

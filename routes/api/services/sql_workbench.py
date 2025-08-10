@@ -5,12 +5,15 @@ from sqlalchemy import text
 from jose import JWTError
 import routes.api.utils
 import database.models
+from database.models import model_base
+from database.trigger import create_triggers 
 
 class SQLWorkbenchAPI:
     def __init__(self):
         self.router = APIRouter(prefix="/api/workbench", tags=["Workbench"])
         self.router.add_api_route("/schema", self.schema, methods=["GET"])
         self.router.add_api_route("/query", self.query, methods=["POST"])
+        self.router.add_api_route("/create_tables", self.create_tables, methods=["POST"])
 
     async def schema(self, request: Request):
         try:
@@ -35,7 +38,7 @@ class SQLWorkbenchAPI:
             
             result = db.execute(text(query_text))
 
-            if query_text.strip().lower().startswith(("insert", "update", "delete")):
+            if query_text.strip().lower().startswith(("insert", "update", "delete", "create", "drop", "alter", "truncate")):
                 db.commit()
                 message = "Query executed and committed successfully."
             else:
@@ -59,4 +62,17 @@ class SQLWorkbenchAPI:
             raise
         except Exception as e:
             db.rollback()
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    
+    def create_tables(self, request: Request):
+        try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.ROOT)
+            model_base.metadata.create_all(bind=database.connection.database_engine)
+            create_triggers(database.connection.database_engine)
+            return {"message": "Tables berhasil dibuat"}
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+        except HTTPException:
+            raise
+        except Exception as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
