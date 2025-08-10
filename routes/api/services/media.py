@@ -34,8 +34,8 @@ class MediaAPI:
         self.element_api = element_api
         self.router = APIRouter(prefix="/api/media", tags=["Media"])
         self.router.add_api_route("/", self.list_media_files, methods=["GET"], response_model=List[str])
-        self.router.add_api_route("/{filename}", self.download_media_file, methods=["GET"])
         self.router.add_api_route("/", self.upload_file, methods=["POST"])
+        self.router.add_api_route("/{filename}", self.download_media_file, methods=["GET"])
         self.router.add_api_route("/{filename}", self.delete_file, methods=["DELETE"])
         self.router.add_api_route("/create_order_file", self.create_order_file, methods=["POST"])
 
