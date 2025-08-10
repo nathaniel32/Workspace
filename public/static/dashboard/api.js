@@ -99,13 +99,12 @@ export async function api_upload_order_file(order_file) {
             body: formData
         });
 
+        const result = await response.json();
+
         if (!response.ok) {
-            const errorResult = await response.json();
-            const errorMsg = errorResult.detail || `HTTP error! status: ${response.status}`;
-            throw new Error(errorMsg);
+            throw result;
         }
 
-        const result = await response.json();
         return { message: result.message || "ok", data: result };
     } catch (error) {
         console.error("Error:", error);

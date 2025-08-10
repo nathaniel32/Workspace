@@ -327,7 +327,14 @@ const order_manager = new Vue({
                 this.f_get_order_articles_with_items(res.data.data);
                 this.upload_order_file.show_popup = false;
             } catch (err) {
-                base_vue.f_info(err.message, undefined, true);
+                if(err.detail.o_id){
+                    this.f_get_order_list();
+                    this.f_get_order_articles_with_items(err.detail.o_id);
+                    this.upload_order_file.show_popup = false;
+                    base_vue.f_info("Tidak semua article berhasil terinput. tolong dicheck ulang!", 10000, true);
+                }else{
+                    base_vue.f_info(err.detail.message, undefined, true);
+                }
             }
         },
         async f_delete_order_article(oa_id) {

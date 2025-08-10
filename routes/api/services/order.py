@@ -10,7 +10,7 @@ import logging
 import traceback
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
-from sqlalchemy import text
+from sqlalchemy import text, desc
 from jose import JWTError
 
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ class OrderAPI:
         try:
             routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
 
-            orders = db.query(database.models.TOrder).all()
+            orders = db.query(database.models.TOrder).order_by(desc(database.models.TOrder.o_time)).all()
             return [OrderOut.model_validate(o) for o in orders]
         
         except JWTError as e:
