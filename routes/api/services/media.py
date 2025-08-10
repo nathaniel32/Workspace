@@ -152,7 +152,7 @@ class MediaAPI:
             self.excel_order_manager.create_form(
                 filename=self.media_path / xlsx_name,
                 all_columns=all_columns,
-                num_rows=10
+                num_rows=30
             )
 
             self.pdf_order_manager.create_form(
