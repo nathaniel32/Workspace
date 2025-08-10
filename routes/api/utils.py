@@ -6,7 +6,6 @@ import random
 import string
 import re
 from jose import ExpiredSignatureError, JWTError, jwt
-import json
 
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=int(config.ACCESS_TOKEN_EXP))):
     to_encode = data.copy()
@@ -31,17 +30,17 @@ def generate_code(length):
 
 def is_strong_password(password):
     if len(password) < 8:
-        return False, "Passwort muss mindestens 8 Zeichen lang sein."
+        return False, "Password must be at least 8 characters long."
     if not re.search(r"[A-Z]", password):
-        return False, "Passwort muss mindestens einen Großbuchstaben enthalten."
+        return False, "Password must contain at least one uppercase letter."
     if not re.search(r"[a-z]", password):
-        return False, "Passwort muss mindestens einen Kleinbuchstaben enthalten."
+        return False, "Password must contain at least one lowercase letter."
     if not re.search(r"\d", password):
-        return False, "Passwort muss mindestens eine Zahl enthalten."
-    if not re.search(r"[!\"#$%&'()*+,-./:;<=>?@\\^_`{|}~]", password): #kurang []
-        return False, "Passwort muss mindestens ein Sonderzeichen enthalten."
+        return False, "Password must contain at least one number."
+    if not re.search(r"[!\"#$%&'()*+,-./:;<=>?@\\^_`{|}~]", password):
+        return False, "Password must contain at least one special character."
     
-    return True, "Passwort ist stark genug."
+    return True, "Password is strong enough."
 
 def generate_id():
     return str(uuid.uuid4()).replace('-', '')
@@ -95,20 +94,3 @@ def auth_site(request):
     }
 
     return payload, context
-
-def upload_order_json(form_data):
-    results = []
-    for row_info in form_data:
-        result = {}
-        for key, value in row_info.items():
-            parsed_key = json.loads(key)
-            field_type = parsed_key.get("type")
-            field_id = parsed_key.get("id")
-            
-            if field_type == "text":
-                result[field_id] = value
-            elif field_type == "checkbox":
-                result.setdefault("checkbox", []).append(field_id)
-
-        results.append(result)
-    return results

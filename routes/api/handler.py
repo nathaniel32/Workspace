@@ -1,7 +1,24 @@
 from io import BytesIO
 from fastapi import HTTPException, UploadFile
 import os
-import routes.api.utils
+import json
+
+def upload_order_json(form_data):
+    results = []
+    for row_info in form_data:
+        result = {}
+        for key, value in row_info.items():
+            parsed_key = json.loads(key)
+            field_type = parsed_key.get("type")
+            field_id = parsed_key.get("id")
+            
+            if field_type == "text":
+                result[field_id] = value
+            elif field_type == "checkbox":
+                result.setdefault("checkbox", []).append(field_id)
+
+        results.append(result)
+    return results
 
 async def upload_order_iden(order_file: UploadFile, excel_order_manager, pdf_order_manager):
     filename = order_file.filename
@@ -22,7 +39,7 @@ async def upload_order_iden(order_file: UploadFile, excel_order_manager, pdf_ord
         else:
             raise HTTPException(status_code=400, detail="File type tidak didukung")
 
-        data = routes.api.utils.upload_order_json(form_data)
+        data = upload_order_json(form_data)
         return {"order_name": order_name, "data": data}
 
     except Exception as e:
