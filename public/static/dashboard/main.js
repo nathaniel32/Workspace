@@ -37,7 +37,8 @@ const dashboard_main = new Vue({
     },
     methods:{
         f_init(){
-            base_vue.f_info("Welcome!", 5000);
+            console.log("Welcome to the Workspace!")
+            //base_vue.f_info("Welcome!", 5000);
         },
         f_reset(){
             this.content = {

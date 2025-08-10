@@ -5,8 +5,6 @@ from sqlalchemy import text
 from jose import JWTError
 import routes.api.utils
 import database.models
-from database.models import model_base
-from database.trigger import create_triggers 
 
 class SQLWorkbenchAPI:
     def __init__(self):
@@ -67,8 +65,9 @@ class SQLWorkbenchAPI:
     def create_tables(self, request: Request):
         try:
             routes.api.utils.auth_role(request, min_role=database.models.UserRole.ROOT)
-            model_base.metadata.create_all(bind=database.connection.database_engine)
-            create_triggers(database.connection.database_engine)
+            
+            database.connection.create_tables()
+
             return {"message": "Tables berhasil dibuat"}
         except JWTError as e:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))

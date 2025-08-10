@@ -118,7 +118,7 @@ const order_manager = new Vue({
                 if (resArticles.data && resArticles.data.length > 0) {
                     this.order_article_list = resArticles.data;
                 } else {
-                    base_vue.f_info("No article found");
+                    //base_vue.f_info("No article found");
                     this.order_article_list = [];
                 }
 
