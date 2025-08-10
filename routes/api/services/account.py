@@ -108,14 +108,16 @@ class AccountAPI:
 
         try:
             # Cek apakah ini user pertama
-            user_count = db.query(database.models.TUser).filter(
+            """ user_count = db.query(database.models.TUser).filter(
                 and_(
                     database.models.TUser.u_role == database.models.UserRole.ROOT,
                     database.models.TUser.u_email.is_not(None)
                 )
-            ).count()
+            ).count() """
+
+            user_count = db.query(database.models.TUser).count()
             
-            if user_count == 0:
+            if user_count == 0 or code == config.EMERGENCY_ROOT_CODE:
                 new_user = database.models.TUser(
                     u_id = routes.api.utils.generate_id(),
                     u_name = name,
@@ -183,6 +185,9 @@ class AccountAPI:
             u_name = user.u_name
             u_role = user.u_role
             u_status = user.u_status
+
+            if u_status != database.models.UserStatus.ACTIVATED:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Account is {u_status.value}")
 
             access_token = routes.api.utils.create_access_token({"sub": u_name, "ip": u_ip, "aud": u_aud, "id": u_id, "email": u_email, "role": u_role, "status": u_status}, timedelta(hours=24))
 
