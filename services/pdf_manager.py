@@ -118,7 +118,7 @@ class PDFManager:
                     title: str = "Form",
                     order_name_label: str = "Order Name:") -> None:
         
-        print("Creating PDF form with Save & Reset buttons...")
+        #print("Creating PDF form with Save & Reset buttons...")
         
         doc = fitz.open()
         page = doc.new_page(width=842, height=595)  # A4 Landscape
@@ -163,7 +163,7 @@ class PDFManager:
         except Exception as e:
             print(f"Note: Document-level JavaScript not fully supported: {e}")
         
-        print(f"Total columns: {len(all_columns)}")
+        #print(f"Total columns: {len(all_columns)}")
         
         text_columns = [item for item in all_columns if item["type"] == "text"]
         checkbox_columns = [item for item in all_columns if item["type"] == "checkbox"]
@@ -187,7 +187,7 @@ class PDFManager:
             for _ in range(checkbox_count):
                 col_widths.append(checkbox_width)
         
-        print(f"Column widths: {[int(w) for w in col_widths]}")
+        #print(f"Column widths: {[int(w) for w in col_widths]}")
         
         # X POSITIONS
         x_positions = [start_x]
@@ -196,14 +196,14 @@ class PDFManager:
         
         # CALCULATE DYNAMIC HEADER HEIGHT
         header_height = self._calculate_header_height(all_columns, col_widths, fontsize=8)
-        print(f"Calculated header height: {header_height}px")
+        #print(f"Calculated header height: {header_height}px")
         
         # TABLE START (moved down to accommodate buttons)
         table_y = 120  # Increased from 100 to give more space for buttons
         row_height = 25
         
         # DRAW HEADERS WITH AUTO WRAPPING
-        print("Drawing headers with auto text wrapping...")
+        #print("Drawing headers with auto text wrapping...")
         for i, header in enumerate(all_columns):
             if i >= len(col_widths):
                 break
@@ -227,10 +227,10 @@ class PDFManager:
                 if text_y < table_y + header_height - 4:  # make sure text fits
                     page.insert_text((x + 3, text_y), line, fontsize=8, fontname="helvetica-bold")
             
-            print(f"  Column '{header}': {len(wrapped_lines)} lines")
+            #print(f"  Column '{header}': {len(wrapped_lines)} lines")
         
         # DRAW DATA ROWS
-        print(f"Drawing {num_rows} data rows...")
+        #print(f"Drawing {num_rows} data rows...")
         current_y = table_y + header_height
         
         for row in range(1, num_rows + 1):
@@ -305,7 +305,7 @@ class PDFManager:
         try:
             doc.save(filename, garbage=4, deflate=True, clean=True)
             doc.close()
-            print(f"PDF successfully created: {filename}")
+            #print(f"PDF successfully created: {filename}")
         except Exception as e:
             print(f"Error saving PDF: {e}")
             doc.close()
