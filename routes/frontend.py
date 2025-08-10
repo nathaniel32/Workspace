@@ -11,21 +11,21 @@ class Frontend:
         self.router.add_api_route("/dashboard", self.dashboard, methods=["GET"])
         
     async def root(self, request: Request):
-        payload, context= routes.api.utils.auth_site(request=request)
-
-        if payload and payload.get("role"):
+        try:
+            # redirect ke dashboard jika sudah login
+            context = routes.api.utils.auth_site(request=request)
             url = "/dashboard"
             return RedirectResponse(url=url)
+        except routes.api.utils.AuthException as e:
+            url="shared/base.html"
+            return self.templates.TemplateResponse(url, context=e.context, status_code=401)
         
-        url="shared/base.html"
-        return self.templates.TemplateResponse(url, context, status_code=401)
-
     async def dashboard(self, request: Request):
-        payload, context= routes.api.utils.auth_site(request=request)
-        
-        if payload and payload.get("role"):
+        try:
+            context= routes.api.utils.auth_site(request=request)
             url = "dashboard.html"
             return self.templates.TemplateResponse(url, context)
-        
-        url = "/"
-        return RedirectResponse(url=url)
+        except Exception:
+            # redirect ke root jika belum login
+            url = "/"
+            return RedirectResponse(url=url)

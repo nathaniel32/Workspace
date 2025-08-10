@@ -6,7 +6,7 @@ import random
 import string
 import re
 from jose import ExpiredSignatureError, JWTError, jwt
-
+import database.models
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=int(config.ACCESS_TOKEN_EXP))):
     to_encode = data.copy()
     now = datetime.now(timezone.utc)
@@ -46,51 +46,53 @@ def generate_id():
     return str(uuid.uuid4()).replace('-', '')
 
 def validate_token(token, ip, aud):
-    try:
-        if not token:
-            raise Exception("Token not found")
-        
-        payload = jwt.decode(
-            token,
-            config.SECRET_KEY,
-            algorithms=[config.ALGORITHM],
-            audience=aud,
-            issuer=config.APP_NAME
-        )
+    if not token:
+        raise JWTError("Token not found")
 
-        now = datetime.now(timezone.utc)
+    payload = jwt.decode(
+        token,
+        config.SECRET_KEY,
+        algorithms=[config.ALGORITHM],
+        audience=aud,
+        issuer=config.APP_NAME
+    )
 
-        if payload['exp'] < int(now.timestamp()):
-            raise ExpiredSignatureError("Token has expired.")
-        
-        if payload['nbf'] > int(now.timestamp()):
-            raise JWTError("Token is not yet valid.")
-        
-        if payload["ip"] != ip:
-            raise Exception("Falsches IP!")
-        
-        return "Ok", payload
-    
-    except ExpiredSignatureError:
-        return "Token has expired.", None
-    except JWTError as e:
-        return f"Invalid token: {str(e)}", None
-    except Exception as e:
-        return f"An error occurred: {str(e)}", None
+    now_ts = int(datetime.now(timezone.utc).timestamp())
+
+    if payload.get('exp', 0) < now_ts:
+        raise ExpiredSignatureError("Token has expired.")
+
+    if payload.get('nbf', 0) > now_ts:
+        raise JWTError("Token is not yet valid.")
+
+    if payload.get("ip") != ip:
+        raise JWTError("Invalid IP address.")
+
+    return "Ok", payload
 
 ###############################################################################################
 
-def auth_site(request):
+def auth_role(request, role=database.models.UserRole.USER):
     access_token = request.cookies.get("access_token")
     user_ip = request.client.host
     aud = request.headers.get("user-agent")
 
     message, payload = validate_token(access_token, user_ip, aud)
 
-    context = {
-        "request": request,
-        #"message": message,
-        "payload": payload
-    }
+    if payload.get("role") != role:
+        raise JWTError("Insufficient permissions.")
 
-    return payload, context
+    return message, payload
+
+class AuthException(Exception):
+    def __init__(self, context):
+        self.context = context
+        super().__init__("Authentication failed")
+
+def auth_site(request):
+    try:
+        message, payload = auth_role(request=request)
+        return {"request": request, "message": message, "payload": payload}
+    except Exception:
+        context = {"request": request, "message": None, "payload": None}
+        raise AuthException(context)
