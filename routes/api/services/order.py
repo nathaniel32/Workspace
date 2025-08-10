@@ -11,6 +11,7 @@ import traceback
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 from sqlalchemy import text
+from jose import JWTError
 
 logger = logging.getLogger(__name__)
 
@@ -30,25 +31,37 @@ class OrderAPI:
         self.router.add_api_route("/order-article/{o_id}", self.get_order_articles_with_items, methods=["GET"])
         self.router.add_api_route("/order-article", self.delete_order_article, methods=["DELETE"])
 
-    def get_enum_order_status(self, db: database.connection.db_dependency):
+    def get_enum_order_status(self, request: Request, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
+
             query = "SELECT e.enumlabel FROM pg_type t JOIN pg_enum e ON t.oid = e.enumtypid WHERE t.typname = 'orderstatus';"
             result = db.execute(text(query))
             rows = result.fetchall()
             columns = result.keys()
             return [dict(zip(columns, row)) for row in rows]
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
-    def get_all_order(self, db: database.connection.db_dependency) -> List[OrderOut]:
+    def get_all_order(self, request: Request, db: database.connection.db_dependency) -> List[OrderOut]:
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
+
             orders = db.query(database.models.TOrder).all()
             return [OrderOut.model_validate(o) for o in orders]
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     def insert_order(self, request: Request, input: OrderCreate, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
+            
             #access_token = request.cookies.get("access_token")
             #user_ip = request.client.host
             #aud = request.headers.get("user-agent")
@@ -74,20 +87,22 @@ class OrderAPI:
 
             return {"message": "Order berhasil ditambahkan", "o_id": new_order.o_id}
 
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except SQLAlchemyError as db_err:
             db.rollback()
             logger.error("Database error: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error.")
-
         except HTTPException:
             raise # buat 401
-
         except Exception as e:
             logger.error("Unhandled exception: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
         
-    def get_order_articles_with_items(self, o_id: str, db: database.connection.db_dependency) -> List[OrderArticleOut]:
+    def get_order_articles_with_items(self, request: Request, o_id: str, db: database.connection.db_dependency) -> List[OrderArticleOut]:
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
+
             articles = db.query(database.models.TOrderArticle).options(
                 joinedload(database.models.TOrderArticle.order_items)  # load items
                     .joinedload(database.models.TOrderItem.pricelist)
@@ -116,30 +131,43 @@ class OrderAPI:
                 )
                 for article in articles
             ]
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except HTTPException:
             raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
-    def get_order_by_id(self, o_id: str, db: database.connection.db_dependency) -> OrderOut:
+    def get_order_by_id(self, request: Request, o_id: str, db: database.connection.db_dependency) -> OrderOut:
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
+
             order = db.query(database.models.TOrder).filter(database.models.TOrder.o_id == o_id).first()
             if not order:
                 raise HTTPException(status_code=404, detail="Order not found.")
             return OrderOut.model_validate(order)
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except HTTPException:
             raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
-    def delete_order_article(self, input: OrderArticleDelete, db: database.connection.db_dependency):
+    def delete_order_article(self, request: Request, input: OrderArticleDelete, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
+
             db_item = db.query(database.models.TOrderArticle).filter_by(oa_id=input.oa_id).first()
             if not db_item:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item tidak ditemukan")
             db.delete(db_item)
             db.commit()
             return {"message": "Order Article berhasil dihapus"}
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except HTTPException:
             raise
         except Exception as e:
@@ -148,6 +176,8 @@ class OrderAPI:
         
     def insert_order_article(self, request: Request, input: OrderArticleCreate, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
+
             #access_token = request.cookies.get("access_token")
             #user_ip = request.client.host
             #aud = request.headers.get("user-agent")
@@ -216,6 +246,8 @@ class OrderAPI:
 
             return {"message": "Order berhasil ditambahkan", "o_id": input.o_id}
 
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except SQLAlchemyError as db_err:
             db.rollback()
             logger.error("Database error: %s", traceback.format_exc())
@@ -228,8 +260,10 @@ class OrderAPI:
             logger.error("Unhandled exception: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
         
-    def change_order(self, input: OrderChange, db: database.connection.db_dependency):
+    def change_order(self, request: Request, input: OrderChange, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
+
             query = db.query(database.models.TOrder).filter_by(
                 o_id=input.o_id
             ).first()
@@ -241,20 +275,28 @@ class OrderAPI:
             query.o_status = input.o_status
             db.commit()
             return {"message": "Order berhasil diperbarui"}
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except HTTPException:
             raise
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
-    def delete_order(self, input: OrderDelete, db: database.connection.db_dependency):
+    def delete_order(self, request: Request, input: OrderDelete, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
+
             query = db.query(database.models.TOrder).filter_by(o_id=input.o_id).first()
             if not query:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order tidak ditemukan")
             db.delete(query)
             db.commit()
             return {"message": "Order berhasil dihapus"}
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except HTTPException:
             raise
         except Exception as e:
@@ -263,6 +305,8 @@ class OrderAPI:
         
     async def insert_order_file(self, request: Request, db: database.connection.db_dependency, order_file: UploadFile = File(...)):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
+            
             file_result_json = await routes.api.handler.upload_order_iden(order_file, self.excel_order_manager, self.pdf_order_manager)
 
             # input order
@@ -285,14 +329,14 @@ class OrderAPI:
             
             return {"message": "File berhasil input", "data": o_id}
 
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except SQLAlchemyError as db_err:
             db.rollback()
             logger.error("Database error: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error.")
-
         except HTTPException:
             raise  # biarkan HTTPException diteruskan apa adanya
-
         except Exception:
             logger.error("Unhandled exception: %s", traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")

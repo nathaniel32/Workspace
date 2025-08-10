@@ -30,8 +30,9 @@ class AccountAPI:
         self.router.add_api_route("/logout", self.logout, methods=["POST"], status_code=status.HTTP_200_OK)
         self.router.add_api_route("/validate", self.validate, methods=["POST"], status_code=status.HTTP_200_OK) # oauth buat app lain
 
-    def update_account(self, input: AccountUpdate, db: database.connection.db_dependency):
+    def update_account(self, request: Request, input: AccountUpdate, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.ROOT)
             query = db.query(database.models.TUser).filter_by(u_id=input.u_id).first()
 
             if not query:
@@ -44,23 +45,31 @@ class AccountAPI:
 
             db.commit()
             return {"message": "Account berhasil diperbarui"}
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except HTTPException:
             raise
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    def get_all_users(self, db: database.connection.db_dependency) -> List[UserOut]:
+    def get_all_users(self, request: Request, db: database.connection.db_dependency) -> List[UserOut]:
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.ROOT)
             users = db.query(database.models.TUser).order_by(database.models.TUser.u_time.desc()).all()
             return [UserOut.model_validate(p) for p in users]
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except HTTPException:
             raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    def create(self, input: AccountCreate, db: database.connection.db_dependency):
+    def create(self, request: Request, input: AccountCreate, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.ROOT)
             code = routes.api.utils.generate_code(6)
 
             new_account = database.models.TUser(
@@ -73,6 +82,9 @@ class AccountAPI:
             db.commit()
             db.refresh(new_account)
             return {"message": "Account berhasil dibuat", "data": code}
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except HTTPException:
             raise
         except Exception as e:
@@ -211,34 +223,46 @@ class AccountAPI:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"An error occurred: {str(e)}")
         
-    def get_enum_user_role(self, db: database.connection.db_dependency):
+    def get_enum_user_role(self, request: Request, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.ROOT)
             query = "SELECT e.enumlabel FROM pg_type t JOIN pg_enum e ON t.oid = e.enumtypid WHERE t.typname = 'userrole';"
             result = db.execute(text(query))
             rows = result.fetchall()
             columns = result.keys()
             return [dict(zip(columns, row)) for row in rows]
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
-    def get_enum_user_status(self, db: database.connection.db_dependency):
+    def get_enum_user_status(self, request: Request, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.ROOT)
             query = "SELECT e.enumlabel FROM pg_type t JOIN pg_enum e ON t.oid = e.enumtypid WHERE t.typname = 'userstatus';"
             result = db.execute(text(query))
             rows = result.fetchall()
             columns = result.keys()
             return [dict(zip(columns, row)) for row in rows]
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
-    def delete_account(self, input: AccountDelete, db: database.connection.db_dependency):
+    def delete_account(self, request: Request, input: AccountDelete, db: database.connection.db_dependency):
         try:
+            routes.api.utils.auth_role(request, min_role=database.models.UserRole.ROOT)
             query = db.query(database.models.TUser).filter_by(u_id=input.u_id).first()
             if not query:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User tidak ditemukan")
             db.delete(query)
             db.commit()
             return {"message": "User berhasil dihapus"}
+        
+        except JWTError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
         except HTTPException:
             raise
         except Exception as e:
