@@ -1,4 +1,4 @@
-#import uvicorn
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.api.services.account import AccountAPI
@@ -39,7 +39,7 @@ class App:
     def get_app(self):
         return self.app
 
-app = App().get_app()
-
-#if __name__ == "__main__":
-#    uvicorn.run(App().get_app(), host=config.SERVICE_HOST, port=int(config.SERVICE_PORT))
+if __name__ == "__main__":
+    uvicorn.run(App().get_app(), host=config.SERVICE_HOST, port=int(config.SERVICE_PORT))
+else:
+    app = App().get_app()

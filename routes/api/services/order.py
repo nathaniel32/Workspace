@@ -304,10 +304,11 @@ class OrderAPI:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
     async def insert_order_file(self, request: Request, db: database.connection.db_dependency, order_file: UploadFile = File(...)):
+        o_id = None
         try:
             routes.api.utils.auth_role(request, min_role=database.models.UserRole.USER)
             
-            file_result_json = await routes.api.handler.upload_order_iden(order_file, self.excel_order_manager, self.pdf_order_manager)
+            file_result_json = await routes.api.handler.import_order_ident(order_file, self.excel_order_manager, self.pdf_order_manager)
 
             # input order
             input_order_result = self.insert_order(request, OrderCreate(o_name=file_result_json['order_name']), db)
@@ -330,13 +331,13 @@ class OrderAPI:
             return {"message": "File berhasil input", "data": o_id}
 
         except JWTError as e:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail={"message": str(e) , "o_id": o_id})
         except SQLAlchemyError as db_err:
             db.rollback()
             logger.error("Database error: %s", traceback.format_exc())
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error.")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail={"message": "Database error.", "o_id": o_id})
         except HTTPException:
             raise  # biarkan HTTPException diteruskan apa adanya
         except Exception:
             logger.error("Unhandled exception: %s", traceback.format_exc())
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail={"message": "Internal server error.", "o_id": o_id})

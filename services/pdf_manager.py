@@ -265,7 +265,7 @@ class PDFManager:
                             
                             # Add number validation JavaScript
                             validate_js = """
-                            if (event.value && !/^[0-9]*\.?[0-9]*$/.test(event.value)) {
+                            if (event.value && !/^[0-9]*\.?[0-9]*$/.test(event.value.trim())) {
                                 app.alert("Please enter numbers only for Motor KW!", 1);
                                 event.rc = false;
                             }

@@ -3,7 +3,7 @@ from fastapi import HTTPException, UploadFile
 import os
 import json
 
-def upload_order_json(form_data):
+def import_order_json(form_data):
     results = []
     for row_info in form_data:
         result = {}
@@ -20,7 +20,7 @@ def upload_order_json(form_data):
         results.append(result)
     return results
 
-async def upload_order_iden(order_file: UploadFile, excel_order_manager, pdf_order_manager):
+async def import_order_ident(order_file: UploadFile, excel_order_manager, pdf_order_manager):
     filename = order_file.filename
     ext = os.path.splitext(filename)[1].lower()
     allowed_exts = {".pdf", ".xlsx"}
@@ -39,7 +39,7 @@ async def upload_order_iden(order_file: UploadFile, excel_order_manager, pdf_ord
         else:
             raise HTTPException(status_code=400, detail="File type tidak didukung")
 
-        data = upload_order_json(form_data)
+        data = import_order_json(form_data)
         return {"order_name": order_name, "data": data}
 
     except Exception as e:
