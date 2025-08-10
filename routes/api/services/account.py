@@ -108,7 +108,13 @@ class AccountAPI:
 
         try:
             # Cek apakah ini user pertama
-            user_count = db.query(database.models.TUser).count()
+            user_count = db.query(database.models.TUser).filter(
+                and_(
+                    database.models.TUser.u_role == database.models.UserRole.ROOT,
+                    database.models.TUser.u_email.is_not(None)
+                )
+            ).count()
+            
             if user_count == 0:
                 new_user = database.models.TUser(
                     u_id = routes.api.utils.generate_id(),

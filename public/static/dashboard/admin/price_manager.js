@@ -167,8 +167,8 @@ const price_manager = new Vue({
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">
-                                    <button :disabled="edit_power.new_power == null || edit_power.new_power === ''" @click="f_update_power" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                     <button @click="f_delete_power" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
+                                    <button :disabled="edit_power.new_power == null || edit_power.new_power === ''" @click="f_update_power" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                 </div>
                             </div>
                         </div>
@@ -191,8 +191,8 @@ const price_manager = new Vue({
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">
-                                    <button :disabled="!edit_item.new_item" @click="f_update_item" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                     <button @click="f_delete_item" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">Delete</button>
+                                    <button :disabled="!edit_item.new_item" @click="f_update_item" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">Update</button>
                                 </div>
                             </div>
                         </div>
