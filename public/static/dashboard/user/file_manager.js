@@ -22,7 +22,6 @@ const file_manager = new Vue({
         async download_file(filename) {
             try{
                 const res = await api_download_file(filename);
-                base_vue.f_info(res.message);
                 const url = window.URL.createObjectURL(res.data);
                 const a = document.createElement("a");
                 a.href = url;
@@ -31,6 +30,7 @@ const file_manager = new Vue({
                 a.click();
                 a.remove();
                 window.URL.revokeObjectURL(url);
+                base_vue.f_info(res.message);
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }

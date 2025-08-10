@@ -575,7 +575,7 @@ export async function api_download_file(filename) {
             throw new Error(errorMsg);
         }
         const file_blob = await response.blob();
-        return { message: "ok", data: file_blob };
+        return { message: `'${filename}' downloaded successfully`, data: file_blob };
     } catch (error) {
         console.error("Error:", error);
         throw error;
