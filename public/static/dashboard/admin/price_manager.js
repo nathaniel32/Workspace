@@ -159,11 +159,11 @@ const price_manager = new Vue({
                                 <div class="mt-2 px-7 py-3 space-y-4 text-left">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Minimal Power</label>
-                                        <input v-model="edit_power.new_power" type="number" @input="format_price_input" placeholder="New Price" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
+                                        <input v-model="edit_power.new_power" type="number" @input="format_price_input" placeholder="Power" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-500" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Unit</label>
-                                        <input v-model="edit_power.new_unit" type="number" placeholder="Description" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+                                        <input v-model="edit_power.new_unit" type="number" placeholder="Unit" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
                                     </div>
                                 </div>
                                 <div class="items-center px-4 py-3">

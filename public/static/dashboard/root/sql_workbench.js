@@ -134,6 +134,7 @@ ORDER BY enum_name, e.enumsortorder;` }
                 this.schema = res.data.data;
             } catch (err) {
                 this.schema = 'Failed to load schema: ' + err.message;
+                base_vue.f_info(err.message, undefined, true);
             } finally {
                 this.loadingSchema = false;
             }
