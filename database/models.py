@@ -44,7 +44,7 @@ class TUser(model_base):
     u_time = Column(Integer, server_default=text("EXTRACT(EPOCH FROM now())::int"))
 
     # child
-    orders = relationship("TOrder", back_populates="user", cascade="all, delete-orphan")
+    # orders = relationship("TOrder", back_populates="user", cascade="all, delete-orphan")
 
 class TPower(model_base):
     __tablename__ = 't_power'
@@ -89,13 +89,13 @@ class TOrder(model_base):
     __tablename__ = 't_order'
 
     o_id = Column(VARCHAR(32), primary_key=True)
-    u_id = Column(VARCHAR(32), ForeignKey('t_user.u_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
+    #u_id = Column(VARCHAR(32), ForeignKey('t_user.u_id', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False)
     o_name = Column(Text)
     o_time = Column(Integer, nullable=False, server_default=text("EXTRACT(EPOCH FROM now())::int"))
     o_status = Column(SqlEnum(OrderStatus), nullable=False, default=OrderStatus.PENDING)
 
     # parent
-    user = relationship("TUser", back_populates="orders")
+    # user = relationship("TUser", back_populates="orders")
     # child
     order_articles = relationship("TOrderArticle", back_populates="order", cascade="all, delete-orphan")
 

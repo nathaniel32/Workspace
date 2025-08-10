@@ -382,8 +382,10 @@ const order_manager = new Vue({
                 const res = await api_update_order(this.selected_order_object.o_id, this.change_order_tmp.name, this.change_order_tmp.status);
                 base_vue.f_info(res.message);
                 await this.f_get_order_list();
-                //this.selected_order_object.o_status = this.change_order_tmp.status;
-                //this.selected_order_object.o_name = this.change_order_tmp.name;
+
+                //supaya change btn hilang
+                this.selected_order_object.o_status = this.change_order_tmp.status;
+                this.selected_order_object.o_name = this.change_order_tmp.name;
             } catch (err) {
                 base_vue.f_info(err.message, undefined, true);
             }

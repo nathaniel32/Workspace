@@ -44,7 +44,7 @@ CREATE TABLE t_price_list (
 -- Order
 CREATE TABLE t_order (
     o_id VARCHAR(32),
-    u_id VARCHAR(32) NOT NULL,  -- id pegawai yang menginput
+    -- u_id VARCHAR(32) NOT NULL,  -- id pegawai yang menginput
     o_name TEXT,
     o_time INT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now())::int),
     o_status order_status_enum NOT NULL DEFAULT 'PENDING',

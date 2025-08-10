@@ -49,22 +49,22 @@ class OrderAPI:
 
     def insert_order(self, request: Request, input: OrderCreate, db: database.connection.db_dependency):
         try:
-            access_token = request.cookies.get("access_token")
-            user_ip = request.client.host
-            aud = request.headers.get("user-agent")
+            #access_token = request.cookies.get("access_token")
+            #user_ip = request.client.host
+            #aud = request.headers.get("user-agent")
 
-            if not access_token:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing access token.")
+            #if not access_token:
+            #    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing access token.")
 
-            message, payload = routes.api.utils.validate_token(access_token, user_ip, aud)
-            user_id = payload.get("id")
+            #message, payload = routes.api.utils.validate_token(access_token, user_ip, aud)
+            #user_id = payload.get("id")
 
-            if not user_id:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token payload.")
+            #if not user_id:
+            #    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token payload.")
 
             new_order = database.models.TOrder(
                 o_id=routes.api.utils.generate_id(),
-                u_id=user_id,
+                # u_id=user_id,
                 o_name=input.o_name
             )
 
@@ -148,28 +148,23 @@ class OrderAPI:
         
     def insert_order_article(self, request: Request, input: OrderArticleCreate, db: database.connection.db_dependency):
         try:
-            access_token = request.cookies.get("access_token")
-            user_ip = request.client.host
-            aud = request.headers.get("user-agent")
+            #access_token = request.cookies.get("access_token")
+            #user_ip = request.client.host
+            #aud = request.headers.get("user-agent")
 
-            if not access_token:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing access token.")
+            #if not access_token:
+            #    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing access token.")
 
-            message, payload = routes.api.utils.validate_token(access_token, user_ip, aud)
-            user_id = payload.get("id")
+            #message, payload = routes.api.utils.validate_token(access_token, user_ip, aud)
+            #user_id = payload.get("id")
 
-            if not user_id:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token payload.")
-
-            print(input.o_id)
-            print(input.power)
-            print(input.i_id_list)
-            print(user_id)
+            #if not user_id:
+            #    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token payload.")
 
             # 1. Check order milik user
             selected_order = db.query(database.models.TOrder).filter(
                 database.models.TOrder.o_id == input.o_id,
-                database.models.TOrder.u_id == user_id
+                # database.models.TOrder.u_id == user_id
             ).first()
 
             print("Data " + input.o_id)

@@ -15,7 +15,7 @@ class OrderArticleCreate(BaseModel):
 
 class OrderOut(BaseModel):
     o_id: str
-    u_id: str
+    # u_id: str
     o_name: Optional[str] = None
     o_time: int
     o_status: OrderStatus
