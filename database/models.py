@@ -11,9 +11,9 @@ model_base = declarative_base()
 
 # role user
 class UserRole(str, Enum):
-    ROOT = 'ROOT'
-    ADMIN = 'ADMIN' # Admun     : bisa delete, ganti harga, dll
-    USER = 'USER'   # Karyawan  : bisa input orderan, update orderan
+    ROOT = 'ROOT'   # create account
+    ADMIN = 'ADMIN' # delete, ganti harga, dll
+    USER = 'USER'   # input orderan, update orderan
 
 class UserStatus(str, Enum):
     ACTIVATED = 'ACTIVATED'

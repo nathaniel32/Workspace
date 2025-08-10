@@ -72,14 +72,30 @@ def validate_token(token, ip, aud):
 
 ###############################################################################################
 
-def auth_role(request, role=database.models.UserRole.USER):
+def auth_role(request, min_role=database.models.UserRole.USER):
     access_token = request.cookies.get("access_token")
     user_ip = request.client.host
     aud = request.headers.get("user-agent")
 
     message, payload = validate_token(access_token, user_ip, aud)
 
-    if payload.get("role") != role:
+    user_role = payload.get("role")
+    if user_role is None:
+        raise JWTError("Role not found in token.")
+    
+    role_hierarchy = {
+        database.models.UserRole.USER.value: 1,
+        database.models.UserRole.ADMIN.value: 2,
+        database.models.UserRole.ROOT.value: 3,
+    }
+
+    user_level = role_hierarchy.get(user_role.upper())
+    min_level = role_hierarchy.get(min_role.value)
+
+    if user_level is None:
+        raise JWTError(f"Invalid role in token: {user_role}")
+    
+    if user_level < min_level:
         raise JWTError("Insufficient permissions.")
 
     return message, payload
