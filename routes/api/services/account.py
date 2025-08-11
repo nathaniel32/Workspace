@@ -174,6 +174,11 @@ class AccountAPI:
 
     def login(self, request: Request, db: database.connection.db_dependency, form_oauth_data: OAuth2PasswordRequestForm = Depends()):
         try:
+            if not form_oauth_data.username:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email cannot be empty!")
+            if not form_oauth_data.password.strip():
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password cannot be empty!")
+            
             user = db.query(database.models.TUser).filter(database.models.TUser.u_email == form_oauth_data.username).first()
             if not user or not pwd_context.verify(form_oauth_data.password, user.u_password):
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
