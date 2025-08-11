@@ -4,8 +4,8 @@ const base_vue = new Vue({
         showAuthModal: false,
         authTab: 'login',
         v_info_list: [],
-        v_login: {email: "test@exp.com", password: "Tadnxciw123_"},
-        v_signup: {username: "Test User", email: "test@exp.com", password: "Tadnxciw123_"},
+        v_login: {email: null, password: null},
+        v_signup: {username: null, email: null, password: null},
     },
     methods:{
         escapeHTML(str) {
