@@ -152,12 +152,12 @@ const order_manager = new Vue({
                         <h3 class="text-lg font-semibold mb-4">Orders</h3>
                         <div class="space-y-2 select-none">
                             <div v-for="(orders, status) in grouped_orders" :key="status">
-                                <button @click="active_status_group = active_status_group === status ? null : status" class="w-full text-left font-semibold p-2 rounded-lg hover:bg-gray-200 border flex justify-between items-center">
+                                <button @click="active_status_group = active_status_group === status ? null : status" class="w-full text-left font-semibold p-2 rounded-lg hover:bg-gray-50 border flex justify-between items-center">
                                     <span>{{ status }}</span>
                                     <i class="fas" :class="{'fa-chevron-down': active_status_group === status, 'fa-chevron-right': active_status_group !== status}"></i>
                                 </button>
                                 <div v-if="active_status_group === status" class="pl-4 mt-2 space-y-2">
-                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_items(order.o_id)" :class="['p-3 rounded-lg cursor-pointer border border-gray-200', selected_order_object?.o_id === order.o_id ? 'bg-gray-200' : 'hover:bg-gray-100']">
+                                    <div v-for="order in orders" :key="order.o_id" @click="f_get_order_articles_with_items(order.o_id)" :class="['p-3 rounded-lg cursor-pointer border border-gray-200', selected_order_object?.o_id === order.o_id ? 'bg-gray-200' : 'hover:bg-red-50']">
                                         <p class="font-semibold" :class="order.o_name ? 'text-gray-800' : 'text-red-600'">{{ order.o_name || 'Unnamed!' }}</p>
                                     </div>
                                 </div>
