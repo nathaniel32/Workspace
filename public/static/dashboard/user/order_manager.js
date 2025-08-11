@@ -224,9 +224,6 @@ const order_manager = new Vue({
                                 <div class="font-medium">Created At:</div>
                                 <div>{{ f_time_converter(selected_order_object.o_time) }}</div>
 
-                                <div class="font-medium">User ID:</div>
-                                <div>{{ selected_order_object.u_id }}</div>
-
                                 <div class="font-medium">Order Name</div>
                                 <input type="text" v-model="change_order_tmp.name" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                                 
