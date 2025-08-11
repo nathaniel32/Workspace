@@ -18,7 +18,7 @@ class Frontend:
             return RedirectResponse(url=url)
         except routes.api.utils.AuthException as e:
             url="shared/base.html"
-            return self.templates.TemplateResponse(url, context=e.context, status_code=401)
+            return self.templates.TemplateResponse(url, context=e.context) # status_code=401
         
     async def dashboard(self, request: Request):
         try:
