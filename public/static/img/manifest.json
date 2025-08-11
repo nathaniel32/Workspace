@@ -1,0 +1,37 @@
+{
+  "name": "Workspace",
+  "short_name": "Workspace",
+  "icons": [
+    {
+      "src": "/static/img/size_icon/icon25.png",
+      "sizes": "25x25",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/size_icon/icon50.png",
+      "sizes": "50x50",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/size_icon/icon100.png",
+      "sizes": "100x100",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/size_icon/icon144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/size_icon/icon512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#8936FF",
+  "background_color": "#2EC6FE",
+  "display": "standalone",
+  "orientation": "any",
+  "dir": "auto",
+  "lang": "en-US"
+}
