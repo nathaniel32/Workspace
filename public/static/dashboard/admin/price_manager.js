@@ -110,7 +110,7 @@ const price_manager = new Vue({
                         <div class="bg-white p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-2">Add Power</h3>
                             <div class="flex items-center gap-2">
-                                <input v-model="input_power" type="number" placeholder="power" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+                                <input v-model="input_power" type="number" placeholder="Minimal Power" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
                                 <button :disabled="!input_power" @click="f_input_power" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"><i class="fas fa-plus"></i></button>
                             </div>
                         </div>
